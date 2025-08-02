@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NULL,
     company VARCHAR(100) NULL,
+    wallet DECIMAL(10,2) DEFAULT 0.00,
     status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
     email_verified BOOLEAN DEFAULT FALSE,
     api_key VARCHAR(64) UNIQUE NULL,
@@ -104,6 +105,19 @@ INSERT INTO system_settings (setting_key, setting_value, description) VALUES
 ('maintenance_mode', 'false', 'System maintenance mode'),
 ('email_notifications', 'true', 'Enable email notifications')
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
+
+-- OTP verification table
+CREATE TABLE IF NOT EXISTS otp_verifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    INDEX idx_otp_code (otp_code),
+    INDEX idx_expires_at (expires_at)
+);
 
 -- Create indexes for better performance
 CREATE INDEX idx_users_created_at ON users(created_at);

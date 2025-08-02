@@ -1,19 +1,56 @@
 // Global variables
 let currentUser = {
-    name: "Ibrahim Yusuf Garba",
-    email: "ibrobk@gmail.com",
+    name: "",
+    email: "",
     balance: 0,
     totalVerifications: 0,
 }
 
 // Initialize dashboard
 document.addEventListener("DOMContentLoaded", () => {
-    initializeDashboard()
-    loadUserData()
-    setupEventListeners()
+    // Check if user is authenticated
+    const token = localStorage.getItem("authToken")
+    if (!token) {
+        window.location.href = "index.html"
+        return
+    }
+
+    // Verify token and fetch fresh user data
+    fetch("api/verify-token.php", {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                currentUser = {
+                    ...currentUser,
+                    name: data.user.name,
+                    email: data.user.email,
+                    // Assuming balance and totalVerifications are fetched from user or API
+                    balance: 0,
+                    totalVerifications: 0,
+                }
+                initializeDashboard()
+                setupEventListeners()
+                showDashboard()
+            } else {
+                // Token invalid or expired, redirect to login
+                localStorage.removeItem("authToken")
+                localStorage.removeItem("userData")
+                window.location.href = "index.html"
+            }
+        })
+        .catch((error) => {
+            console.error("Token verification error:", error)
+            localStorage.removeItem("authToken")
+            localStorage.removeItem("userData")
+            window.location.href = "index.html"
+        })
 })
 
-// Initialize dashboard
 function initializeDashboard() {
     console.log("Dashboard initialized")
     updateUserInfo()
@@ -36,6 +73,16 @@ function setupEventListeners() {
     // Mobile sidebar toggle (for responsive design)
     if (window.innerWidth <= 768) {
         addMobileSidebarToggle()
+    }
+}
+
+// Logout function
+function logout() {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userData");
+        window.location.href = "index.html";
     }
 }
 
@@ -132,11 +179,16 @@ function openService(serviceId) {
             openNINVerificationModal()
         } else if (serviceId === "bvn-verification") {
             openBVNVerificationModal()
+        } else if (serviceId === "birth-attestation") {
+            window.location.href = "birth-attestation.html"
+        } else if (serviceId === "bvn-modification") {
+            window.location.href = "bvn-modification.html"
         } else {
             showAlert(`${serviceName} service is coming soon!`, "warning")
         }
     }, 1000)
 }
+
 
 function openNINVerificationModal() {
     const modalHtml = `
@@ -373,154 +425,36 @@ async function handleBVNVerification(e) {
 
 async function handleFundWallet(e) {
     e.preventDefault()
-
-    const amount = Number.parseFloat(document.getElementById("fundAmount").value)
-    const paymentMethod = document.getElementById("paymentMethod").value
-    const submitBtn = e.target.querySelector('button[type="submit"]')
-
-    if (amount < 100) {
-        showAlert("Minimum funding amount is ₦100", "danger")
-        return
-    }
-
-    setLoadingState(submitBtn, true)
-
-    try {
-        const response = await fetch("api/fund-wallet.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-            body: JSON.stringify({
-                amount: amount,
-                payment_method: paymentMethod,
-            }),
-        })
-
-        const data = await response.json()
-
-        if (data.success) {
-            showAlert(`Wallet funded successfully with ₦${amount.toLocaleString()}`, "success")
-
-            // Update balance
-            currentUser.balance += amount
-            updateUserInfo()
-
-            // Close modal
-            window.bootstrap.Modal.getInstance(document.getElementById("fundWalletModal")).hide()
-        } else {
-            showAlert(data.message || "Failed to fund wallet", "danger")
+    
+    showAlert("Wallet funding feature is coming soon!", "warning")
+    
+    // Close modal after showing alert
+    setTimeout(() => {
+        const modal = document.getElementById("fundWalletModal")
+        if (modal) {
+            const bsModal = window.bootstrap.Modal.getInstance(modal)
+            if (bsModal) bsModal.hide()
         }
-    } catch (error) {
-        console.error("Fund wallet error:", error)
-        showAlert("Network error. Please try again.", "danger")
-    } finally {
-        setLoadingState(submitBtn, false)
-    }
+    }, 2000)
 }
 
 // Settings handlers
 async function handleProfileUpdate(e) {
     e.preventDefault()
-
-    const firstName = document.getElementById("firstName").value
-    const lastName = document.getElementById("lastName").value
-    const email = document.getElementById("email").value
-    const phone = document.getElementById("phone").value
-    const submitBtn = e.target.querySelector('button[type="submit"]')
-
-    if (!validateEmail(email)) {
-        showAlert("Please enter a valid email address", "danger")
-        return
-    }
-
-    setLoadingState(submitBtn, true)
-
-    try {
-        const response = await fetch("api/update-profile.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-            body: JSON.stringify({
-                first_name: firstName,
-                last_name: lastName,
-                email: email,
-                phone: phone,
-            }),
-        })
-
-        const data = await response.json()
-
-        if (data.success) {
-            showAlert("Profile updated successfully", "success")
-
-            // Update user info
-            currentUser.name = `${firstName} ${lastName}`
-            currentUser.email = email
-            updateUserInfo()
-        } else {
-            showAlert(data.message || "Failed to update profile", "danger")
-        }
-    } catch (error) {
-        console.error("Profile update error:", error)
-        showAlert("Network error. Please try again.", "danger")
-    } finally {
-        setLoadingState(submitBtn, false)
-    }
+    
+    showAlert("Profile update feature is coming soon!", "warning")
+    
+    // Reset form
+    e.target.reset()
 }
 
 async function handlePasswordChange(e) {
     e.preventDefault()
-
-    const currentPassword = document.getElementById("currentPassword").value
-    const newPassword = document.getElementById("newPassword").value
-    const confirmPassword = document.getElementById("confirmPassword").value
-    const submitBtn = e.target.querySelector('button[type="submit"]')
-
-    if (newPassword.length < 6) {
-        showAlert("New password must be at least 6 characters", "danger")
-        return
-    }
-
-    if (newPassword !== confirmPassword) {
-        showAlert("New passwords do not match", "danger")
-        return
-    }
-
-    setLoadingState(submitBtn, true)
-
-    try {
-        const response = await fetch("api/change-password.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-            body: JSON.stringify({
-                current_password: currentPassword,
-                new_password: newPassword,
-            }),
-        })
-
-        const data = await response.json()
-
-        if (data.success) {
-            showAlert("Password changed successfully", "success")
-
-            // Clear form
-            document.getElementById("passwordForm").reset()
-        } else {
-            showAlert(data.message || "Failed to change password", "danger")
-        }
-    } catch (error) {
-        console.error("Password change error:", error)
-        showAlert("Network error. Please try again.", "danger")
-    } finally {
-        setLoadingState(submitBtn, false)
-    }
+    
+    showAlert("Password change feature is coming soon!", "warning")
+    
+    // Reset form
+    e.target.reset()
 }
 
 // Developer functions
@@ -546,31 +480,7 @@ function toggleKeyVisibility(inputId) {
 }
 
 async function generateNewKeys() {
-    if (!confirm("Are you sure you want to generate new API keys? This will invalidate your current keys.")) {
-        return
-    }
-
-    try {
-        const response = await fetch("api/generate-keys.php", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-        })
-
-        const data = await response.json()
-
-        if (data.success) {
-            document.getElementById("publicKey").value = data.public_key
-            document.getElementById("secretKey").value = data.secret_key
-            showAlert("New API keys generated successfully", "success")
-        } else {
-            showAlert(data.message || "Failed to generate new keys", "danger")
-        }
-    } catch (error) {
-        console.error("Generate keys error:", error)
-        showAlert("Network error. Please try again.", "danger")
-    }
+    showAlert("API key generation feature is coming soon!", "warning")
 }
 
 function openDocumentation(type) {
@@ -605,21 +515,16 @@ function updateUserInfo() {
     if (totalVerifications) totalVerifications.textContent = currentUser.totalVerifications
 }
 
-function loadUserData() {
-    // Simulate loading user data from API
-    const savedData = localStorage.getItem("userData")
-    if (savedData) {
-        currentUser = { ...currentUser, ...JSON.parse(savedData) }
-        updateUserInfo()
-    }
-}
-
 function saveUserData() {
     localStorage.setItem("userData", JSON.stringify(currentUser))
 }
 
 function setLoadingState(button, isLoading) {
     if (isLoading) {
+        // Store original text if not already stored
+        if (!button.hasAttribute("data-original-text")) {
+            button.setAttribute("data-original-text", button.innerHTML)
+        }
         button.disabled = true
         button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...'
     } else {
@@ -797,77 +702,8 @@ function deactivateAccount() {
 function deleteAccount() {
     const confirmation = prompt('Type "DELETE" to confirm account deletion:')
     if (confirmation === "DELETE") {
-        showAlert("Account deletion feature is coming soon. Please contact support for assistance.", "danger")
-    } else if (confirmation !== null) {
+        showAlert("Account deletion feature is coming soon", "warning")
+    } else if (confirmation) {
         showAlert("Account deletion cancelled", "info")
     }
-}
-
-// Mobile sidebar toggle
-function addMobileSidebarToggle() {
-    const headerContent = document.querySelector(".header-content")
-    const toggleBtn = document.createElement("button")
-    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>'
-    toggleBtn.className = "btn btn-outline-secondary me-3 d-md-none"
-    toggleBtn.onclick = toggleMobileSidebar
-
-    headerContent.insertBefore(toggleBtn, headerContent.firstChild)
-}
-
-function toggleMobileSidebar() {
-    const sidebar = document.querySelector(".sidebar")
-    sidebar.classList.toggle("show")
-}
-
-// Logout function
-function logout() {
-    if (confirm("Are you sure you want to logout?")) {
-        localStorage.removeItem("authToken")
-        localStorage.removeItem("userData")
-        showAlert("Logging out...", "info")
-
-        setTimeout(() => {
-            window.location.href = "index.html"
-        }, 1500)
-    }
-}
-
-// Auto-save user data periodically
-setInterval(saveUserData, 30000) // Save every 30 seconds
-
-// Handle window resize
-window.addEventListener("resize", () => {
-    if (window.innerWidth > 768) {
-        document.querySelector(".sidebar").classList.remove("show")
-    }
-})
-
-// Initialize on page load
-document.addEventListener("DOMContentLoaded", () => {
-    // Check if user is authenticated
-    const token = localStorage.getItem("authToken")
-    if (!token) {
-        window.location.href = "index.html"
-        return
-    }
-
-    // Load saved user data
-    loadUserData()
-
-    // Show dashboard by default
-    showDashboard()
-})
-
-// Service worker registration for offline functionality
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker
-            .register("/sw.js")
-            .then((registration) => {
-                console.log("ServiceWorker registration successful")
-            })
-            .catch((err) => {
-                console.log("ServiceWorker registration failed")
-            })
-    })
 }

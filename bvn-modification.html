@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BVN Modification - Lildone Verification Services</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .service-header {
+            background: linear-gradient(135deg, #1a6aa5, #2b81b7);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .file-drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        .file-drop-area.highlight {
+            border-color: #007bff;
+            background-color: #e9f7ff;
+        }
+        .file-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .file-requirements {
+            background-color: #e9f7ff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .requirement-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .requirement-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            min-height: 100vh;
+            background-color: var(--light-gray);
+        }
+        .main-header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        .user-dropdown .btn-link {
+            border: none;
+            padding: 0;
+            color: var(--text-dark);
+        }
+        .content-area {
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-bolt text-cyan"></i>
+                    <span class="logo-text">LILDONE CONCEPTS</span>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <h6 class="user-name" id="userName">Ibrahim Yusuf Garba</h6>
+                    <p class="user-email" id="userEmail">ibrobk@gmail.com</p>
+                    <span class="user-badge">User</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showNINServices()">
+                            <i class="fas fa-id-card"></i>
+                            <span>NIN Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showBVNServices()">
+                            <i class="fas fa-university"></i>
+                            <span>BVN Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="bvn-modification.html" class="nav-link">
+                            <i class="fas fa-edit"></i>
+                            <span>BVN Modification</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showFundWallet()">
+                            <i class="fas fa-wallet"></i>
+                            <span>Fund Wallet</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showFundingHistory()">
+                            <i class="fas fa-history"></i>
+                            <span>Funding History</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showActivity()">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Activity</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showDeveloper()">
+                            <i class="fas fa-code"></i>
+                            <span>Developer</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSettings()">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1 class="page-title">BVN Modification</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-outline-primary me-2" onclick="showNotifications()">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="user-dropdown">
+                            <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fa-2x"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showProfile()">Profile</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showSettings()">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="logout()">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="service-header text-white py-4">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="display-4 fw-bold">BVN Modification</h1>
+                                <p class="lead">Update and manage your Bank Verification Number (BVN) information and related services.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+                                    <li class="breadcrumb-item">Services</li>
+                                    <li class="breadcrumb-item active" aria-current="page">BVN Modification</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-info-circle text-primary me-2"></i>
+                                        About BVN Modification
+                                    </h5>
+                                    <p class="card-text">
+                                        Our BVN Modification service allows you to update and manage your Bank Verification Number (BVN) information. 
+                                        Upload your documents and our system will process them for verification.
+                                    </p>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Processing time: 1-2 business days. Please ensure all documents are clear and legible.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-tasks me-2"></i>
+                                        Update BVN Information
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <h6>Upload Required Documents</h6>
+                                            <p class="text-muted">Please upload the following documents for BVN modification:</p>
+                                            
+                                            <div class="file-requirements">
+                                                <div class="requirement-item">
+                                                    <div class="d-flex">
+                                                        <div class="text-success me-3">
+                                                            <i class="fas fa-check-circle fa-2x"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-2">Required Documents</h6>
+                                                            <ul class="mb-0">
+                                                                <li>Completed BVN Update Form</li>
+                                                                <li>Valid Government ID (Driver's License, International Passport, etc.)</li>
+                                                                <li>Proof of Address (Utility Bill, Bank Statement, etc.)</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="requirement-item">
+                                                    <div class="d-flex">
+                                                        <div class="text-success me-3">
+                                                            <i class="fas fa-file-contract fa-2x"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-2">Document Requirements</h6>
+                                                            <ul class="mb-0">
+                                                                <li>Documents must be clear and all information must be readable</li>
+                                                                <li>File size must not exceed 5MB</li>
+                                                                <li>Supported formats: PDF, JPG, PNG</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="file-drop-area" id="fileDropArea">
+                                                <i class="fas fa-cloud-upload-alt text-primary mb-3" style="font-size: 3rem;"></i>
+                                                <h5>Drag & Drop Files Here</h5>
+                                                <p class="text-muted">or</p>
+                                                <button class="btn btn-primary" id="browseBtn">
+                                                    <i class="fas fa-folder-open me-2"></i>
+                                                    Browse Files
+                                                </button>
+                                                <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                                <p class="mt-3 mb-0">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-info-circle me-1"></i>
+                                                        Supported formats: PDF, JPG, PNG (Max 5MB each)
+                                                    </small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <div class="file-list" id="fileList">
+                                                <div class="text-center text-muted py-5">
+                                                    <i class="fas fa-file me-2"></i>
+                                                    No files uploaded yet
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <button class="btn btn-success w-100 py-3" id="processBtn" disabled>
+                                                <i class="fas fa-paper-plane me-2"></i>
+                                                Submit for Modification
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-history me-2"></i>
+                                        Modification History
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="historyTable" class="table table-striped" style="width:100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Reference</th>
+                                                    <th>Documents</th>
+                                                    <th>Status</th>
+                                                    <th>Processed By</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>2023-10-18</td>
+                                                    <td>BVN-2023-0157</td>
+                                                    <td>3 files</td>
+                                                    <td><span class="badge bg-success">Completed</span></td>
+                                                    <td>System</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-download"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2023-10-15</td>
+                                                    <td>UBN-2023-0156</td>
+                                                    <td>2 files</td>
+                                                    <td><span class="badge bg-warning">Processing</span></td>
+                                                    <td>System</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-download"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2023-10-10</td>
+                                                    <td>BVN-2023-0155</td>
+                                                    <td>4 files</td>
+                                                    <td><span class="badge bg-success">Completed</span></td>
+                                                    <td>System</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-download"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2023-10-05</td>
+                                                    <td>BVN-2023-0154</td>
+                                                    <td>3 files</td>
+                                                    <td><span class="badge bg-danger">Rejected</span></td>
+                                                    <td>Admin</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-download"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2023-09-28</td>
+                                                    <td>BVN-2023-0153</td>
+                                                    <td>2 files</td>
+                                                    <td><span class="badge bg-success">Completed</span></td>
+                                                    <td>System</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-download"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Support Button -->
+    <div class="whatsapp-support">
+        <a href="https://wa.me/2349056124304" target="_blank" class="whatsapp-btn">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Navigation functions
+        function showNINServices() {
+            window.location.href = "dashboard.html#nin-services";
+        }
+        
+        function showBVNServices() {
+            window.location.href = "dashboard.html#bvn-services";
+        }
+        
+        function showFundWallet() {
+            window.location.href = "dashboard.html#fund-wallet";
+        }
+        
+        function showFundingHistory() {
+            window.location.href = "dashboard.html#funding-history";
+        }
+        
+        function showActivity() {
+            window.location.href = "dashboard.html#activity";
+        }
+        
+        function showDeveloper() {
+            window.location.href = "dashboard.html#developer";
+        }
+        
+        function showSettings() {
+            window.location.href = "dashboard.html#settings";
+        }
+        
+        function showNotifications() {
+            alert("Showing notifications...");
+        }
+        
+        function showProfile() {
+            alert("Showing profile...");
+        }
+        
+        function logout() {
+            // Only redirect if user confirms
+            if (confirm("Are you sure you want to logout?")) {
+                // In a real implementation, you would clear user session data here
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("userData");
+                window.location.href = "index.html";
+            }
+            // If user cancels, do nothing (don't redirect)
+            return false;
+        }
+        
+        // Initialize DataTable
+        $(document).ready(function() {
+            $('#historyTable').DataTable({
+                "order": [[ 0, "desc" ]],
+                "pageLength": 10,
+                "responsive": true
+            });
+        });
+
+        // File upload functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileDropArea = document.getElementById('fileDropArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const fileList = document.getElementById('fileList');
+            const processBtn = document.getElementById('processBtn');
+            
+            let uploadedFiles = [];
+            
+            // Browse button click
+            browseBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // File input change
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+            
+            // Drag and drop events
+            fileDropArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                fileDropArea.classList.add('highlight');
+            });
+            
+            fileDropArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                fileDropArea.classList.remove('highlight');
+            });
+            
+            fileDropArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                fileDropArea.classList.remove('highlight');
+                handleFiles(e.dataTransfer.files);
+            });
+            
+            // Handle files
+            function handleFiles(files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.size <= 5 * 1024 * 1024) { // 5MB limit
+                        uploadedFiles.push(file);
+                    } else {
+                        alert(`File ${file.name} exceeds 5MB limit and was not added.`);
+                    }
+                }
+                
+                updateFileList();
+                updateProcessButton();
+            }
+            
+            // Update file list display
+            function updateFileList() {
+                if (uploadedFiles.length === 0) {
+                    fileList.innerHTML = `
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-file me-2"></i>
+                            No files uploaded yet
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let fileListHtml = '';
+                uploadedFiles.forEach((file, index) => {
+                    fileListHtml += `
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                            <div>
+                                <i class="fas fa-file-alt me-2"></i>
+                                <span>${file.name}</span>
+                                <small class="text-muted ms-2">(${formatFileSize(file.size)})</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger remove-file" data-index="${index}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                fileList.innerHTML = fileListHtml;
+                
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-file').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        uploadedFiles.splice(index, 1);
+                        updateFileList();
+                        updateProcessButton();
+                    });
+                });
+            }
+            
+            // Update process button state
+            function updateProcessButton() {
+                processBtn.disabled = uploadedFiles.length === 0;
+            }
+            
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Process button click
+            processBtn.addEventListener('click', function() {
+                if (uploadedFiles.length > 0) {
+                    alert(`Processing ${uploadedFiles.length} files for BVN modification. This may take a few moments.`);
+                    // In a real implementation, this would send the files to the server
+                }
+            });
+        });
+    </script>
+</body>
+</html>

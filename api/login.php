@@ -34,7 +34,7 @@ try {
     $db = $database->getConnection();
     
     // Check if user exists
-    $query = "SELECT id, name, email, password, created_at FROM users WHERE email = ? AND status = 'active'";
+    $query = "SELECT id, name, email, password, email_verified, wallet, created_at FROM users WHERE email = ? AND status = 'active'";
     $stmt = $db->prepare($query);
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -42,6 +42,13 @@ try {
     if (!$user || !password_verify($password, $user['password'])) {
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
+        exit;
+    }
+    
+    // Check if email is verified
+    if (!$user['email_verified']) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Please verify your email address before logging in']);
         exit;
     }
     

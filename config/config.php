@@ -40,8 +40,8 @@ define('UPLOAD_PATH', '../uploads/');
 // Email Configuration
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'your-email@gmail.com');
-define('SMTP_PASSWORD', 'your-app-password');
+define('SMTP_USERNAME', 'ibrobk@gmail.com');
+define('SMTP_PASSWORD', 'veltfablrxgfsdmy');
 
 // Development Settings
 define('DEBUG_MODE', true);
