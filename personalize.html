@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalize - Lildone Verification Services</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .service-header {
+            background: linear-gradient(135deg, #1a6aa5, #2b81b7);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            min-height: 100vh;
+            background-color: var(--light-gray);
+        }
+        .main-header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        .user-dropdown .btn-link {
+            border: none;
+            padding: 0;
+            color: var(--text-dark);
+        }
+        .content-area {
+            padding: 2rem;
+        }
+        .stat-card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-icon {
+            font-size: 2rem;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .chart-container {
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-bolt text-cyan"></i>
+                    <span class="logo-text">LILDONE CONCEPTS</span>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <h6 class="user-name" id="userName">Ibrahim Yusuf Garba</h6>
+                    <p class="user-email" id="userEmail">ibrobk@gmail.com</p>
+                    <span class="user-badge">User</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showNINServices()">
+                            <i class="fas fa-id-card"></i>
+                            <span>NIN Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showBVNServices()">
+                            <i class="fas fa-university"></i>
+                            <span>BVN Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="bvn-modification.html" class="nav-link">
+                            <i class="fas fa-edit"></i>
+                            <span>BVN Modification</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="personalize.html" class="nav-link">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Personalize</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showFundWallet()">
+                            <i class="fas fa-wallet"></i>
+                            <span>Fund Wallet</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showFundingHistory()">
+                            <i class="fas fa-history"></i>
+                            <span>Funding History</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showActivity()">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Activity</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showDeveloper()">
+                            <i class="fas fa-code"></i>
+                            <span>Developer</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSettings()">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1 class="page-title">Personalize</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-outline-primary me-2" onclick="showNotifications()">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="user-dropdown">
+                            <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fa-2x"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showProfile()">Profile</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showSettings()">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="logout()">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="service-header text-white py-4">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="display-4 fw-bold">Personalized Dashboard</h1>
+                                <p class="lead">View your personalized BVN modification history and statistics</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+                                    <li class="breadcrumb-item">Services</li>
+                                    <li class="breadcrumb-item active" aria-current="page">Personalize</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-4">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="card-title">Total Requests</h5>
+                                            <h2 id="totalRequests" class="mb-0">0</h2>
+                                        </div>
+                                        <div class="stat-icon bg-primary text-white">
+                                            <i class="fas fa-file-upload"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="card-title">Pending</h5>
+                                            <h2 id="pendingRequests" class="mb-0">0</h2>
+                                        </div>
+                                        <div class="stat-icon bg-warning text-white">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="card-title">Completed</h5>
+                                            <h2 id="completedRequests" class="mb-0">0</h2>
+                                        </div>
+                                        <div class="stat-icon bg-success text-white">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="card-title">Rejected</h5>
+                                            <h2 id="rejectedRequests" class="mb-0">0</h2>
+                                        </div>
+                                        <div class="stat-icon bg-danger text-white">
+                                            <i class="fas fa-times-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-pie me-2"></i>
+                                        Request Status Distribution
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="statusChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        Requests Over Time
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="timelineChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload History Table -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-history me-2"></i>
+                                        BVN Modification History
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="historyTable" class="table table-striped" style="width:100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Reference</th>
+                                                    <th>Documents</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="historyTableBody">
+                                                <!-- Data will be loaded here by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Support Button -->
+    <div class="whatsapp-support">
+        <a href="https://wa.me/2349056124304" target="_blank" class="whatsapp-btn">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Navigation functions
+        function showNINServices() {
+            window.location.href = "dashboard.html#nin-services";
+        }
+        
+        function showBVNServices() {
+            window.location.href = "dashboard.html#bvn-services";
+        }
+        
+        function showFundWallet() {
+            window.location.href = "dashboard.html#fund-wallet";
+        }
+        
+        function showFundingHistory() {
+            window.location.href = "dashboard.html#funding-history";
+        }
+        
+        function showActivity() {
+            window.location.href = "dashboard.html#activity";
+        }
+        
+        function showDeveloper() {
+            window.location.href = "dashboard.html#developer";
+        }
+        
+        function showSettings() {
+            window.location.href = "dashboard.html#settings";
+        }
+        
+        function showNotifications() {
+            alert("Showing notifications...");
+        }
+        
+        function showProfile() {
+            alert("Showing profile...");
+        }
+        
+        function logout() {
+            // Only redirect if user confirms
+            if (confirm("Are you sure you want to logout?")) {
+                // In a real implementation, you would clear user session data here
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("userData");
+                window.location.href = "index.html";
+            }
+            // If user cancels, do nothing (don't redirect)
+            return false;
+        }
+        
+        // Initialize dashboard
+        document.addEventListener("DOMContentLoaded", function() {
+            // Check if user is authenticated
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                window.location.href = "index.html";
+                return;
+            }
+            
+            // Load user data and history
+            loadUserData();
+            loadUploadHistory();
+        });
+        
+        // Load user data
+        function loadUserData() {
+            // In a real implementation, this would fetch user data from the server
+            // For now, we'll use dummy data
+            document.getElementById("userName").textContent = "Ibrahim Yusuf Garba";
+            document.getElementById("userEmail").textContent = "ibrobk@gmail.com";
+        }
+        
+        // Load upload history
+        function loadUploadHistory() {
+            // In a real implementation, this would fetch data from the server
+            // For now, we'll use dummy data
+            const historyData = [
+                {
+                    date: "2023-10-18",
+                    reference: "BVN-2023-0157",
+                    documents: 3,
+                    status: "completed"
+                },
+                {
+                    date: "2023-10-15",
+                    reference: "UBN-2023-0156",
+                    documents: 2,
+                    status: "processing"
+                },
+                {
+                    date: "2023-10-10",
+                    reference: "BVN-2023-0155",
+                    documents: 4,
+                    status: "completed"
+                },
+                {
+                    date: "2023-10-05",
+                    reference: "BVN-2023-0154",
+                    documents: 3,
+                    status: "rejected"
+                },
+                {
+                    date: "2023-09-28",
+                    reference: "BVN-2023-0153",
+                    documents: 2,
+                    status: "completed"
+                }
+            ];
+            
+            // Update stats
+            updateStats(historyData);
+            
+            // Populate table
+            const tableBody = document.getElementById("historyTableBody");
+            tableBody.innerHTML = "";
+            
+            historyData.forEach(item => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.reference}</td>
+                    <td>${item.documents} files</td>
+                    <td><span class="badge bg-${getStatusColor(item.status)}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('${item.reference}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Initialize DataTable
+            if (!$.fn.DataTable.isDataTable('#historyTable')) {
+                $('#historyTable').DataTable({
+                    "order": [[ 0, "desc" ]],
+                    "pageLength": 10,
+                    "responsive": true
+                });
+            }
+            
+            // Initialize charts
+            initializeCharts(historyData);
+        }
+        
+        // Update stats
+        function updateStats(data) {
+            const total = data.length;
+            const pending = data.filter(item => item.status === "processing").length;
+            const completed = data.filter(item => item.status === "completed").length;
+            const rejected = data.filter(item => item.status === "rejected").length;
+            
+            document.getElementById("totalRequests").textContent = total;
+            document.getElementById("pendingRequests").textContent = pending;
+            document.getElementById("completedRequests").textContent = completed;
+            document.getElementById("rejectedRequests").textContent = rejected;
+        }
+        
+        // Get status color
+        function getStatusColor(status) {
+            switch(status) {
+                case "completed": return "success";
+                case "processing": return "warning";
+                case "rejected": return "danger";
+                default: return "secondary";
+            }
+        }
+        
+        // Initialize charts
+        function initializeCharts(data) {
+            // Status distribution chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            const statusChart = new Chart(statusCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Completed', 'Processing', 'Rejected'],
+                    datasets: [{
+                        data: [
+                            data.filter(item => item.status === "completed").length,
+                            data.filter(item => item.status === "processing").length,
+                            data.filter(item => item.status === "rejected").length
+                        ],
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(220, 53, 69, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Timeline chart
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            const timelineChart = new Chart(timelineCtx, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => item.date),
+                    datasets: [{
+                        label: 'Requests',
+                        data: data.map((_, index) => index + 1),
+                        borderColor: 'rgba(23, 162, 184, 1)',
+                        backgroundColor: 'rgba(23, 162, 184, 0.2)',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // View details function
+        function viewDetails(reference) {
+            alert(`Viewing details for reference: ${reference}`);
+            // In a real implementation, this would show a modal with details
+        }
+    </script>
+</body>
+</html>

@@ -183,11 +183,14 @@ function openService(serviceId) {
             window.location.href = "birth-attestation.html"
         } else if (serviceId === "bvn-modification") {
             window.location.href = "bvn-modification.html"
+        } else if (serviceId === "personalize") {
+            window.location.href = "personalize.html"
         } else {
             showAlert(`${serviceName} service is coming soon!`, "warning")
         }
     }, 1000)
 }
+
 
 
 function openNINVerificationModal() {
