@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BVN Retrieval - Lildone Verification Services</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .service-header {
+            background: linear-gradient(135deg, #1a6aa5, #2b81b7);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-header h2 {
+            color: #1a6aa5;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 16px;
+        }
+        .form-control:focus {
+            border-color: #1a6aa5;
+            box-shadow: 0 0 0 0.2rem rgba(26, 106, 165, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1a6aa5, #2b81b7);
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 106, 165, 0.3);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+        .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+        .info-box {
+            background: #e9f7ff;
+            border: 1px solid #b8daff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-bolt text-cyan"></i>
+                    <span class="logo-text">LILDONE CONCEPTS</span>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <h6 class="user-name" id="userName">User</h6>
+                    <p class="user-email" id="userEmail">user@example.com</p>
+                    <span class="user-badge">User</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showNINServices()">
+                            <i class="fas fa-id-card"></i>
+                            <span>NIN Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showBVNServices()">
+                            <i class="fas fa-university"></i>
+                            <span>BVN Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="bvn-modification.html" class="nav-link">
+                            <i class="fas fa-edit"></i>
+                            <span>BVN Modification</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="bvn-retrieval.html" class="nav-link">
+                            <i class="fas fa-search"></i>
+                            <span>BVN Retrieval</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showFundWallet()">
+                            <i class="fas fa-wallet"></i>
+                            <span>Fund Wallet</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1 class="page-title">BVN Retrieval</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-outline-primary me-2" onclick="showNotifications()">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="user-dropdown">
+                            <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fa-2x"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showProfile()">Profile</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showSettings()">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="logout()">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="service-header text-white py-4">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="display-4 fw-bold">BVN Retrieval</h1>
+                                <p class="lead">Retrieve your Bank Verification Number (BVN) information securely</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+                                    <li class="breadcrumb-item">Services</li>
+                                    <li class="breadcrumb-item active" aria-current="page">BVN Retrieval</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="form-container">
+                                <div class="form-header">
+                                    <h2>Retrieve Your BVN</h2>
+                                    <p class="text-muted">Please provide your details to retrieve your BVN information</p>
+                                </div>
+
+                                <div class="info-box">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Note:</strong> This service allows you to retrieve your Bank Verification Number (BVN) using your registered phone number and full name. The amount field is for service fee reference only.
+                                </div>
+
+                                <form id="bvnRetrievalForm" method="POST" action="api/bvn-retrieval.php">
+                                    <div class="form-group">
+                                        <label for="phoneNumber" class="form-label required">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" 
+                                               placeholder="Enter your registered phone number" required 
+                                               pattern="[0-9]{11}" maxlength="11">
+                                        <small class="form-text text-muted">Enter 11-digit phone number</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="fullName" class="form-label required">Full Name</label>
+                                        <input type="text" class="form-control" id="fullName" name="fullName" 
+                                               placeholder="Enter your full name as registered" required>
+                                        <small class="form-text text-muted">Enter your name exactly as it appears on your BVN</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="amount" class="form-label">Service Fee</label>
+                                        <input type="text" class="form-control" id="amount" name="amount" 
+                                               value="₦100.00" disabled>
+                                        <small class="form-text text-muted">This is a fixed service fee for BVN retrieval</small>
+                                    </div>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                        <button type="button" class="btn btn-secondary me-md-2" onclick="goBack()">
+                                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search me-2"></i>Retrieve BVN
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Support Button -->
+    <div class="whatsapp-support">
+        <a href="https://wa.me/2349056124304" target="_blank" class="whatsapp-btn">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Navigation functions
+        function showNINServices() {
+            window.location.href = "dashboard.html#nin-services";
+        }
+        
+        function showBVNServices() {
+            window.location.href = "dashboard.html#bvn-services";
+        }
+        
+        function showFundWallet() {
+            window.location.href = "dashboard.html#fund-wallet";
+        }
+        
+        function showNotifications() {
+            alert("Showing notifications...");
+        }
+        
+        function showProfile() {
+            alert("Showing profile...");
+        }
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        function logout() {
+            if (confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("userData");
+                window.location.href = "index.html";
+            }
+            return false;
+        }
+
+        // Form validation
+        document.getElementById('bvnRetrievalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const fullName = document.getElementById('fullName').value;
+            
+            if (!phoneNumber || !fullName) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            if (phoneNumber.length !== 11 || !/^\d+$/.test(phoneNumber)) {
+                alert('Please enter a valid 11-digit phone number.');
+                return;
+            }
+            
+            // Submit form
+            this.submit();
+        });
+
+        // Load user info
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            if (userData.name) {
+                document.getElementById('userName').textContent = userData.name;
+            }
+            if (userData.email) {
+                document.getElementById('userEmail').textContent = userData.email;
+            }
+        });
+    </script>
+</body>
+</html>

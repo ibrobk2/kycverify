@@ -183,9 +183,12 @@ function openService(serviceId) {
             window.location.href = "birth-attestation.html"
         } else if (serviceId === "bvn-modification") {
             window.location.href = "bvn-modification.html"
+        } else if (serviceId === "bvn-retrieval") {
+            window.location.href = "bvn-retrieval.html"
         } else if (serviceId === "personalize") {
             window.location.href = "personalize.html"
-        } else {
+        }
+        else {
             showAlert(`${serviceName} service is coming soon!`, "warning")
         }
     }, 1000)
@@ -428,9 +431,9 @@ async function handleBVNVerification(e) {
 
 async function handleFundWallet(e) {
     e.preventDefault()
-    
+
     showAlert("Wallet funding feature is coming soon!", "warning")
-    
+
     // Close modal after showing alert
     setTimeout(() => {
         const modal = document.getElementById("fundWalletModal")
@@ -444,18 +447,18 @@ async function handleFundWallet(e) {
 // Settings handlers
 async function handleProfileUpdate(e) {
     e.preventDefault()
-    
+
     showAlert("Profile update feature is coming soon!", "warning")
-    
+
     // Reset form
     e.target.reset()
 }
 
 async function handlePasswordChange(e) {
     e.preventDefault()
-    
+
     showAlert("Password change feature is coming soon!", "warning")
-    
+
     // Reset form
     e.target.reset()
 }
