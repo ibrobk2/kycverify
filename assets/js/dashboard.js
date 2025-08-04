@@ -188,6 +188,9 @@ function openService(serviceId) {
         } else if (serviceId === "personalize") {
             window.location.href = "personalize.html"
         }
+        else if (serviceId === "nin-validation") {
+            window.location.href = "nin-validation.html"
+        }
         else {
             showAlert(`${serviceName} service is coming soon!`, "warning")
         }

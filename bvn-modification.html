@@ -93,6 +93,19 @@
         .content-area {
             padding: 2rem;
         }
+        .form-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dynamic-form {
+            display: none;
+        }
+        .dynamic-form.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -137,13 +150,13 @@
                             <span>BVN Services</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item active">
                         <a href="bvn-modification.html" class="nav-link">
                             <i class="fas fa-edit"></i>
                             <span>BVN Modification</span>
                         </a>
                     </li>
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a href="bvn-retrieval.html" class="nav-link">
                             <i class="fas fa-search"></i>
                             <span>BVN Retrieval</span>
@@ -239,120 +252,250 @@
                         </div>
                     </div>
 
+                    <!-- BVN Modification Form -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <i class="fas fa-info-circle text-primary me-2"></i>
-                                        About BVN Modification
-                                    </h5>
-                                    <p class="card-text">
-                                        Our BVN Modification service allows you to update and manage your Bank Verification Number (BVN) information. 
-                                        Upload your documents and our system will process them for verification.
-                                    </p>
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle me-2"></i>
-                                        Processing time: 1-2 business days. Please ensure all documents are clear and legible.
+                            <div class="form-section">
+                                <h4 class="mb-4">
+                                    <i class="fas fa-edit me-2"></i>
+                                    BVN Modification Form
+                                </h4>
+                                
+                                <form id="bvnModificationForm">
+                                    <!-- BVN Type Selection -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="bvnType" class="form-label">
+                                                <strong>BVN Type *</strong>
+                                            </label>
+                                            <select class="form-select" id="bvnType" required>
+                                                <option value="">Select BVN Type</option>
+                                                <option value="agency">Agency - N6,000</option>
+                                                <option value="access">Access Bank</option>
+                                                <option value="citibank">Citibank Nigeria</option>
+                                                <option value="diamond">Diamond Bank</option>
+                                                <option value="ecobank">Ecobank Nigeria</option>
+                                                <option value="fidelity">Fidelity Bank</option>
+                                                <option value="firstbank">First Bank of Nigeria</option>
+                                                <option value="fcmb">First City Monument Bank</option>
+                                                <option value="gtb">Guaranty Trust Bank</option>
+                                                <option value="heritage">Heritage Bank</option>
+                                                <option value="keystone">Keystone Bank</option>
+                                                <option value="polaris">Polaris Bank</option>
+                                                <option value="providus">Providus Bank</option>
+                                                <option value="stanbic">Stanbic IBTC Bank</option>
+                                                <option value="standard">Standard Chartered Bank</option>
+                                                <option value="sterling">Sterling Bank</option>
+                                                <option value="suntrust">SunTrust Bank</option>
+                                                <option value="titan">Titan Trust Bank</option>
+                                                <option value="uba">United Bank for Africa</option>
+                                                <option value="union">Union Bank of Nigeria</option>
+                                                <option value="unity">Unity Bank</option>
+                                                <option value="wema">Wema Bank</option>
+                                                <option value="zenith">Zenith Bank</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="modificationType" class="form-label">
+                                                <strong>Select Modification Type *</strong>
+                                            </label>
+                                            <select class="form-select" id="modificationType" required>
+                                                <option value="">Select Modification Type</option>
+                                                <option value="change-name">Change of Name</option>
+                                                <option value="change-dob">Change of Date of Birth</option>
+                                                <option value="change-phone">Change of Phone Number</option>
+                                                <option value="name-dob">Name and Date of Birth</option>
+                                                <option value="phone-name">Phone and Name</option>
+                                                <option value="dob-phone">Date of Birth and Phone Number</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">
-                                        <i class="fas fa-tasks me-2"></i>
-                                        Update BVN Information
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-7">
-                                            <h6>Upload Required Documents</h6>
-                                            <p class="text-muted">Please upload the following documents for BVN modification:</p>
-                                            
-                                            <div class="file-requirements">
-                                                <div class="requirement-item">
-                                                    <div class="d-flex">
-                                                        <div class="text-success me-3">
-                                                            <i class="fas fa-check-circle fa-2x"></i>
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="mb-2">Required Documents</h6>
-                                                            <ul class="mb-0">
-                                                                <li>Completed BVN Update Form</li>
-                                                                <li>Valid Government ID (Driver's License, International Passport, etc.)</li>
-                                                                <li>Proof of Address (Utility Bill, Bank Statement, etc.)</li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
+                                    <!-- Dynamic Forms Container -->
+                                    <div id="dynamicFormsContainer">
+                                        <!-- Change of Name Form -->
+                                        <div class="dynamic-form" id="change-name-form">
+                                            <h5 class="mb-3">Change of Name Details</h5>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="bvnNumber-name" class="form-label">BVN Number *</label>
+                                                    <input type="text" class="form-control" id="bvnNumber-name" maxlength="11" pattern="\d{11}" required>
                                                 </div>
-                                                <div class="requirement-item">
-                                                    <div class="d-flex">
-                                                        <div class="text-success me-3">
-                                                            <i class="fas fa-file-contract fa-2x"></i>
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="mb-2">Document Requirements</h6>
-                                                            <ul class="mb-0">
-                                                                <li>Documents must be clear and all information must be readable</li>
-                                                                <li>File size must not exceed 5MB</li>
-                                                                <li>Supported formats: PDF, JPG, PNG</li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="ninNumber-name" class="form-label">NIN Number *</label>
+                                                    <input type="text" class="form-control" id="ninNumber-name" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="newFirstName" class="form-label">New First Name *</label>
+                                                    <input type="text" class="form-control" id="newFirstName" required>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="newMiddleName" class="form-label">New Middle Name (Optional)</label>
+                                                    <input type="text" class="form-control" id="newMiddleName">
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="newLastName" class="form-label">New Last Name *</label>
+                                                    <input type="text" class="form-control" id="newLastName" required>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-5">
-                                            <div class="file-drop-area" id="fileDropArea">
-                                                <i class="fas fa-cloud-upload-alt text-primary mb-3" style="font-size: 3rem;"></i>
-                                                <h5>Drag & Drop Files Here</h5>
-                                                <p class="text-muted">or</p>
-                                                <button class="btn btn-primary" id="browseBtn">
-                                                    <i class="fas fa-folder-open me-2"></i>
-                                                    Browse Files
-                                                </button>
-                                                <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                                                <p class="mt-3 mb-0">
-                                                    <small class="text-muted">
-                                                        <i class="fas fa-info-circle me-1"></i>
-                                                        Supported formats: PDF, JPG, PNG (Max 5MB each)
-                                                    </small>
-                                                </p>
+
+                                        <!-- Change of Date of Birth Form -->
+                                        <div class="dynamic-form" id="change-dob-form">
+                                            <h5 class="mb-3">Change of Date of Birth Details</h5>
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="bvnNumber-dob" class="form-label">BVN Number *</label>
+                                                    <input type="text" class="form-control" id="bvnNumber-dob" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="ninNumber-dob" class="form-label">NIN Number *</label>
+                                                    <input type="text" class="form-control" id="ninNumber-dob" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="newDateOfBirth" class="form-label">New Date of Birth *</label>
+                                                    <input type="date" class="form-control" id="newDateOfBirth" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Change of Phone Number Form -->
+                                        <div class="dynamic-form" id="change-phone-form">
+                                            <h5 class="mb-3">Change of Phone Number Details</h5>
+                                            <div class="row">
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="bvnNumber-phone" class="form-label">BVN Number *</label>
+                                                    <input type="text" class="form-control" id="bvnNumber-phone" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="ninNumber-phone" class="form-label">NIN Number *</label>
+                                                    <input type="text" class="form-control" id="ninNumber-phone" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="fullName-phone" class="form-label">Full Name *</label>
+                                                    <input type="text" class="form-control" id="fullName-phone" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="newPhoneNumber" class="form-label">New Phone Number *</label>
+                                                    <input type="tel" class="form-control" id="newPhoneNumber" pattern="[0-9]{11}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Name and Date of Birth Form -->
+                                        <div class="dynamic-form" id="name-dob-form">
+                                            <h5 class="mb-3">Name and Date of Birth Details</h5>
+                                            <div class="row">
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="bvnNumber-name-dob" class="form-label">BVN Number *</label>
+                                                    <input type="text" class="form-control" id="bvnNumber-name-dob" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="ninNumber-name-dob" class="form-label">NIN Number *</label>
+                                                    <input type="text" class="form-control" id="ninNumber-name-dob" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="newFirstName-name-dob" class="form-label">New First Name *</label>
+                                                    <input type="text" class="form-control" id="newFirstName-name-dob" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="newMiddleName-name-dob" class="form-label">New Middle Name (Optional)</label>
+                                                    <input type="text" class="form-control" id="newMiddleName-name-dob">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="newLastName-name-dob" class="form-label">New Last Name *</label>
+                                                    <input type="text" class="form-control" id="newLastName-name-dob" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="newDateOfBirth-name-dob" class="form-label">New Date of Birth *</label>
+                                                    <input type="date" class="form-control" id="newDateOfBirth-name-dob" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Phone and Name Form -->
+                                        <div class="dynamic-form" id="phone-name-form">
+                                            <h5 class="mb-3">Phone and Name Details</h5>
+                                            <div class="row">
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="bvnNumber-phone-name" class="form-label">BVN Number *</label>
+                                                    <input type="text" class="form-control" id="bvnNumber-phone-name" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="ninNumber-phone-name" class="form-label">NIN Number *</label>
+                                                    <input type="text" class="form-control" id="ninNumber-phone-name" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="newFirstName-phone-name" class="form-label">New First Name *</label>
+                                                    <input type="text" class="form-control" id="newFirstName-phone-name" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="newMiddleName-phone-name" class="form-label">New Middle Name (Optional)</label>
+                                                    <input type="text" class="form-control" id="newMiddleName-phone-name">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="newLastName-phone-name" class="form-label">New Last Name *</label>
+                                                    <input type="text" class="form-control" id="newLastName-phone-name" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="newPhoneNumber-phone-name" class="form-label">New Phone Number *</label>
+                                                    <input type="tel" class="form-control" id="newPhoneNumber-phone-name" pattern="[0-9]{11}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Date of Birth and Phone Number Form -->
+                                        <div class="dynamic-form" id="dob-phone-form">
+                                            <h5 class="mb-3">Date of Birth and Phone Number Details</h5>
+                                            <div class="row">
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="bvnNumber-dob-phone" class="form-label">BVN Number *</label>
+                                                    <input type="text" class="form-control" id="bvnNumber-dob-phone" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="ninNumber-dob-phone" class="form-label">NIN Number *</label>
+                                                    <input type="text" class="form-control" id="ninNumber-dob-phone" maxlength="11" pattern="\d{11}" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="fullName-dob-phone" class="form-label">Full Name *</label>
+                                                    <input type="text" class="form-control" id="fullName-dob-phone" required>
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="newDateOfBirth-dob-phone" class="form-label">New Date of Birth *</label>
+                                                    <input type="date" class="form-control" id="newDateOfBirth-dob-phone" required>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label for="newPhoneNumber-dob-phone" class="form-label">New Phone Number *</label>
+                                                    <input type="tel" class="form-control" id="newPhoneNumber-dob-phone" pattern="[0-9]{11}" required>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mt-4">
                                         <div class="col-12">
-                                            <div class="file-list" id="fileList">
-                                                <div class="text-center text-muted py-5">
-                                                    <i class="fas fa-file me-2"></i>
-                                                    No files uploaded yet
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mt-4">
-                                        <div class="col-12">
-                                            <button class="btn btn-success w-100 py-3" id="processBtn" disabled>
+                                            <button type="submit" class="btn btn-success w-100 py-3">
                                                 <i class="fas fa-paper-plane me-2"></i>
-                                                Submit for Modification
+                                                Submit Modification Request
                                             </button>
-                                            <div id="uploadStatus" class="mt-3"></div>
                                         </div>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
 
+                    
+
+                    <!-- Modification History -->
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card">
@@ -369,9 +512,8 @@
                                                 <tr>
                                                     <th>Date</th>
                                                     <th>Reference</th>
-                                                    <th>Documents</th>
+                                                    <th>Modification Type</th>
                                                     <th>Status</th>
-                                                    <th>Processed By</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -379,9 +521,8 @@
                                                 <tr>
                                                     <td>2023-10-18</td>
                                                     <td>BVN-2023-0157</td>
-                                                    <td>3 files</td>
+                                                    <td>Change of Name</td>
                                                     <td><span class="badge bg-success">Completed</span></td>
-                                                    <td>System</td>
                                                     <td>
                                                         <button class="btn btn-sm btn-outline-primary">
                                                             <i class="fas fa-download"></i>
@@ -391,9 +532,8 @@
                                                 <tr>
                                                     <td>2023-10-15</td>
                                                     <td>UBN-2023-0156</td>
-                                                    <td>2 files</td>
+                                                    <td>Change of Phone Number</td>
                                                     <td><span class="badge bg-warning">Processing</span></td>
-                                                    <td>System</td>
                                                     <td>
                                                         <button class="btn btn-sm btn-outline-primary">
                                                             <i class="fas fa-download"></i>
@@ -403,33 +543,8 @@
                                                 <tr>
                                                     <td>2023-10-10</td>
                                                     <td>BVN-2023-0155</td>
-                                                    <td>4 files</td>
+                                                    <td>Name and Date of Birth</td>
                                                     <td><span class="badge bg-success">Completed</span></td>
-                                                    <td>System</td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-download"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2023-10-05</td>
-                                                    <td>BVN-2023-0154</td>
-                                                    <td>3 files</td>
-                                                    <td><span class="badge bg-danger">Rejected</span></td>
-                                                    <td>Admin</td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-download"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2023-09-28</td>
-                                                    <td>BVN-2023-0153</td>
-                                                    <td>2 files</td>
-                                                    <td><span class="badge bg-success">Completed</span></td>
-                                                    <td>System</td>
                                                     <td>
                                                         <button class="btn btn-sm btn-outline-primary">
                                                             <i class="fas fa-download"></i>
@@ -458,12 +573,127 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://code
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <!-- Custom JS -->
+    
     <script>
+        // Dynamic form handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const modificationType = document.getElementById('modificationType');
+            const dynamicFormsContainer = document.getElementById('dynamicFormsContainer');
+            
+            // Hide all forms initially
+            function hideAllForms() {
+                const forms = dynamicFormsContainer.querySelectorAll('.dynamic-form');
+                forms.forEach(form => form.classList.remove('active'));
+            }
+            
+            // Show specific form based on selection
+            function showForm(formId) {
+                hideAllForms();
+                const targetForm = document.getElementById(formId);
+                if (targetForm) {
+                    targetForm.classList.add('active');
+                }
+            }
+            
+            // Handle modification type change
+            modificationType.addEventListener('change', function() {
+                const selectedType = this.value;
+                if (selectedType) {
+                    showForm(selectedType + '-form');
+                } else {
+                    hideAllForms();
+                }
+            });
+            
+            // Form submission
+            document.getElementById('bvnModificationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const selectedType = modificationType.value;
+                if (!selectedType) {
+                    alert('Please select a modification type');
+                    return;
+                }
+                
+                // Collect form data based on selected type
+                const formData = new FormData();
+                formData.append('modificationType', selectedType);
+                formData.append('bvnType', document.getElementById('bvnType').value);
+                
+                // Add specific fields based on modification type
+                switch(selectedType) {
+                    case 'change-name':
+                        formData.append('bvnNumber', document.getElementById('bvnNumber-name').value);
+                        formData.append('ninNumber', document.getElementById('ninNumber-name').value);
+                        formData.append('newFirstName', document.getElementById('newFirstName').value);
+                        formData.append('newMiddleName', document.getElementById('newMiddleName').value);
+                        formData.append('newLastName', document.getElementById('newLastName').value);
+                        break;
+                    case 'change-dob':
+                        formData.append('bvnNumber', document.getElementById('bvnNumber-dob').value);
+                        formData.append('ninNumber', document.getElementById('ninNumber-dob').value);
+                        formData.append('newDateOfBirth', document.getElementById('newDateOfBirth').value);
+                        break;
+                    case 'change-phone':
+                        formData.append('bvnNumber', document.getElementById('bvnNumber-phone').value);
+                        formData.append('ninNumber', document.getElementById('ninNumber-phone').value);
+                        formData.append('fullName', document.getElementById('fullName-phone').value);
+                        formData.append('newPhoneNumber', document.getElementById('newPhoneNumber').value);
+                        break;
+                    case 'name-dob':
+                        formData.append('bvnNumber', document.getElementById('bvnNumber-name-dob').value);
+                        formData.append('ninNumber', document.getElementById('ninNumber-name-dob').value);
+                        formData.append('newFirstName', document.getElementById('newFirstName-name-dob').value);
+                        formData.append('newMiddleName', document.getElementById('newMiddleName-name-dob').value);
+                        formData.append('newLastName', document.getElementById('newLastName-name-dob').value);
+                        formData.append('newDateOfBirth', document.getElementById('newDateOfBirth-name-dob').value);
+                        break;
+                    case 'phone-name':
+                        formData.append('bvnNumber', document.getElementById('bvnNumber-phone-name').value);
+                        formData.append('ninNumber', document.getElementById('ninNumber-phone-name').value);
+                        formData.append('newFirstName', document.getElementById('newFirstName-phone-name').value);
+                        formData.append('newMiddleName', document.getElementById('newMiddleName-phone-name').value);
+                        formData.append('newLastName', document.getElementById('newLastName-phone-name').value);
+                        formData.append('newPhoneNumber', document.getElementById('newPhoneNumber-phone-name').value);
+                        break;
+                    case 'dob-phone':
+                        formData.append('bvnNumber', document.getElementById('bvnNumber-dob-phone').value);
+                        formData.append('ninNumber', document.getElementById('ninNumber-dob-phone').value);
+                        formData.append('fullName', document.getElementById('fullName-dob-phone').value);
+                        formData.append('newDateOfBirth', document.getElementById('newDateOfBirth-dob-phone').value);
+                        formData.append('newPhoneNumber', document.getElementById('newPhoneNumber-dob-phone').value);
+                        break;
+                }
+                
+                // Submit form data
+                fetch('api/bvn-modification.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('BVN modification request submitted successfully! Reference: ' + data.reference);
+                        document.getElementById('bvnModificationForm').reset();
+                        hideAllForms();
+                    } else {
+                        alert('Submission failed: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Submission error:', error);
+                    alert('Network error. Please try again.');
+                });
+            });
+        });
+
         // Navigation functions
         function showNINServices() {
             window.location.href = "dashboard.html#nin-services";
@@ -502,14 +732,11 @@
         }
         
         function logout() {
-            // Only redirect if user confirms
             if (confirm("Are you sure you want to logout?")) {
-                // In a real implementation, you would clear user session data here
                 localStorage.removeItem("authToken");
                 localStorage.removeItem("userData");
                 window.location.href = "index.html";
             }
-            // If user cancels, do nothing (don't redirect)
             return false;
         }
         
@@ -522,173 +749,9 @@
             });
         });
 
-        // File upload functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileDropArea = document.getElementById('fileDropArea');
-            const fileInput = document.getElementById('fileInput');
-            const browseBtn = document.getElementById('browseBtn');
-            const fileList = document.getElementById('fileList');
-            const processBtn = document.getElementById('processBtn');
-            
-            let uploadedFiles = [];
-            
-            // Browse button click
-            browseBtn.addEventListener('click', function() {
-                fileInput.click();
-            });
-            
-            // File input change
-            fileInput.addEventListener('change', function(e) {
-                handleFiles(e.target.files);
-            });
-            
-            // Drag and drop events
-            fileDropArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                fileDropArea.classList.add('highlight');
-            });
-            
-            fileDropArea.addEventListener('dragleave', function(e) {
-                e.preventDefault();
-                fileDropArea.classList.remove('highlight');
-            });
-            
-            fileDropArea.addEventListener('drop', function(e) {
-                e.preventDefault();
-                fileDropArea.classList.remove('highlight');
-                handleFiles(e.dataTransfer.files);
-            });
-            
-            // Handle files
-            function handleFiles(files) {
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    if (file.size <= 5 * 1024 * 1024) { // 5MB limit
-                        uploadedFiles.push(file);
-                    } else {
-                        alert(`File ${file.name} exceeds 5MB limit and was not added.`);
-                    }
-                }
-                
-                updateFileList();
-                updateProcessButton();
-            }
-            
-            // Update file list display
-            function updateFileList() {
-                if (uploadedFiles.length === 0) {
-                    fileList.innerHTML = `
-                        <div class="text-center text-muted py-5">
-                            <i class="fas fa-file me-2"></i>
-                            No files uploaded yet
-                        </div>
-                    `;
-                    return;
-                }
-                
-                let fileListHtml = '';
-                uploadedFiles.forEach((file, index) => {
-                    fileListHtml += `
-                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                            <div>
-                                <i class="fas fa-file-alt me-2"></i>
-                                <span>${file.name}</span>
-                                <small class="text-muted ms-2">(${formatFileSize(file.size)})</small>
-                            </div>
-                            <button class="btn btn-sm btn-outline-danger remove-file" data-index="${index}">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    `;
-                });
-                
-                fileList.innerHTML = fileListHtml;
-                
-                // Add event listeners to remove buttons
-                document.querySelectorAll('.remove-file').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const index = parseInt(this.getAttribute('data-index'));
-                        uploadedFiles.splice(index, 1);
-                        updateFileList();
-                        updateProcessButton();
-                    });
-                });
-            }
-            
-            // Update process button state
-            function updateProcessButton() {
-                processBtn.disabled = uploadedFiles.length === 0;
-            }
-            
-            // Format file size
-            function formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
-            
-            // Process button click
-            processBtn.addEventListener('click', function() {
-                if (uploadedFiles.length > 0) {
-                    // Prepare form data
-                    const formData = new FormData();
-                    uploadedFiles.forEach(file => {
-                        formData.append('files[]', file);
-                    });
-
-                    // Disable button and show loading
-                    processBtn.disabled = true;
-                    processBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
-
-                    // Clear previous status
-                    const uploadStatus = document.getElementById('uploadStatus');
-                    uploadStatus.innerHTML = '';
-
-                    // Send files to backend API
-                    fetch('api/bvn-upload.php', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-                        },
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            uploadStatus.innerHTML = `
-                                <div class="alert alert-success">
-                                    Files uploaded successfully! Reference: <strong>${data.reference}</strong>
-                                </div>
-                            `;
-                            // Clear uploaded files list
-                            uploadedFiles = [];
-                            updateFileList();
-                            updateProcessButton();
-                        } else {
-                            uploadStatus.innerHTML = `
-                                <div class="alert alert-danger">
-                                    Upload failed: ${data.message}
-                                </div>
-                            `;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Upload error:', error);
-                        uploadStatus.innerHTML = `
-                            <div class="alert alert-danger">
-                                Network error during upload. Please try again.
-                            </div>
-                        `;
-                    })
-                    .finally(() => {
-                        processBtn.disabled = uploadedFiles.length === 0;
-                        processBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit for Modification';
-                    });
-                }
-            });
-        });
-    </script>
-</body>
+        
+</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <script src="js/bvn-modification.js"></script>
+</body> 
 </html>

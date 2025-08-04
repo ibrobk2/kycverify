@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIN Validation - Lildone Verification Services</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-bolt text-cyan"></i>
+                    <span class="logo-text">LILDONE CONCEPTS</span>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <h6 class="user-name" id="userName">User Dashboard</h6>
+                    <p class="user-email" id="userEmail">user@example.com</p>
+                    <span class="user-badge">User</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="bvn-retrieval.html" class="nav-link">
+                            <i class="fas fa-university"></i>
+                            <span>BVN Retrieval</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="nin-validation.html" class="nav-link">
+                            <i class="fas fa-check-circle"></i>
+                            <span>NIN Validation</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="bvn-modification.html" class="nav-link">
+                            <i class="fas fa-edit"></i>
+                            <span>BVN Modification</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="birth-attestation.html" class="nav-link">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Birth Attestation</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="personalize-new.html" class="nav-link">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Personalize New</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1 class="page-title">NIN Validation</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-outline-primary me-2" onclick="showNotifications()">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="user-dropdown">
+                            <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fa-2x"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showProfile()">Profile</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showSettings()">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="logout()">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- NIN Validation Form -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">NIN Validation Form</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="ninValidationForm">
+                                    <div class="mb-3">
+                                        <label for="validationType" class="form-label">Select Validation Type</label>
+                                        <select class="form-select" id="validationType" required>
+                                            <option value="" selected disabled>Choose validation type</option>
+                                            <option value="no-record">No Record Found</option>
+                                            <option value="modification">Modification Validation</option>
+                                        </select>
+                                    </div>
+
+                                    <div id="formNoRecord" class="d-none">
+                                        <div class="mb-3">
+                                            <label for="ninNumberNoRecord" class="form-label">NIN Number</label>
+                                            <input type="text" class="form-control" id="ninNumberNoRecord" name="ninNumberNoRecord" required pattern="\d+" />
+                                        </div>
+                                    </div>
+
+                                    <div id="formModification" class="d-none">
+                                        <div class="mb-3">
+                                            <label for="ninNumberModification" class="form-label">NIN Number</label>
+                                            <input type="text" class="form-control" id="ninNumberModification" name="ninNumberModification" required pattern="\d+" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="trackingId" class="form-label">Tracking Id</label>
+                                            <input type="text" class="form-control" id="trackingId" name="trackingId" required />
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Validate</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a href="dashboard.html" class="btn btn-outline-primary">
+                                        <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                                    </a>
+                                    <a href="bvn-retrieval.html" class="btn btn-outline-secondary">
+                                        <i class="fas fa-university me-2"></i>BVN Retrieval
+                                    </a>
+                                    <a href="bvn-modification.html" class="btn btn-outline-info">
+                                        <i class="fas fa-edit me-2"></i>BVN Modification
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Support Button -->
+    <div class="whatsapp-support">
+        <a href="https://wa.me/2349056124304" target="_blank" class="whatsapp-btn">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="assets/js/dashboard.js"></script>
+    
+    <script>
+        // NIN Validation Form Logic
+        const validationTypeSelect = document.getElementById('validationType');
+        const formNoRecord = document.getElementById('formNoRecord');
+        const formModification = document.getElementById('formModification');
+
+        validationTypeSelect.addEventListener('change', () => {
+            const selected = validationTypeSelect.value;
+            if (selected === 'no-record') {
+                formNoRecord.classList.remove('d-none');
+                formModification.classList.add('d-none');
+                formModification.querySelectorAll('input').forEach(input => input.value = '');
+            } else if (selected === 'modification') {
+                formModification.classList.remove('d-none');
+                formNoRecord.classList.add('d-none');
+                formNoRecord.querySelectorAll('input').forEach(input => input.value = '');
+            } else {
+                formNoRecord.classList.add('d-none');
+                formModification.classList.add('d-none');
+            }
+        });
+
+        document.getElementById('ninValidationForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const selected = validationTypeSelect.value;
+            if (!selected) {
+                alert('Please select a validation type.');
+                return;
+            }
+            let valid = false;
+            if (selected === 'no-record') {
+                const nin = document.getElementById('ninNumberNoRecord').value.trim();
+                if (nin) {
+                    valid = true;
+                    alert('No Record Found validation submitted with NIN Number: ' + nin);
+                }
+            } else if (selected === 'modification') {
+                const nin = document.getElementById('ninNumberModification').value.trim();
+                const trackingId = document.getElementById('trackingId').value.trim();
+                if (nin && trackingId) {
+                    valid = true;
+                    alert('Modification validation submitted with NIN Number: ' + nin + ' and Tracking Id: ' + trackingId);
+                }
+            }
+            if (!valid) {
+                alert('Please fill in all required fields.');
+            }
+        });
+
+        // Utility functions
+        function showNotifications() {
+            alert('Notifications feature coming soon!');
+        }
+
+        function showProfile() {
+            alert('Profile feature coming soon!');
+        }
+
+        function showSettings() {
+            alert('Settings feature coming soon!');
+        }
+
+        // Logout function with confirmation
+
+        function logout() {
+            // Only redirect if user confirms
+            if (confirm("Are you sure you want to logout?")) {
+                // In a real implementation, you would clear user session data here
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("userData");
+                window.location.href = "index.html";
+            }
+            // If user cancels, do nothing (don't redirect)
+            return false;
+        }
+    </script>
+</body>
+</html>
