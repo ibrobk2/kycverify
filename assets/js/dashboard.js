@@ -176,7 +176,8 @@ function openService(serviceId) {
     // Simulate service opening
     setTimeout(() => {
         if (serviceId === "nin-verification") {
-            openNINVerificationModal()
+            // openNINVerificationModal()
+            window.location.href = "nin-verification.html"
         } else if (serviceId === "bvn-verification") {
             openBVNVerificationModal()
         } else if (serviceId === "birth-attestation") {
@@ -190,6 +191,9 @@ function openService(serviceId) {
         }
         else if (serviceId === "nin-validation") {
             window.location.href = "nin-validation.html"
+        }
+        else if (serviceId === "ipe-clearance") {
+            window.location.href = "ipe-clearance.html"
         }
         else {
             showAlert(`${serviceName} service is coming soon!`, "warning")
