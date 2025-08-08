@@ -21,7 +21,7 @@ function initializeApp() {
   // Setup form validation
   setupFormValidation()
 
-  console.log("Lildone Concepts App Initialized")
+  console.log("AgentVerify App Initialized")
 }
 
 // Setup Event Listeners
