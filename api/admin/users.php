@@ -15,12 +15,17 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Get all users with their details
+    // Get search parameter if provided
+    $search = isset($_GET['search']) ? $_GET['search'] : '';
+    
+    // Build base query
     $query = "SELECT 
                 u.id,
                 u.full_name as name,
                 u.email,
+                u.password,
                 u.phone,
+                u.wallet,
                 u.status,
                 u.created_at,
                 u.last_login,
@@ -28,12 +33,23 @@ try {
                 SUM(CASE WHEN v.status = 'pending' THEN 1 ELSE 0 END) as pending_verifications,
                 SUM(CASE WHEN v.status = 'completed' THEN 1 ELSE 0 END) as completed_verifications
               FROM users u
-              LEFT JOIN verifications v ON u.id = v.user_id
-              GROUP BY u.id
-              ORDER BY u.created_at DESC";
+              LEFT JOIN verifications v ON u.id = v.user_id";
+    
+    // Add search condition if search parameter is provided
+    if (!empty($search)) {
+        $query .= " WHERE u.full_name LIKE :search OR u.email LIKE :search OR u.phone LIKE :search OR u.wallet LIKE :search";
+    }
+    
+    $query .= " GROUP BY u.id ORDER BY u.created_at DESC";
+
     
     $stmt = $db->prepare($query);
+    if (!empty($search)) {
+        $searchParam = '%' . $search . '%';
+        $stmt->bindParam(':search', $searchParam);
+    }
     $stmt->execute();
+
     
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -45,7 +61,9 @@ try {
                 'id' => $user['id'],
                 'name' => $user['name'],
                 'email' => $user['email'],
+                'password' => $user['password'],
                 'phone' => $user['phone'],
+                'wallet' => $user['wallet'],
                 'status' => $user['status'],
                 'created_at' => $user['created_at'],
                 'last_login' => $user['last_login'],
@@ -55,6 +73,7 @@ try {
             ];
         }, $users)
     ];
+
     
     echo json_encode($response);
     
