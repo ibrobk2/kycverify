@@ -157,17 +157,289 @@
                             <div class="card-body">
                                 <form id="ninVerificationForm">
                                     <div class="mb-3">
-                                        <label for="verificationType" class="form-label">Select Verification Type <span class="text-danger">Here is the plan to create the nin-verification.html file based on the existing nin-validation.html sample:
+                                        <label for="verificationType" class="form-label">Select Verification Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="verificationType" required>
+                                            <option value="">Choose verification type</option>
+                                            <option value="nin">NIN Verification</option>
+                                            <option value="bvn">BVN Verification</option>
+                                            <option value="phone">Phone Number Verification</option>
+                                        </select>
+                                    </div>
 
-- The new file will keep the overall page layout including sidebar, header, and footer consistent with the sample.
-- The form will have a dropdown menu to select verification type, and based on the selected option, different form fields will be dynamically shown or hidden.
-- JavaScript will handle the dropdown change event to toggle the visibility of form sections.
-- Form validation and user feedback messages will be implemented similarly to the sample.
-- The form fields and labels will be adjusted to fit the "NIN Verification" context.
-- Accessibility attributes and Bootstrap classes will be used consistently.
-- The sidebar navigation and WhatsApp support button will be included as in the sample.
-- The same CSS and JS dependencies (Bootstrap, Font Awesome, custom CSS) will be used.
-- No other files will be modified; this is a new standalone HTML file.
-- After creation, the form should be tested for dynamic behavior, validation, and UI consistency.
+                                    <!-- NIN Verification Section -->
+                                    <div id="ninSection" class="form-section" style="display: none;">
+                                        <div class="mb-3">
+                                            <label for="ninNumber" class="form-label">NIN Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="ninNumber" placeholder="Enter 11-digit NIN" maxlength="11" pattern="[0-9]{11}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="ninFile" class="form-label">Upload NIN Document <span class="text-danger">*</span></label>
+                                            <input type="file" class="form-control" id="ninFile" accept=".jpg,.jpeg,.png,.pdf">
+                                        </div>
+                                    </div>
 
-Please confirm if I should proceed with creating the nin-verification.html file as described.
+                                    <!-- BVN Verification Section -->
+                                    <div id="bvnSection" class="form-section" style="display: none;">
+                                        <div class="mb-3">
+                                            <label for="bvnNumber" class="form-label">BVN Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="bvnNumber" placeholder="Enter 11-digit BVN" maxlength="11" pattern="[0-9]{11}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="bvnFile" class="form-label">Upload BVN Document <span class="text-danger">*</span></label>
+                                            <input type="file" class="form-control" id="bvnFile" accept=".jpg,.jpeg,.png,.pdf">
+                                        </div>
+                                    </div>
+
+                                    <!-- Phone Verification Section -->
+                                    <div id="phoneSection" class="form-section" style="display: none;">
+                                        <div class="mb-3">
+                                            <label for="phoneNumber" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter phone number" pattern="[0-9]{11}">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="phoneFile" class="form-label">Upload Phone Verification Document <span class="text-danger">*</span></label>
+                                            <input type="file" class="form-control" id="phoneFile" accept=".jpg,.jpeg,.png,.pdf">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="fullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="fullName" placeholder="Enter your full name as on document">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="email" placeholder="Enter your email address">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="additionalInfo" class="form-label">Additional Information</label>
+                                        <textarea class="form-control" id="additionalInfo" rows="3" placeholder="Any additional information..."></textarea>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                                            <i class="fas fa-search me-2"></i>Verify Information
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                            <i class="fas fa-refresh me-2"></i>Reset Form
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Verification Guidelines</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Ensure all documents are clear and readable</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Upload documents in JPG, PNG, or PDF format</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Maximum file size: 5MB per document</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Verification typically takes 24-48 hours</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> You'll receive email notifications on progress</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">Support</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-2">Need help with verification?</p>
+                                <a href="https://wa.me/2349012345678" class="btn btn-success w-100">
+                                    <i class="fab fa-whatsapp me-2"></i>Chat with Support
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="assets/js/dashboard.js"></script>
+    <script>
+        // Form handling and validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const verificationType = document.getElementById('verificationType');
+            const ninSection = document.getElementById('ninSection');
+            const bvnSection = document.getElementById('bvnSection');
+            const phoneSection = document.getElementById('phoneSection');
+            const form = document.getElementById('ninVerificationForm');
+
+            // Handle verification type change
+            verificationType.addEventListener('change', function() {
+                // Hide all sections
+                ninSection.style.display = 'none';
+                bvnSection.style.display = 'none';
+                phoneSection.style.display = 'none';
+
+                // Show relevant section
+                const value = this.value;
+                if (value === 'nin') {
+                    ninSection.style.display = 'block';
+                } else if (value === 'bvn') {
+                    bvnSection.style.display = 'block';
+                } else if (value === 'phone') {
+                    phoneSection.style.display = 'block';
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateForm()) {
+                    submitVerification();
+                }
+            });
+
+            // Form validation
+            function validateForm() {
+                const verificationType = document.getElementById('verificationType').value;
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+
+                if (!verificationType) {
+                    showAlert('Please select a verification type', 'danger');
+                    return false;
+                }
+
+                if (!fullName.trim()) {
+                    showAlert('Please enter your full name', 'danger');
+                    return false;
+                }
+
+                if (!email.trim() || !isValidEmail(email)) {
+                    showAlert('Please enter a valid email address', 'danger');
+                    return false;
+                }
+
+                // Validate specific fields based on verification type
+                if (verificationType === 'nin') {
+                    const ninNumber = document.getElementById('ninNumber').value;
+                    const ninFile = document.getElementById('ninFile').files[0];
+                    
+                    if (!ninNumber || ninNumber.length !== 11 || !/^\d{11}$/.test(ninNumber)) {
+                        showAlert('Please enter a valid 11-digit NIN number', 'danger');
+                        return false;
+                    }
+                    
+                    if (!ninFile) {
+                        showAlert('Please upload your NIN document', 'danger');
+                        return false;
+                    }
+                }
+
+                if (verificationType === 'bvn') {
+                    const bvnNumber = document.getElementById('bvnNumber').value;
+                    const bvnFile = document.getElementById('bvnFile').files[0];
+                    
+                    if (!bvnNumber || bvnNumber.length !== 11 || !/^\d{11}$/.test(bvnNumber)) {
+                        showAlert('Please enter a valid 11-digit BVN number', 'danger');
+                        return false;
+                    }
+                    
+                    if (!bvnFile) {
+                        showAlert('Please upload your BVN document', 'danger');
+                        return false;
+                    }
+                }
+
+                if (verificationType === 'phone') {
+                    const phoneNumber = document.getElementById('phoneNumber').value;
+                    const phoneFile = document.getElementById('phoneFile').files[0];
+                    
+                    if (!phoneNumber || !/^\d{11}$/.test(phoneNumber)) {
+                        showAlert('Please enter a valid 11-digit phone number', 'danger');
+                        return false;
+                    }
+                    
+                    if (!phoneFile) {
+                        showAlert('Please upload your phone verification document', 'danger');
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            // Email validation
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            // Submit verification
+            function submitVerification() {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+                // Simulate API call
+                setTimeout(() => {
+                    showAlert('Verification request submitted successfully! You will receive an email confirmation shortly.', 'success');
+                    resetForm();
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-search me-2"></i>Verify Information';
+                }, 2000);
+            }
+
+            // Show alert messages
+            function showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                const form = document.getElementById('ninVerificationForm');
+                form.parentNode.insertBefore(alertDiv, form);
+                
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, 5000);
+            }
+
+            // Reset form
+            window.resetForm = function() {
+                form.reset();
+                ninSection.style.display = 'none';
+                bvnSection.style.display = 'none';
+                phoneSection.style.display = 'none';
+            };
+        });
+
+        // Utility functions
+        function showNotifications() {
+            alert('Notifications feature coming soon!');
+        }
+
+        function showProfile() {
+            alert('Profile feature coming soon!');
+        }
+
+        function showSettings() {
+            alert('Settings feature coming soon!');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

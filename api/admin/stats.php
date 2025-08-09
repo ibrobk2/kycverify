@@ -6,38 +6,15 @@ header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 require_once '../../config/database.php';
-
-// Verify admin token
-function verifyAdminToken($db) {
-    $headers = getallheaders();
-    if (!isset($headers['Authorization'])) {
-        return false;
-    }
-    
-    $token = str_replace('Bearer ', '', $headers['Authorization']);
-    $query = "SELECT u.id, u.email, u.role 
-              FROM admin_tokens t 
-              JOIN users u ON t.user_id = u.id 
-              WHERE t.token = :token AND t.expires_at > NOW() AND u.role = 'admin'";
-    
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':token', $token);
-    $stmt->execute();
-    
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
+require_once '../admin-auth.php';
 
 try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Verify admin
-    $admin = verifyAdminToken($db);
-    if (!$admin) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-        exit;
-    }
+    // Authenticate admin
+    // $admin = authenticateAdmin();
+
     
     // Get dashboard statistics
     

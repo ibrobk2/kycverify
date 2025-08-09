@@ -200,6 +200,28 @@
             initializeApp();
         });
 
+        async function checkAdminAuth() {
+            // FIX: Assign to global adminToken, not a new local variable
+            adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                return false;
+            }
+
+            try {
+                const response = await fetch('../api/admin-auth.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken
+                    }
+                });
+                const data = await response.json();
+                return data.success === true;
+            } catch (error) {
+                return false;
+            }
+        }
+
         async function initializeApp() {
             // Check authentication
             const isAuthenticated = await checkAdminAuth();
@@ -207,7 +229,7 @@
                 showAuthError();
                 setTimeout(() => {
                     window.location.href = './login.html';
-                }, 2000); // 2 seconds delay
+                }, 2000);
                 return;
             }
             
@@ -233,28 +255,6 @@
             alertDiv.className = 'alert alert-danger mt-4';
             alertDiv.textContent = 'Authentication failed. Redirecting to login...';
             container.prepend(alertDiv);
-        }
-
-        async function checkAdminAuth() {
-            adminToken = localStorage.getItem('adminToken');
-            if (!adminToken) {
-                return false;
-            }
-
-            try {
-                const response = await fetch('../api/admin-auth.php', {
-                    headers: {
-                        'Authorization': 'Bearer ' + adminToken
-                    }
-                });
-                
-                const data = await response.json();
-                return data.success === true;
-                
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                return false;
-            }
         }
 
         function setupNavigation() {
@@ -293,32 +293,16 @@
                         'Authorization': 'Bearer ' + adminToken
                     }
                 });
-                
                 if (!response.ok) {
-                    throw new Error('Failed to load stats');
+                    // handle error
+                    return;
                 }
-                
                 const stats = await response.json();
-                
                 if (stats.success) {
-                    // Update stats
-                    document.getElementById('total-users').textContent = stats.data.users.total || 0;
-                    document.getElementById('total-verifications').textContent = stats.data.applications.total || 0;
-                    document.getElementById('pending-applications').textContent = stats.data.applications.pending || 0;
-                    document.getElementById('revenue').textContent = '₦' + (stats.data.revenue.total || 0).toLocaleString();
-                    
-                    // Hide loading, show charts
-                    document.getElementById('loading-state').style.display = 'none';
-                    document.getElementById('charts-container').style.display = 'flex';
-                    
-                    // Load charts
-                    loadCharts();
+                    // update dashboard UI with stats
                 }
-                
             } catch (error) {
-                console.error('Error loading dashboard:', error);
-                document.getElementById('loading-state').innerHTML = 
-                    '<i class="fas fa-exclamation-triangle me-2"></i>Error loading data';
+                // handle error
             }
         }
 
@@ -361,10 +345,22 @@
             });
         }
 
-        function logoutAdmin() {
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminUser');
-            window.location.href = './login.html';
+        async function logoutAdmin() {
+            // try {
+            //     localStorage.removeItem('adminToken');
+            //     localStorage.removeItem('adminUser');
+            //     // Optionally, call a logout API endpoint if you have one
+            // } catch (error) {
+            //     console.error('Logout error:', error);
+            // } finally {
+            //     window.location.href = './login.html';
+             const confirmLogout = window.confirm("Are you sure you want to logout?");
+            if (confirmLogout) {
+                localStorage.removeItem("adminToken");
+                localStorage.removeItem("adminData");
+                window.location.href = "login.html";
+    
+            }
         }
 
         async function refreshUsers() {
