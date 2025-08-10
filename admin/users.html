@@ -434,39 +434,34 @@
         }
 
         async function loadUsers() {
-            if (!adminToken) return;
-
-            try {
-                const response = await fetch('../api/admin/users.php', {
-                    headers: {
-                        'Authorization': 'Bearer ' + adminToken
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load users');
-                }
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    initializeDataTable(data.users);
-                } else {
-                    throw new Error(data.message || 'Failed to load users');
-                }
-            } catch (error) {
-                console.error('Error loading users:', error);
-                showError('Failed to load users: ' + error.message);
-            }
-        }
-
-        function initializeDataTable(users) {
             if (usersTable) {
-                usersTable.destroy();
+                usersTable.ajax.reload();
+                return;
             }
 
             usersTable = $('#usersTable').DataTable({
-                data: users,
+                ajax: {
+                    url: '../api/admin/users.php',
+                    type: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + adminToken
+                    },
+                    dataSrc: function(json) {
+                        // If your API returns { success: true, users: [...] }
+                        if (json.success && Array.isArray(json.users)) {
+                            return json.users;
+                        }
+                        // If your API returns { data: [...] }
+                        if (Array.isArray(json.data)) {
+                            return json.data;
+                        }
+                        // Otherwise, return empty array
+                        return [];
+                    },
+                    error: function(xhr, status, error) {
+                        showError('Failed to load users: ' + error);
+                    }
+                },
                 columns: [
                     { data: 'id' },
                     { 

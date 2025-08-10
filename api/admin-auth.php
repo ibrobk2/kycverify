@@ -1,11 +1,18 @@
 <?php
-// Admin authentication middleware
+// filepath: c:\xampp\htdocs\lildone\api\admin-auth.php
+// Enable error reporting for debugging (remove in production)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 define('ADMIN_TOKEN_SECRET', 'your-very-secret-key'); // Must match admin-login.php
+
+require_once '../config/database.php';
 
 function getBearerToken() {
     $headers = getallheaders();
@@ -49,6 +56,28 @@ if (!$payload || !isset($payload['exp']) || $payload['exp'] < time()) {
     exit;
 }
 
-echo json_encode(['success' => true, 'admin_id' => $payload['admin_id'], 'email' => $payload['email']]);
-exit;
+// If authenticated, fetch users
+try {
+    $database = new Database();
+    $db = $database->getConnection();
+
+    $stmt = $db->query("SELECT id, name, email, status, created_at FROM users");
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode([
+        'success' => true,
+        'admin_id' => $payload['admin_id'],
+        'email' => $payload['email'],
+        'users' => $users
+    ]);
+    exit;
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database error occurred',
+        'error' => $e->getMessage()
+    ]);
+    exit;
+}
 ?>
