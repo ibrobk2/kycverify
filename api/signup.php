@@ -55,31 +55,52 @@ try {
     $db = $database->getConnection();
     
     // Check if user already exists
-    $checkQuery = "SELECT id FROM users WHERE email = ?";
+    $checkQuery = "SELECT id, email_verified FROM users WHERE email = ?";
     $checkStmt = $db->prepare($checkQuery);
     $checkStmt->execute([$email]);
-    
-    if ($checkStmt->fetch()) {
-        http_response_code(409);
-        echo json_encode(['success' => false, 'message' => 'Email already registered']);
-        exit;
+    $existingUser = $checkStmt->fetch();
+
+    if ($existingUser) {
+        if ($existingUser['email_verified'] == 0) {
+            // User exists but email is not verified, resend OTP
+            $_POST['email'] = $email;
+            require_once 'resend-otp.php';
+            exit; // Stop execution after resending OTP
+        } else {
+            http_response_code(409);
+            echo json_encode(['success' => false, 'message' => 'Email already registered']);
+            exit;
+        }
     }
-    
+
     // Hash password
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    
-    // Insert new user with wallet field
-    $insertQuery = "INSERT INTO users (name, email, phone, password, status, created_at) VALUES (?, ?, ?, ?, 'active', NOW())";
+
+    // Generate OTP
+    $otp = rand(100000, 999999);
+    $otpExpiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+
+    // Insert new user with email_verified set to 0 and OTP
+    $insertQuery = "INSERT INTO users (name, email, phone, password, status, email_verified, otp, otp_expires_at, created_at) VALUES (?, ?, ?, ?, 'active', 0, ?, ?, NOW())";
     $insertStmt = $db->prepare($insertQuery);
-    $insertStmt->execute([$name, $email, $phone, $hashedPassword]);
-    
+    $insertStmt->execute([$name, $email, $phone, $hashedPassword, $otp, $otpExpiresAt]);
+
     $userId = $db->lastInsertId();
-    
-    echo json_encode([
-        'success' => true,
-        'message' => 'Account created successfully',
-        'user_id' => $userId
-    ]);
+
+    // Send OTP email
+    require_once 'send-email.php';
+    $emailSent = sendOTP($email, $otp);
+
+    if ($emailSent) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Account created successfully. An OTP has been sent to your email for verification.',
+            'user_id' => $userId
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Failed to send OTP email.']);
+    }
     
 } catch (PDOException $e) {
     error_log("Signup error: " . $e->getMessage());

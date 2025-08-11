@@ -42,6 +42,40 @@ try {
         echo "<p>Note: Could not add wallet column: " . $e->getMessage() . "</p>";
     }
     
+    // Add otp column to users table if it doesn't exist
+    try {
+        $columnCheckQuery = "SHOW COLUMNS FROM users LIKE 'otp'";
+        $columnCheckStmt = $db->prepare($columnCheckQuery);
+        $columnCheckStmt->execute();
+        
+        if (!$columnCheckStmt->fetch()) {
+            $addColumnQuery = "ALTER TABLE users ADD COLUMN otp VARCHAR(255) DEFAULT NULL AFTER password";
+            $db->exec($addColumnQuery);
+            echo "<p>OTP column added to users table.</p>";
+        } else {
+            echo "<p>OTP column already exists in users table.</p>";
+        }
+    } catch (Exception $e) {
+        echo "<p>Note: Could not add otp column: " . $e->getMessage() . "</p>";
+    }
+
+    // Add otp_expires_at column to users table if it doesn't exist
+    try {
+        $columnCheckQuery = "SHOW COLUMNS FROM users LIKE 'otp_expires_at'";
+        $columnCheckStmt = $db->prepare($columnCheckQuery);
+        $columnCheckStmt->execute();
+        
+        if (!$columnCheckStmt->fetch()) {
+            $addColumnQuery = "ALTER TABLE users ADD COLUMN otp_expires_at DATETIME DEFAULT NULL AFTER otp";
+            $db->exec($addColumnQuery);
+            echo "<p>OTP expires at column added to users table.</p>";
+        } else {
+            echo "<p>OTP expires at column already exists in users table.</p>";
+        }
+    } catch (Exception $e) {
+        echo "<p>Note: Could not add otp_expires_at column: " . $e->getMessage() . "</p>";
+    }
+    
     echo "<p style='color: green;'>Database migration completed successfully!</p>";
     echo "<p>OTP verification table created.</p>";
     

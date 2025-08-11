@@ -113,7 +113,11 @@ async function handleLogin(e) {
         window.location.href = "dashboard.html"
       }, 1000)
     } else {
-      showAlert(data.message || "Login failed", "danger")
+        if (data.email_not_verified) {
+            window.location.href = `otp-verification.html?email=${email}`;
+        } else {
+            showAlert(data.message || "Login failed", "danger");
+        }
     }
   } catch (error) {
     console.error("Login error:", error)
@@ -162,7 +166,7 @@ async function handleSignup(e) {
   setLoadingState(submitBtn, true)
 
   try {
-    const response = await fetch("api/signup-with-otp.php", {
+    const response = await fetch("api/signup.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -181,16 +185,7 @@ async function handleSignup(e) {
       const data = JSON.parse(responseText);
       
       if (data.success) {
-        // Store user ID for OTP verification
-        if (data.user_id) {
-          localStorage.setItem("signupUserId", data.user_id);
-        }
-        
-        showAlert(data.message || "Account created successfully!", "success")
-        closeModal("signupModal")
-        
-        // Show OTP verification modal
-        showOTPVerificationModal();
+        window.location.href = `otp-verification.html?email=${email}`;
       } else {
         showAlert(data.message || "Signup failed", "danger")
       }
@@ -207,139 +202,7 @@ async function handleSignup(e) {
   }
 }
 
-// OTP Verification Function
-async function handleOTPVerification(e) {
-  e.preventDefault()
 
-  const userId = localStorage.getItem("signupUserId");
-  const otpCode = document.getElementById("otpCode").value
-
-  if (!userId) {
-    showAlert("Signup session expired. Please sign up again.", "danger")
-    return
-  }
-
-  if (!otpCode || otpCode.length !== 6) {
-    showAlert("Please enter a valid 6-digit OTP code", "danger")
-    return
-  }
-
-  const submitBtn = e.target.querySelector('button[type="submit"]')
-  setLoadingState(submitBtn, true)
-
-  try {
-    const response = await fetch("api/verify-otp.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        otp_code: otpCode,
-      }),
-    })
-
-    const data = await response.json()
-
-    if (data.success) {
-      showAlert("Email verified successfully! You can now login.", "success")
-      closeModal("otpVerificationModal")
-      
-      // Clear signup user ID
-      localStorage.removeItem("signupUserId");
-      
-      // Auto-fill login form
-      const email = document.getElementById("signupEmail").value
-      if (email) {
-        document.getElementById("loginEmail").value = email
-      }
-      
-      setTimeout(() => {
-        openModal("loginModal")
-      }, 1000)
-    } else {
-      showAlert(data.message || "OTP verification failed", "danger")
-    }
-  } catch (error) {
-    console.error("OTP verification error:", error)
-    showAlert("Network error. Please try again.", "danger")
-  } finally {
-    setLoadingState(submitBtn, false)
-  }
-}
-
-// Show OTP Verification Modal
-function showOTPVerificationModal() {
-  const modalHtml = `
-    <div class="modal fade" id="otpVerificationModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Email Verification</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <p>Please check your email for a 6-digit verification code.</p>
-            <form id="otpVerificationForm">
-              <div class="mb-3">
-                <label for="otpCode" class="form-label">Verification Code</label>
-                <input type="text" class="form-control" id="otpCode" placeholder="Enter 6-digit code" maxlength="6" required>
-              </div>
-              <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-success">
-                  <i class="fas fa-check me-2"></i>Verify Email
-                </button>
-                <button type="button" class="btn btn-outline-primary" onclick="resendOTP()">
-                  <i class="fas fa-redo me-2"></i>Resend Code
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  `
-
-  document.body.insertAdjacentHTML("beforeend", modalHtml)
-  const modal = new window.bootstrap.Modal(document.getElementById("otpVerificationModal"))
-  modal.show()
-
-  // Setup form handler
-  document.getElementById("otpVerificationForm").addEventListener("submit", handleOTPVerification)
-}
-
-// Resend OTP Function
-async function resendOTP() {
-  const email = document.getElementById("signupEmail").value;
-  
-  if (!email) {
-    showAlert("Email not found. Please sign up again.", "danger");
-    return;
-  }
-  
-  try {
-    const response = await fetch("api/resend-otp.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email
-      }),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      showAlert(data.message || "OTP code resent successfully", "success");
-    } else {
-      showAlert(data.message || "Failed to resend OTP", "danger");
-    }
-  } catch (error) {
-    console.error("Resend OTP error:", error);
-    showAlert("Network error. Please try again.", "danger");
-  }
-}
 
 // NIN Verification Function
 async function handleVerification(e) {
