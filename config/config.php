@@ -22,9 +22,9 @@ define('PAYSTACK_PUBLIC_KEY', 'pk_test_your_paystack_public_key');
 define('PAYSTACK_SECRET_KEY', 'sk_test_your_paystack_secret_key');
 
 // Application Settings
-define('APP_NAME', 'Lildone Verification Service');
-define('APP_URL', 'https://lildone.com');
-define('SUPPORT_EMAIL', 'support@lildone.com');
+define('APP_NAME', 'AgentVerify Verification Service');
+define('APP_URL', 'https://agentverify.com.ng');
+define('SUPPORT_EMAIL', 'support@agentverify.com.ng');
 define('SUPPORT_PHONE', '+234-800-123-4567');
 
 // Security Settings
@@ -38,10 +38,10 @@ define('MAX_UPLOAD_SIZE', 5 * 1024 * 1024); // 5MB
 define('UPLOAD_PATH', '../uploads/');
 
 // Email Configuration
-define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_HOST', 'mail.agentverify.com.ng');
 define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'ibrobk@gmail.com');
-define('SMTP_PASSWORD', 'veltfablrxgfsdmy');
+define('SMTP_USERNAME', 'support@agentverify.com.ng');
+define('SMTP_PASSWORD', 'Arc782022@abu');
 
 // Development Settings
 define('DEBUG_MODE', true);
