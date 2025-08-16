@@ -107,17 +107,17 @@ async function handleLogin(e) {
       showAlert("Login successful!", "success")
       closeModal("loginModal")
       updateUIForLoggedInUser()
-      
+
       // Redirect to dashboard immediately
       setTimeout(() => {
         window.location.href = "dashboard.html"
       }, 1000)
     } else {
-        if (data.email_not_verified) {
-            window.location.href = `otp-verification.html?email=${email}`;
-        } else {
-            showAlert(data.message || "Login failed", "danger");
-        }
+      if (data.email_not_verified) {
+        window.location.href = `otp-verification.html?email=${email}`;
+      } else {
+        showAlert(data.message || "Login failed", "danger");
+      }
     }
   } catch (error) {
     console.error("Login error:", error)
@@ -183,7 +183,7 @@ async function handleSignup(e) {
     const responseText = await response.text();
     try {
       const data = JSON.parse(responseText);
-      
+
       if (data.success) {
         window.location.href = `otp-verification.html?email=${email}`;
       } else {
@@ -470,7 +470,8 @@ function logout() {
 }
 
 function showDashboard() {
-  showAlert("Dashboard feature coming soon!", "info")
+  // showAlert("Dashboard feature coming soon!", "info")
+  window.location.href = 'dashboard.html';
 }
 
 // Form Validation Setup
@@ -505,7 +506,7 @@ function throttle(func, limit) {
   let inThrottle
   return function () {
     const args = arguments
-    
+
     if (!inThrottle) {
       func.apply(this, args)
       inThrottle = true
