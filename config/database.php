@@ -100,12 +100,26 @@ class Database {
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
                 )
             ";
+
+            // Wallet transactions table
+            $walletTransactionsTable = "
+                CREATE TABLE IF NOT EXISTS wallet_transactions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    amount DECIMAL(10,2) NOT NULL,
+                    transaction_type ENUM('credit', 'debit') NOT NULL,
+                    details TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            ";
             
             // Execute table creation queries
             $this->conn->exec($usersTable);
             $this->conn->exec($verificationLogsTable);
             $this->conn->exec($verificationResultsTable);
             $this->conn->exec($apiLogsTable);
+            $this->conn->exec($walletTransactionsTable);
             
         } catch(PDOException $exception) {
             error_log("Table creation error: " . $exception->getMessage());

@@ -198,73 +198,196 @@
                         </div>
                     </div>
 
-                    <!-- Upload Section -->
+                    <!-- Birth Attestation Form -->
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="mb-0">
-                                        <i class="fas fa-upload me-2"></i>
-                                        Upload Documents
+                                        <i class="fas fa-file-signature me-2"></i>
+                                        NPC ATTESTATION LETTER
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="file-drop-area" id="fileDropArea">
-                                                <i class="fas fa-cloud-upload-alt"></i>
-                                                <h5>Drag & Drop Files Here</h5>
-                                                <p class="text-muted">or</p>
-                                                <button class="btn btn-primary" id="browseBtn">Browse Files</button>
-                                                <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                                                <p class="mt-3 mb-0">
-                                                    <small class="text-muted">
-                                                        Supported formats: PDF, JPG, PNG (Max 5MB each)
-                                                    </small>
-                                                </p>
+                                    <form id="birthAttestationForm">
+
+                                        <!-- Personal Details -->
+                                        <h6 class="mb-3">Personal Details</h6>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3">
+                                                <label for="title" class="form-label">Title</label>
+                                                <select class="form-select" id="title" name="title">
+                                                    <option value="">Select Title</option>
+                                                    <option value="Mr">Mr</option>
+                                                    <option value="Mrs">Mrs</option>
+                                                    <option value="Miss">Miss</option>
+                                                    <option value="Dr">Dr</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="nin" class="form-label">NIN</label>
+                                                <input type="text" class="form-control" id="nin" name="nin" maxlength="11">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="surname" class="form-label">SURNAME</label>
+                                                <input type="text" class="form-control" id="surname" name="surname" required>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="first_name" class="form-label">FIRST NAME</label>
+                                                <input type="text" class="form-control" id="first_name" name="first_name" required>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <h6>Required Documents</h6>
-                                            <ul class="list-unstyled">
-                                                <li class="mb-2">
-                                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                                    Birth Certificate
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                                    Parent's Identification
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                                    Hospital Birth Record
-                                                </li>
-                                                <li class="mb-2">
-                                                    <i class="fas fa-info-circle text-info me-2"></i>
-                                                    Additional supporting documents (if available)
-                                                </li>
-                                            </ul>
-                                            <button class="btn btn-success w-100 mt-3" id="processBtn" disabled>
-                                                <i class="fas fa-cogs me-2"></i>Process Documents
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row mt-4">
-                                        <div class="col-12">
-                                            <h6>Uploaded Files</h6>
-                                            <div class="file-list" id="fileList">
-                                                <div class="text-center text-muted py-5">
-                                                    <i class="fas fa-file me-2"></i>
-                                                    No files uploaded yet
-                                                </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3">
+                                                <label for="middle_name" class="form-label">MIDDLE NAME</label>
+                                                <input type="text" class="form-control" id="middle_name" name="middle_name">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="gender" class="form-label">GENDER</label>
+                                                <select class="form-select" id="gender" name="gender">
+                                                    <option value="">Select Gender</option>
+                                                    <option value="Male">Male</option>
+                                                    <option value="Female">Female</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="new_date_of_birth" class="form-label">NEW DATE OF BIRTH</label>
+                                                <input type="date" class="form-control" id="new_date_of_birth" name="new_date_of_birth">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="phone_number" class="form-label">PHONE NUMBER</label>
+                                                <input type="tel" class="form-control" id="phone_number" name="phone_number">
                                             </div>
                                         </div>
-                                    </div>
+                                        <div class="row mb-4">
+                                            <div class="col-md-3">
+                                                <label for="marital_status" class="form-label">MARITAL STATUS</label>
+                                                <select class="form-select" id="marital_status" name="marital_status">
+                                                    <option value="">Select Status</option>
+                                                    <option value="Single">Single</option>
+                                                    <option value="Married">Married</option>
+                                                    <option value="Divorced">Divorced</option>
+                                                    <option value="Widowed">Widowed</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Address Details -->
+                                        <h6 class="mb-3">Address Details</h6>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="town_city_residence" class="form-label">Town/City of residence</label>
+                                                <input type="text" class="form-control" id="town_city_residence" name="town_city_residence">
+                                            </div>
+                                        <div class="col-md-4">
+                                            <label for="state_residence" class="form-label">State of residence</label>
+                                            <select class="form-select" id="state_residence" name="state_residence"></select>
+                                            <span id="loader_state_residence" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display:none;"></span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="lga_residence" class="form-label">LGA of residence</label>
+                                            <select class="form-select" id="lga_residence" name="lga_residence"></select>
+                                            <span id="loader_lga_residence" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display:none;"></span>
+                                        </div>
+
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="address_residence" class="form-label">Address of residence</label>
+                                                <textarea class="form-control" id="address_residence" name="address_residence" rows="2"></textarea>
+                                            </div>
+                                            <div class="col-md-3">
+                                            <label for="state_origin" class="form-label">State of Origin</label>
+                                            <select class="form-select" id="state_origin" name="state_origin"></select>
+                                            <span id="loader_state_origin" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display:none;"></span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="lga_origin" class="form-label">LGA of origin</label>
+                                            <select class="form-select" id="lga_origin" name="lga_origin"></select>
+                                            <span id="loader_lga_origin" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display:none;"></span>
+                                        </div>
+
+                                        </div>
+
+                                        <!-- Parents Details -->
+                                        <h6 class="mb-3">PARENTS DETAILS (compulsory)</h6>
+
+                                        <h6 class="mb-3">FATHER'S</h6>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="father_surname" class="form-label">SURNAME</label>
+                                                <input type="text" class="form-control" id="father_surname" name="father_surname">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="father_first_name" class="form-label">FIRST NAME</label>
+                                                <input type="text" class="form-control" id="father_first_name" name="father_first_name">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="father_town" class="form-label">TOWN</label>
+                                                <input type="text" class="form-control" id="father_town" name="father_town">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-4">
+                                            <div class="col-md-6">
+                                                <label for="father_state" class="form-label">State</label>
+                                                <select class="form-select" id="father_state" name="father_state"></select>
+                                                <span id="loader_father_state" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display:none;"></span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="father_lga" class="form-label">LGA</label>
+                                                <select class="form-select" id="father_lga" name="father_lga"></select>
+                                                <span id="loader_father_lga" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display:none;"></span>
+                                            </div>
+
+                                        </div>
+
+                                        <h6 class="mb-3">MOTHER'S NAME</h6>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="mother_surname" class="form-label">SURNAME</label>
+                                                <input type="text" class="form-control" id="mother_surname" name="mother_surname">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="mother_first_name" class="form-label">FIRST NAME</label>
+                                                <input type="text" class="form-control" id="mother_first_name" name="mother_first_name">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="mother_maiden_name" class="form-label">Mother's Maiden NAME</label>
+                                                <input type="text" class="form-control" id="mother_maiden_name" name="mother_maiden_name">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-4">
+                                            <div class="col-md-4">
+                                                <label for="mother_state" class="form-label">STATE</label>
+                                                <select class="form-select" id="mother_state" name="mother_state"></select>
+                                                <span id="loader_mother_state" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display:none;"></span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="mother_lga" class="form-label">LGA</label>
+                                                <select class="form-select" id="mother_lga" name="mother_lga"></select>
+                                                <span id="loader_mother_lga" class="spinner-border spinner-border-sm text-primary ms-2" role="status" style="display:none;"></span>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label for="mother_town" class="form-label">TOWN</label>
+                                                <input type="text" class="form-control" id="mother_town" name="mother_town">
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-paper-plane me-2"></i>Submit Application
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
+
 
                     <!-- History Section -->
                     <div class="row">
@@ -386,6 +509,46 @@
                 "responsive": true
             });
         });
+
+        // Form submission
+        document.getElementById('birthAttestationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const token = localStorage.getItem('authToken');
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+
+            const formObj = {};
+            formData.forEach((value, key) => formObj[key] = value);
+
+            fetch('api/birth-attestation-submit.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formObj)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Application submitted successfully. Reference: ' + data.reference_code);
+                    this.reset();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Submission error:', error);
+                alert('An error occurred while submitting the application.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Application';
+            });
+        });
+
 
         // File upload functionality
         document.addEventListener('DOMContentLoaded', function() {
@@ -518,6 +681,39 @@
             function showNotifications() {
                 alert('No new notifications');
             }
+        });
+    </script>
+    <script src="assets/js/nigeria-data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate all state dropdowns
+            const stateIds = ['state_residence', 'state_origin', 'father_state', 'mother_state'];
+            const lgaIds = ['lga_residence', 'lga_origin', 'father_lga', 'mother_lga'];
+
+            stateIds.forEach((stateId, index) => {
+                const stateSelect = document.getElementById(stateId);
+                const lgaSelect = document.getElementById(lgaIds[index]);
+                const loaderState = document.getElementById('loader_' + stateId);
+                const loaderLga = document.getElementById('loader_' + lgaIds[index]);
+
+                populateStateDropdown(stateSelect);
+
+                stateSelect.addEventListener('change', () => {
+                    // Clear LGA dropdown
+                    lgaSelect.innerHTML = '<option value="">Select LGA</option>';
+                    // Show loader for LGA
+                    if (loaderLga) loaderLga.style.display = 'inline-block';
+                    // Show loader for state (optional)
+                    if (loaderState) loaderState.style.display = 'inline-block';
+
+                    populateLGADropdown(stateSelect, lgaSelect, loaderLga);
+
+                    // Hide loader for state after short delay
+                    setTimeout(() => {
+                        if (loaderState) loaderState.style.display = 'none';
+                    }, 500);
+                });
+            });
         });
     </script>
 </body>

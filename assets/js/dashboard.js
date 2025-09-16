@@ -29,13 +29,28 @@ document.addEventListener("DOMContentLoaded", () => {
                     ...currentUser,
                     name: data.user.name,
                     email: data.user.email,
-                    // Assuming balance and totalVerifications are fetched from user or API
-                    balance: 0,
-                    totalVerifications: 0,
+                    balance: data.user.wallet,
                 }
-                initializeDashboard()
-                setupEventListeners()
-                showDashboard()
+                // Now fetch the wallet balance
+                fetch("api/admin/users.php", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then(response => response.json())
+                    .then(usersData => {
+                        if (usersData.success) {
+                            const user = usersData.users.find(u => u.email === currentUser.email);
+                            if (user) {
+                                currentUser.balance = user.wallet;
+                            }
+                        }
+                        initializeDashboard()
+                        setupEventListeners()
+                        showDashboard()
+                    })
+
             } else {
                 // Token invalid or expired, redirect to login
                 localStorage.removeItem("authToken")
@@ -50,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "index.html"
         })
 })
+
 
 function initializeDashboard() {
     console.log("Dashboard initialized")
@@ -720,3 +736,4 @@ function deleteAccount() {
         showAlert("Account deletion cancelled", "info")
     }
 }
+
