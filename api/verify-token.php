@@ -6,6 +6,38 @@ header('Access-Control-Allow-Headers: Authorization');
 
 require_once '../config/database.php';
 
+// JWT decode function
+function jwt_decode($token) {
+    $secret = 'your-secret-key'; // Replace with your actual secret key
+
+    $parts = explode('.', $token);
+    if (count($parts) !== 3) {
+        return false;
+    }
+
+    list($headerBase64, $payloadBase64, $signatureBase64) = $parts;
+
+    $header = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $headerBase64)), true);
+    $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $payloadBase64)), true);
+
+    if (!$header || !$payload) {
+        return false;
+    }
+
+    $signature = base64_decode(str_replace(['-', '_'], ['+', '/'], $signatureBase64));
+    $expectedSignature = hash_hmac('sha256', "$headerBase64.$payloadBase64", $secret, true);
+
+    if (!hash_equals($expectedSignature, $signature)) {
+        return false;
+    }
+
+    if (isset($payload['exp']) && $payload['exp'] < time()) {
+        return false;
+    }
+
+    return (object) $payload;
+}
+
 // Get authorization header
 $headers = getallheaders();
 $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
@@ -20,15 +52,14 @@ $token = $matches[1];
 
 try {
     // Decode token
-    $tokenData = json_decode(base64_decode($token), true);
-    
-    if (!$tokenData || $tokenData['exp'] < time()) {
+    $decoded = jwt_decode($token);
+    if (!$decoded) {
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
         exit;
     }
-    
-    $userId = $tokenData['user_id'];
+
+    $userId = $decoded->user_id;
     
     // Get user data
     $database = new Database();

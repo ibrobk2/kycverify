@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.success) {
                     showAlert("Email verified successfully! You can now log in.", "success");
                     setTimeout(() => {
-                        window.location.href = "index.html";
+                        window.location.href = "dashboard.html";
                     }, 2000);
                 } else {
                     showAlert(data.message || "OTP verification failed", "danger");

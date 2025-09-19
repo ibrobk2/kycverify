@@ -87,9 +87,9 @@ function setupEventListeners() {
     }
 
     // Mobile sidebar toggle (for responsive design)
-    if (window.innerWidth <= 768) {
-        addMobileSidebarToggle()
-    }
+    // if (window.innerWidth <= 768) {
+    //     addMobileSidebarToggle()
+    // }
 }
 
 // Logout function

@@ -43,7 +43,7 @@ try {
     $dbOtp = isset($user['otp']) ? trim((string)$user['otp']) : '';
     $submittedOtp = trim((string)$otp);
 
-    if ($dbOtp === '' || $submittedOtp === '' || $dbOtp !== $submittedOtp || strtotime($user['otp_expires_at']) < time()) {
+    if ($dbOtp === '' || $submittedOtp === '' || $dbOtp !== $submittedOtp || strtotime($user['otp_expires_at']) > time()) {
         http_response_code(400);
         echo json_encode([
             'success' => false, 

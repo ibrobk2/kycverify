@@ -1,10 +1,3 @@
-![Open Graph, Homepage (2) (1)](https://github.com/basehub-ai/marketing-website-template/assets/40034115/e8566293-9c58-4467-a4c7-7a700eea10c8)
-
-[BaseHub Templates](https://basehub.com/templates) are production-ready website templates, powered by BaseHub.
-
-# Marketing Website Template
-
-[![Use template](https://basehub.com/template-button.svg)](https://basehub.com/basehub/marketing-website)
 
 Fully featured marketing website.
 
