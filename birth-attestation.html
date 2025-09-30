@@ -77,11 +77,12 @@
                     <i class="fas fa-user-circle"></i>
                 </div>
                 <div class="user-info">
-                    <h6 class="user-name" id="userName">Ibrahim Yusuf Garba</h6>
-                    <p class="user-email" id="userEmail">ibrobk@gmail.com</p>
+                    <h6 class="user-name" id="userName">Loading...</h6>
+                    <p class="user-email" id="userEmail">Loading...</p>
                     <span class="user-badge">User</span>
                 </div>
             </div>
+
 
             <nav class="sidebar-nav">
                 <ul class="nav-list">
@@ -185,8 +186,8 @@
                                         Birth Attestation Service
                                     </h5>
                                     <p class="card-text">
-                                        Our Birth Attestation service allows you to verify and authenticate birth certificates 
-                                        for various official purposes. Upload your documents and our system will process them 
+                                        Our Birth Attestation service allows you to verify and authenticate birth certificates
+                                        for various official purposes. Upload your documents and our system will process them
                                         for verification.
                                     </p>
                                     <div class="alert alert-info">
@@ -197,6 +198,46 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Wallet Balance Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-wallet me-2"></i>
+                                        Wallet Balance & Service Cost
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="alert alert-success">
+                                                <h6><i class="fas fa-coins me-2"></i>Current Balance</h6>
+                                                <h3 id="walletBalance">₦0.00</h3>
+                                                <button class="btn btn-outline-success btn-sm" onclick="refreshWalletBalance()">
+                                                    <i class="fas fa-refresh me-1"></i>Refresh Balance
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="alert alert-warning">
+                                                <h6><i class="fas fa-dollar-sign me-2"></i>Service Cost</h6>
+                                                <h3 id="serviceCost">₦0.00</h3>
+                                                <small class="text-muted">Cost will be deducted from your wallet upon successful submission</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="balanceAlert" class="alert alert-danger" style="display: none;">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>Insufficient Balance!</strong> Your wallet balance is not enough to process this request.
+                                        Please <a href="dashboard.html#fund-wallet" class="alert-link">fund your wallet</a> first.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- Birth Attestation Form -->
                     <div class="row mb-4">
@@ -510,9 +551,135 @@
             });
         });
 
+        // Load wallet balance, service cost, and user details on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWalletBalance();
+            loadServiceCost();
+            loadUserDetails();
+        });
+
+
+        // Load wallet balance
+        async function loadWalletBalance() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                document.getElementById('walletBalance').textContent = '₦0.00';
+                return;
+            }
+
+            try {
+                const response = await fetch('api/get-wallet-balance.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('walletBalance').textContent = '₦' + parseFloat(data.balance).toLocaleString('en-NG', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    checkBalance();
+                } else {
+                    document.getElementById('walletBalance').textContent = '₦0.00';
+                }
+            } catch (error) {
+                console.error('Error loading wallet balance:', error);
+                document.getElementById('walletBalance').textContent = '₦0.00';
+            }
+        }
+
+        // Load service cost
+        async function loadServiceCost() {
+            try {
+                const response = await fetch('api/get-service-price.php?service=Birth Attestation');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('serviceCost').textContent = '₦' + parseFloat(data.price).toLocaleString('en-NG', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    checkBalance();
+                } else {
+                    document.getElementById('serviceCost').textContent = '₦0.00';
+                }
+            } catch (error) {
+                console.error('Error loading service cost:', error);
+                document.getElementById('serviceCost').textContent = '₦0.00';
+            }
+        }
+
+        // Check if balance is sufficient
+        function checkBalance() {
+            const balanceText = document.getElementById('walletBalance').textContent;
+            const costText = document.getElementById('serviceCost').textContent;
+
+            const balance = parseFloat(balanceText.replace(/[^\d.-]/g, ''));
+            const cost = parseFloat(costText.replace(/[^\d.-]/g, ''));
+
+            const alertDiv = document.getElementById('balanceAlert');
+
+            if (balance < cost && cost > 0) {
+                alertDiv.style.display = 'block';
+            } else {
+                alertDiv.style.display = 'none';
+            }
+        }
+
+        // Refresh wallet balance
+        async function refreshWalletBalance() {
+            await loadWalletBalance();
+        }
+
+        // Load user details
+        async function loadUserDetails() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                document.getElementById('userName').textContent = 'Guest User';
+                document.getElementById('userEmail').textContent = 'guest@example.com';
+                return;
+            }
+
+            try {
+                const response = await fetch('api/get-user-details.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('userName').textContent = data.user.name;
+                    document.getElementById('userEmail').textContent = data.user.email;
+                } else {
+                    document.getElementById('userName').textContent = 'User';
+                    document.getElementById('userEmail').textContent = 'user@example.com';
+                }
+            } catch (error) {
+                console.error('Error loading user details:', error);
+                document.getElementById('userName').textContent = 'User';
+                document.getElementById('userEmail').textContent = 'user@example.com';
+            }
+        }
+
+
         // Form submission
         document.getElementById('birthAttestationForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Check balance before submitting
+            const balanceText = document.getElementById('walletBalance').textContent;
+            const costText = document.getElementById('serviceCost').textContent;
+            const balance = parseFloat(balanceText.replace(/[^\d.-]/g, ''));
+            const cost = parseFloat(costText.replace(/[^\d.-]/g, ''));
+
+            if (balance < cost) {
+                alert('Insufficient wallet balance. Please fund your wallet first.');
+                return;
+            }
+
             const formData = new FormData(this);
             const token = localStorage.getItem('authToken');
             // test if token exists
@@ -521,8 +688,6 @@
                 window.location.href = 'index.html';
                 return;
             }
-
-
 
             const submitBtn = this.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
@@ -544,6 +709,7 @@
                 if (data.success) {
                     alert('Application submitted successfully. Reference: ' + data.reference_code);
                     this.reset();
+                    loadWalletBalance(); // Refresh balance after successful submission
                 } else {
                     alert('Error: ' + data.message);
                 }
@@ -557,6 +723,7 @@
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Application';
             });
         });
+
 
 
 

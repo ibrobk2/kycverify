@@ -6,6 +6,7 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 require_once '../config/database.php';
 require_once '../config/config.php';
+require_once 'wallet-helper.php';
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -34,7 +35,18 @@ try {
     // Verify JWT token (simplified for demo)
     $decoded = jwt_decode($token);
     $userId = $decoded->user_id;
-    
+
+    // Initialize wallet helper
+    $walletHelper = new WalletHelper();
+
+    // Check wallet balance and process payment
+    $paymentResult = $walletHelper->processPayment($userId, 'NIN Verification', 'NIN Verification Service Payment');
+    if (!$paymentResult['success']) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => $paymentResult['message']]);
+        exit;
+    }
+
     // Get request data
     $input = json_decode(file_get_contents('php://input'), true);
     
@@ -54,47 +66,34 @@ try {
         exit;
     }
     
-    // Check user balance
-    $stmt = $pdo->prepare("SELECT balance FROM users WHERE id = ?");
-    $stmt->execute([$userId]);
-    $user = $stmt->fetch();
-    
-    if (!$user || $user['balance'] < NIN_VERIFICATION_COST) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Insufficient balance. Please fund your wallet.']);
-        exit;
-    }
+    // User balance already checked and deducted by wallet helper
     
     // Simulate NIN verification API call
     $verificationResult = verifyNINWithAPI($nin, $phone);
     
     if ($verificationResult['success']) {
-        // Deduct cost from user balance
-        $newBalance = $user['balance'] - NIN_VERIFICATION_COST;
-        $stmt = $pdo->prepare("UPDATE users SET balance = ? WHERE id = ?");
-        $stmt->execute([$newBalance, $userId]);
-        
-        // Log the verification
+        // Log the verification (wallet transaction already logged by wallet helper)
         $stmt = $pdo->prepare("
-            INSERT INTO verifications (user_id, type, reference, amount, status, data, created_at) 
+            INSERT INTO verifications (user_id, type, reference, amount, status, data, created_at)
             VALUES (?, 'nin', ?, ?, 'success', ?, NOW())
         ");
         $stmt->execute([
             $userId,
             $nin,
-            NIN_VERIFICATION_COST,
+            $paymentResult['amount_deducted'],
             json_encode($verificationResult['data'])
         ]);
-        
+
         echo json_encode([
             'success' => true,
             'message' => 'NIN verification successful',
-            'data' => $verificationResult['data']
+            'data' => $verificationResult['data'],
+            'amount_deducted' => $paymentResult['amount_deducted']
         ]);
     } else {
         echo json_encode([
             'success' => false,
-            'message' => $verificationResult['message'] 
+            'message' => $verificationResult['message']
         ]);
     }
     

@@ -5,6 +5,8 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 require_once '../config/database.php';
+require_once 'wallet-helper.php';
+
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -43,7 +45,19 @@ try {
     $decoded = jwt_decode($token);
     $userId = $decoded->user_id;
 
+    // Initialize wallet helper
+    $walletHelper = new WalletHelper();
+
+    // Check wallet balance and process payment
+    $paymentResult = $walletHelper->processPayment($userId, 'BVN Upload', 'BVN Upload Service Payment');
+    if (!$paymentResult['success']) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => $paymentResult['message']]);
+        exit;
+    }
+
     if (!isset($_FILES['files'])) {
+
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'No files uploaded']);
         exit;
@@ -101,8 +115,10 @@ try {
         'success' => true,
         'message' => 'Files uploaded successfully',
         'reference' => $reference,
-        'files' => $uploadedFiles
+        'files' => $uploadedFiles,
+        'amount_deducted' => $paymentResult['amount_deducted']
     ]);
+
 } catch (Exception $e) {
     error_log('BVN Upload Error: ' . $e->getMessage());
     http_response_code(500);

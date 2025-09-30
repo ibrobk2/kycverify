@@ -10,6 +10,8 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 require_once '../config/config.php';
 require_once '../config/database.php';
+require_once 'wallet-helper.php';
+
 
 // JWT decode function
 function jwt_decode($token) {
@@ -85,6 +87,18 @@ try {
         echo json_encode(['success' => false, 'message' => 'Invalid token: user_id not found']);
         exit;
     }
+
+    // Initialize wallet helper
+    $walletHelper = new WalletHelper();
+
+    // Check wallet balance and process payment
+    $paymentResult = $walletHelper->processPayment($user_id, 'Birth Attestation', 'Birth Attestation Service Payment');
+    if (!$paymentResult['success']) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => $paymentResult['message']]);
+        exit;
+    }
+
 
     // Parse JSON input
     $input = json_decode(file_get_contents('php://input'), true);
