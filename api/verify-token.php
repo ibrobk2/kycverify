@@ -4,11 +4,12 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Authorization');
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
 
 // JWT decode function
 function jwt_decode($token) {
-    $secret = 'your-secret-key'; // Replace with your actual secret key
+    $secret = JWT_SECRET;
 
     $parts = explode('.', $token);
     if (count($parts) !== 3) {
@@ -65,7 +66,7 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    $query = "SELECT id, name, email, created_at FROM users WHERE id = ? AND status = 'active'";
+    $query = "SELECT id, name, email, phone, wallet, created_at FROM users WHERE id = ? AND status = 'active'";
     $stmt = $db->prepare($query);
     $stmt->execute([$userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);

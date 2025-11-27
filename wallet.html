@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wallet - Lildone Verification Services</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/dashboard.css" />
+    <style>
+        .wallet-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .wallet-card .card-icon {
+            font-size: 3rem;
+            opacity: 0.8;
+        }
+        .wallet-card .card-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .fund-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .history-table th {
+            background-color: #f8f9fa;
+            border-top: none;
+        }
+        .transaction-credit {
+            color: #28a745;
+        }
+        .transaction-debit {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-bolt text-cyan"></i>
+                    <span class="logo-text">AgentVerify</span>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <h6 class="user-name" id="userName">User Dashboard</h6>
+                    <p class="user-email" id="userEmail">user@example.com</p>
+                    <span class="user-badge">User</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="bvn-retrieval.html" class="nav-link">
+                            <i class="fas fa-university"></i>
+                            <span>BVN Retrieval</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="nin-validation.html" class="nav-link">
+                            <i class="fas fa-check-circle"></i>
+                            <span>NIN Validation</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="nin-verification.html" class="nav-link">
+                            <i class="fas fa-search"></i>
+                            <span>NIN Verification</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="bvn-modification.html" class="nav-link">
+                            <i class="fas fa-edit"></i>
+                            <span>BVN Modification</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="birth-attestation.html" class="nav-link">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Birth Attestation</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="personalize-new.html" class="nav-link">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Personalize New</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="wallet.html" class="nav-link">
+                            <i class="fas fa-wallet"></i>
+                            <span>Wallet</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link text-danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1 class="page-title">Wallet</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-outline-primary me-2" onclick="showNotifications()">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <div class="user-dropdown">
+                            <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle fa-2x"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showProfile()">Profile</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showSettings()">Settings</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="logout()">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Wallet Balance Card -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="wallet-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-2">Current Balance</h5>
+                                    <div class="card-value" id="walletBalance">₦0.00</div>
+                                    <p class="mb-0 opacity-75">Available for transactions</p>
+                                </div>
+                                <div class="card-icon">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-light me-2" onclick="refreshWalletBalance()">
+                                    <i class="fas fa-refresh me-1"></i>Refresh Balance
+                                </button>
+                                <button class="btn btn-outline-light" onclick="showFundWalletModal()">
+                                    <i class="fas fa-plus me-1"></i>Fund Wallet
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fund Wallet Form -->
+                <div class="row mb-4">
+                    <div class="col-lg-6">
+                        <div class="fund-form">
+                            <h5 class="mb-3">
+                                <i class="fas fa-credit-card me-2"></i>Fund Your Wallet
+                            </h5>
+                            <form id="fundWalletForm">
+                                <div class="mb-3">
+                                    <label for="fundAmount" class="form-label">Amount (₦)</label>
+                                    <input type="number" class="form-control" id="fundAmount" placeholder="Enter amount" min="100" step="0.01" required>
+                                    <div class="form-text">Minimum amount: ₦100</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="paymentMethod" class="form-label">Payment Method</label>
+                                    <select class="form-select" id="paymentMethod" required>
+                                        <option value="">Select payment method</option>
+                                        <option value="card">Debit/Credit Card</option>
+                                        <option value="bank_transfer">Bank Transfer</option>
+                                        <option value="ussd">USSD</option>
+                                        <option value="wallet">Mobile Wallet</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-paper-plane me-2"></i>Fund Wallet
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary" onclick="showTransactionHistory()">
+                                        <i class="fas fa-history me-2"></i>View Transaction History
+                                    </button>
+                                    <button class="btn btn-outline-success" onclick="showFundingHistory()">
+                                        <i class="fas fa-receipt me-2"></i>View Funding History
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="downloadWalletStatement()">
+                                        <i class="fas fa-download me-2"></i>Download Statement
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Transactions</h5>
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadTransactionHistory()">
+                                    <i class="fas fa-refresh me-1"></i>Refresh
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover history-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Type</th>
+                                                <th>Description</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="transactionTableBody">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted py-4">
+                                                    <i class="fas fa-spinner fa-spin me-2"></i>Loading transactions...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="assets/js/dashboard.js"></script>
+    <script>
+        // Load wallet balance and transaction history on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWalletBalance();
+            loadTransactionHistory();
+        });
+
+        // Load wallet balance
+        async function loadWalletBalance() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                document.getElementById('walletBalance').textContent = '₦0.00';
+                return;
+            }
+
+            try {
+                const response = await fetch('api/get-wallet-balance.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('walletBalance').textContent = '₦' + parseFloat(data.balance).toLocaleString('en-NG', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                } else {
+                    document.getElementById('walletBalance').textContent = '₦0.00';
+                }
+            } catch (error) {
+                console.error('Error loading wallet balance:', error);
+                document.getElementById('walletBalance').textContent = '₦0.00';
+            }
+        }
+
+        // Refresh wallet balance
+        async function refreshWalletBalance() {
+            await loadWalletBalance();
+            showAlert('Wallet balance refreshed successfully!', 'success');
+        }
+
+        // Show fund wallet modal
+        function showFundWalletModal() {
+            const modalHtml = `
+                <div class="modal fade" id="fundWalletModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Fund Wallet</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="modalFundWalletForm">
+                                    <div class="mb-3">
+                                        <label for="modalFundAmount" class="form-label">Amount (₦)</label>
+                                        <input type="number" class="form-control" id="modalFundAmount" placeholder="Enter amount" min="100" step="0.01" required>
+                                        <div class="form-text">Minimum amount: ₦100</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="modalPaymentMethod" class="form-label">Payment Method</label>
+                                        <select class="form-control" id="modalPaymentMethod" required>
+                                            <option value="">Select payment method</option>
+                                            <option value="card">Debit/Credit Card</option>
+                                            <option value="bank_transfer">Bank Transfer</option>
+                                            <option value="ussd">USSD</option>
+                                            <option value="wallet">Mobile Wallet</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-paper-plane me-2"></i>Fund Wallet
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML("beforeend", modalHtml);
+            const modal = new window.bootstrap.Modal(document.getElementById("fundWalletModal"));
+            modal.show();
+
+
+            // Setup form handler
+            document.getElementById("modalFundWalletForm").addEventListener("submit", handleFundWallet);
+        }
+
+        // Handle fund wallet form submission
+        async function handleFundWallet(e) {
+            e.preventDefault();
+
+            const amount = parseFloat(document.getElementById('modalFundAmount').value);
+            const paymentMethod = document.getElementById('modalPaymentMethod').value;
+
+            if (amount < 100) {
+                showAlert('Minimum funding amount is ₦100', 'danger');
+                return;
+            }
+
+            if (!paymentMethod) {
+                showAlert('Please select a payment method', 'danger');
+                return;
+            }
+
+            // Show processing state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+            try {
+                // Simulate payment processing
+                setTimeout(() => {
+                    showAlert('Wallet funding is currently under development. Please contact support for manual funding.', 'warning');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+
+                    // Close modal
+                    const modal = document.getElementById("fundWalletModal");
+                    if (modal) {
+                        const bsModal = window.bootstrap.Modal.getInstance(modal);
+                        if (bsModal) bsModal.hide();
+                        modal.remove();
+                    }
+
+                }, 2000);
+            } catch (error) {
+                console.error('Funding error:', error);
+                showAlert('An error occurred while processing your request', 'danger');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // Load transaction history
+        async function loadTransactionHistory() {
+            const token = localStorage.getItem('authToken');
+            const tableBody = document.getElementById('transactionTableBody');
+
+            if (!token) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Please log in to view transactions</td></tr>';
+                return;
+            }
+
+            try {
+                // For now, show placeholder data since we don't have a transactions API endpoint
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Transaction history will be available soon. Contact support for your current statement.
+                        </td>
+                    </tr>
+                `;
+            } catch (error) {
+                console.error('Error loading transaction history:', error);
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading transactions</td></tr>';
+            }
+        }
+
+        // Show transaction history (placeholder)
+        function showTransactionHistory() {
+            showAlert('Transaction history feature is coming soon!', 'info');
+        }
+
+        // Show funding history (placeholder)
+        function showFundingHistory() {
+            showAlert('Funding history feature is coming soon!', 'info');
+        }
+
+        // Download wallet statement (placeholder)
+        function downloadWalletStatement() {
+            showAlert('Wallet statement download feature is coming soon!', 'info');
+        }
+
+        // Utility functions
+        function showNotifications() {
+            showAlert('You have no new notifications', 'info');
+        }
+
+        function showProfile() {
+            showAlert('Profile feature coming soon!', 'info');
+        }
+
+        function showSettings() {
+            showAlert('Settings feature coming soon!', 'info');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userData');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Show alert function (if not defined in dashboard.js)
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

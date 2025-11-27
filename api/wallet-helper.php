@@ -1,5 +1,5 @@
 <?php
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 class WalletHelper {
     private $db;
@@ -30,11 +30,22 @@ class WalletHelper {
      */
     public function getServicePrice($service_name) {
         try {
+            // First check database
             $stmt = $this->db->prepare("SELECT price FROM pricing WHERE service_name = ? AND status = 'active'");
             $stmt->execute([$service_name]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return $result ? floatval($result['price']) : 0.00;
+            if ($result) {
+                return floatval($result['price']);
+            }
+
+            // Fallback to constants if not found in DB (backward compatibility)
+            $constantName = strtoupper($service_name) . '_COST';
+            if (defined($constantName)) {
+                return constant($constantName);
+            }
+
+            return 0.00;
         } catch (PDOException $e) {
             error_log("Error getting service price: " . $e->getMessage());
             return 0.00;

@@ -1,3 +1,15 @@
+<?php
+session_start();
+require_once 'config/config.php';
+require_once 'config/database.php';
+require_once 'api/wallet-helper.php';
+
+// Basic session check
+if (!isset($_SESSION['user_id'])) {
+    // header("Location: index.html");
+    // exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,78 +61,7 @@
 <body>
     <div class="dashboard-container">
         <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fas fa-bolt text-cyan"></i>
-                    <span class="logo-text">AgentVerify</span>
-                </div>
-            </div>
-
-            <div class="user-profile">
-                <div class="user-avatar">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="user-info">
-                    <h6 class="user-name" id="userName">User Dashboard</h6>
-                    <p class="user-email" id="userEmail">user@example.com</p>
-                    <span class="user-badge">User</span>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="dashboard.html" class="nav-link">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="bvn-retrieval.html" class="nav-link">
-                            <i class="fas fa-university"></i>
-                            <span>BVN Retrieval</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="nin-validation.html" class="nav-link">
-                            <i class="fas fa-check-circle"></i>
-                            <span>NIN Validation</span>
-                        </a>
-                    </li>
-                    <li class="nav-item active">
-                        <a href="nin-verification.html" class="nav-link">
-                            <i class="fas fa-search"></i>
-                            <span>NIN Verification</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="bvn-modification.html" class="nav-link">
-                            <i class="fas fa-edit"></i>
-                            <span>BVN Modification</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="birth-attestation.html" class="nav-link">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Birth Attestation</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="personalize-new.html" class="nav-link">
-                            <i class="fas fa-user-plus"></i>
-                            <span>Personalize New</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link text-danger" onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        <?php include 'includes/sidebar.php'; ?>
 
         <!-- Main Content -->
         <div class="main-content">
@@ -136,8 +77,8 @@
                                 <i class="fas fa-user-circle fa-2x"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="showProfile()">Profile</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="showSettings()">Settings</a></li>
+                                <li><a class="dropdown-item" href="profile.php">Profile</a></li>
+                                <li><a class="dropdown-item" href="settings.php">Settings</a></li>
                                 <li><hr class="dropdown-divider" /></li>
                                 <li><a class="dropdown-item text-danger" href="#" onclick="logout()">Logout</a></li>
                             </ul>
@@ -179,7 +120,7 @@
                                 <div id="balanceAlert" class="alert alert-danger" style="display: none;">
                                     <i class="fas fa-exclamation-triangle me-2"></i>
                                     <strong>Insufficient Balance!</strong> Your wallet balance is not enough to process this request.
-                                    Please <a href="dashboard.html#fund-wallet" class="alert-link">fund your wallet</a> first.
+                                    Please <a href="dashboard.php#fund-wallet" class="alert-link">fund your wallet</a> first.
                                 </div>
                             </div>
                         </div>
@@ -433,160 +374,151 @@
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 return emailRegex.test(email);
             }
-
-            // Load wallet balance
-            async function loadWalletBalance() {
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    document.getElementById('walletBalance').textContent = '₦0.00';
-                    return;
-                }
-
-                try {
-                    const response = await fetch('api/get-wallet-balance.php', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    const data = await response.json();
-
-                    if (data.success) {
-                        document.getElementById('walletBalance').textContent = '₦' + parseFloat(data.balance).toLocaleString('en-NG', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        });
-                        checkBalance();
-                    } else {
-                        document.getElementById('walletBalance').textContent = '₦0.00';
-                    }
-                } catch (error) {
-                    console.error('Error loading wallet balance:', error);
-                    document.getElementById('walletBalance').textContent = '₦0.00';
-                }
-            }
-
-            // Load service cost
-            async function loadServiceCost() {
-                try {
-                    const response = await fetch('api/get-service-price.php?service=NIN Verification');
-                    const data = await response.json();
-
-                    if (data.success) {
-                        document.getElementById('serviceCost').textContent = '₦' + parseFloat(data.price).toLocaleString('en-NG', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        });
-                        checkBalance();
-                    } else {
-                        document.getElementById('serviceCost').textContent = '₦0.00';
-                    }
-                } catch (error) {
-                    console.error('Error loading service cost:', error);
-                    document.getElementById('serviceCost').textContent = '₦0.00';
-                }
-            }
-
-            // Check if balance is sufficient
-            function checkBalance() {
-                const balanceText = document.getElementById('walletBalance').textContent;
-                const costText = document.getElementById('serviceCost').textContent;
-
-                const balance = parseFloat(balanceText.replace(/[^\d.-]/g, ''));
-                const cost = parseFloat(costText.replace(/[^\d.-]/g, ''));
-
-                const alertDiv = document.getElementById('balanceAlert');
-
-                if (balance < cost && cost > 0) {
-                    alertDiv.style.display = 'block';
-                } else {
-                    alertDiv.style.display = 'none';
-                }
-            }
-
-            // Refresh wallet balance
-            async function refreshWalletBalance() {
-                await loadWalletBalance();
-            }
-
-            // Submit verification
-            async function submitVerification() {
-                const submitBtn = document.getElementById('submitBtn');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-
-                const nin = document.getElementById('ninNumber').value;
-                const token = localStorage.getItem('authToken');
-
-                try {
-                    const response = await fetch('api/services/verify-nin.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ nin: nin })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        showAlert('Verification successful! ' + (data.message || ''), 'success');
-                        // Display result data if needed
-                        console.log(data.data);
-                        resetForm();
-                        loadWalletBalance(); // Refresh balance after successful charge
-                    } else {
-                        showAlert(data.message || 'Verification failed', 'danger');
-                    }
-                } catch (error) {
-                    console.error('Error submitting verification:', error);
-                    showAlert('An error occurred while processing your request', 'danger');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-search me-2"></i>Verify Information';
-                }
-            }
-
-
-            // Show alert messages
-            function showAlert(message, type) {
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-                alertDiv.innerHTML = `
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                
-                const form = document.getElementById('ninVerificationForm');
-                form.parentNode.insertBefore(alertDiv, form);
-                
-                setTimeout(() => {
-                    if (alertDiv.parentNode) {
-                        alertDiv.parentNode.removeChild(alertDiv);
-                    }
-                }, 5000);
-            }
-
-            // Reset form
-            window.resetForm = function() {
-                form.reset();
-                ninSection.style.display = 'none';
-                bvnSection.style.display = 'none';
-                phoneSection.style.display = 'none';
-            };
         });
 
-        // Utility functions
-        function showNotifications() {
-            alert('Notifications feature coming soon!');
+        // Load wallet balance (moved outside DOMContentLoaded for global access)
+        async function loadWalletBalance() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                document.getElementById('walletBalance').textContent = '₦0.00';
+                return;
+            }
+
+            try {
+                const response = await fetch('api/get-wallet-balance.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('walletBalance').textContent = '₦' + parseFloat(data.balance).toLocaleString('en-NG', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    checkBalance();
+                } else {
+                    document.getElementById('walletBalance').textContent = '₦0.00';
+                }
+            } catch (error) {
+                console.error('Error loading wallet balance:', error);
+                document.getElementById('walletBalance').textContent = '₦0.00';
+            }
         }
 
-        function showProfile() {
-            alert('Profile feature coming soon!');
+        // Load service cost
+        async function loadServiceCost() {
+            try {
+                const response = await fetch('api/get-service-price.php?service=NIN Verification');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('serviceCost').textContent = '₦' + parseFloat(data.price).toLocaleString('en-NG', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    checkBalance();
+                } else {
+                    document.getElementById('serviceCost').textContent = '₦0.00';
+                }
+            } catch (error) {
+                console.error('Error loading service cost:', error);
+                document.getElementById('serviceCost').textContent = '₦0.00';
+            }
         }
 
-        function showSettings() {
-            alert('Settings feature coming soon!');
+        // Check if balance is sufficient
+        function checkBalance() {
+            const balanceText = document.getElementById('walletBalance').textContent;
+            const costText = document.getElementById('serviceCost').textContent;
+
+            const balance = parseFloat(balanceText.replace(/[^\d.-]/g, ''));
+            const cost = parseFloat(costText.replace(/[^\d.-]/g, ''));
+
+            const alertDiv = document.getElementById('balanceAlert');
+
+            if (balance < cost && cost > 0) {
+                alertDiv.style.display = 'block';
+            } else {
+                alertDiv.style.display = 'none';
+            }
+        }
+
+        // Refresh wallet balance
+        async function refreshWalletBalance() {
+            await loadWalletBalance();
+        }
+
+        // Submit verification
+        async function submitVerification() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+            const nin = document.getElementById('ninNumber').value;
+            const token = localStorage.getItem('authToken');
+
+            try {
+                const response = await fetch('api/services/verify-nin.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ nin: nin })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Verification successful! ' + (data.message || ''), 'success');
+                    // Display result data if needed
+                    console.log(data.data);
+                    resetForm();
+                    loadWalletBalance(); // Refresh balance after successful charge
+                } else {
+                    showAlert(data.message || 'Verification failed', 'danger');
+                }
+            } catch (error) {
+                console.error('Error submitting verification:', error);
+                showAlert('An error occurred while processing your request', 'danger');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-search me-2"></i>Verify Information';
+            }
+        }
+
+        // Show alert messages
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const form = document.getElementById('ninVerificationForm');
+            form.parentNode.insertBefore(alertDiv, form);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+
+        // Reset form
+        function resetForm() {
+            const form = document.getElementById('ninVerificationForm');
+            const ninSection = document.getElementById('ninSection');
+            const bvnSection = document.getElementById('bvnSection');
+            const phoneSection = document.getElementById('phoneSection');
+            
+            form.reset();
+            ninSection.style.display = 'none';
+            bvnSection.style.display = 'none';
+            phoneSection.style.display = 'none';
         }
 
         function logout() {

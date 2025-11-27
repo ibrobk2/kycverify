@@ -108,7 +108,7 @@ async function handleLogin(e) {
       showAlert("Login successful!", "success")
       closeModal("loginModal")
       updateUIForLoggedInUser()
-      window.location.href = `dashboard.html`;
+      window.location.href = `dashboard.php`;
 
 
     } else {
@@ -470,7 +470,7 @@ function logout() {
 
 function showDashboard() {
   // showAlert("Dashboard feature coming soon!", "info")
-  window.location.href = 'dashboard.html';
+  window.location.href = 'dashboard.php';
 }
 
 // Form Validation Setup

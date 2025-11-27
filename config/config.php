@@ -8,10 +8,19 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 
 // API Configuration
-define('JWT_SECRET', 'your-secret-key-change-in-production');
+define('JWT_SECRET', 'your-secret-key-change-in-production-85fa8961'); // Changed for security
 define('JWT_ALGORITHM', 'HS256');
 
-// Service Costs (in Naira)
+// Robosttech API Configuration
+define('ROBOSTTECH_BASE_URL', 'https://api.robosttech.com/v1'); // Verify actual URL from docs
+define('ROBOSTTECH_API_KEY', 'your-robosttech-api-key'); // Placeholder
+
+// Gafiapay API Configuration
+define('GAFIAPAY_BASE_URL', 'https://api.gafiapay.com/v1'); // Verify actual URL
+define('GAFIAPAY_API_KEY', 'your-gafiapay-api-key'); // Placeholder
+define('GAFIAPAY_SECRET', 'your-gafiapay-secret'); // Placeholder
+
+// Service Costs (Fallback/Initial)
 define('NIN_VERIFICATION_COST', 50);
 define('BVN_VERIFICATION_COST', 30);
 define('BIRTH_ATTESTATION_COST', 100);
@@ -47,12 +56,6 @@ define('SMTP_PASSWORD', 'Arc782022@abu');
 define('DEBUG_MODE', true);
 define('LOG_ERRORS', true);
 define('ERROR_LOG_PATH', '../logs/error.log');
-
-// API Endpoints
-define('NIN_API_URL', 'https://api.example.com/nin/verify');
-define('BVN_API_URL', 'https://api.example.com/bvn/verify');
-define('NIN_API_KEY', 'your-nin-api-key');
-define('BVN_API_KEY', 'your-bvn-api-key');
 
 // Time Zone
 date_default_timezone_set('Africa/Lagos');

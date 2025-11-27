@@ -8,6 +8,7 @@ let currentUser = {
 
 // Initialize dashboard
 document.addEventListener("DOMContentLoaded", () => {
+    loadWalletBalance();
     // Check if user is authenticated
     const token = localStorage.getItem("authToken")
     if (!token) {
@@ -65,6 +66,38 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "index.html"
         })
 })
+
+// Load wallet balance
+async function loadWalletBalance() {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        document.getElementById('walletBalance').textContent = '₦0.00';
+        return;
+    }
+
+    try {
+        const response = await fetch('../api/get-wallet-balance.php', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('walletBalance').textContent = '₦' + parseFloat(data.balance).toLocaleString('en-NG', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            checkBalance();
+        } else {
+            document.getElementById('walletBalance').textContent = '₦0.00';
+        }
+    } catch (error) {
+        console.error('Error loading wallet balance:', error);
+        document.getElementById('walletBalance').textContent = '₦0.00';
+    }
+}
+// end of load wallet balance
 
 
 function initializeDashboard() {
