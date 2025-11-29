@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTU Management - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1e3a8a;
+            --cyan: #06b6d4;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-blue), #1e293b);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 0.25rem 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <!-- Sidebar -->
+            <?php include 'includes/sidebar.php'; ?>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-mobile-alt me-2"></i>VTU Providers</h2>
+                    <button class="btn btn-primary" onclick="openProviderModal()">
+                        <i class="fas fa-plus me-2"></i>Add Provider
+                    </button>
+                </div>
+
+                <!-- Providers List -->
+                <div class="row" id="providersList">
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                        <p class="mt-3">Loading providers...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Provider Modal -->
+    <div class="modal fade" id="providerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="providerModalTitle">Add Provider</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="providerForm">
+                        <input type="hidden" id="providerId">
+                        <div class="mb-3">
+                            <label class="form-label">Provider Name</label>
+                            <input type="text" class="form-control" id="providerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Code (Unique Identifier)</label>
+                            <input type="text" class="form-control" id="providerCode" required placeholder="e.g., vtpass, clubkonnect">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">API URL</label>
+                            <input type="url" class="form-control" id="providerUrl" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">API Key</label>
+                            <input type="text" class="form-control" id="providerKey">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">API Secret</label>
+                            <input type="password" class="form-control" id="providerSecret">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="providerDefault">
+                            <label class="form-check-label">Set as Default Provider</label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="providerActive" checked>
+                            <label class="form-check-label">Active</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProvider()">Save Provider</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let adminToken = null;
+        let providerModal;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            providerModal = new bootstrap.Modal(document.getElementById('providerModal'));
+            loadProviders();
+
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('adminToken');
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+
+        async function loadProviders() {
+            try {
+                const response = await fetch('../api/admin/vtu-providers.php', {
+                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    displayProviders(result.data);
+                } else {
+                    alert('Failed to load providers: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading providers');
+            }
+        }
+
+        function displayProviders(providers) {
+            const container = document.getElementById('providersList');
+            
+            if (providers.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-server fa-3x text-muted mb-3"></i>
+                        <h5>No Providers Found</h5>
+                        <p class="text-muted">Add your first VTU provider to get started.</p>
+                        <button class="btn btn-primary mt-2" onclick="openProviderModal()">Add Provider</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = providers.map(p => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 ${p.is_default ? 'border-primary' : ''}">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+                            <h5 class="mb-0">
+                                ${p.name}
+                                ${p.is_default ? '<span class="badge bg-primary ms-2" style="font-size: 0.7rem">Default</span>' : ''}
+                            </h5>
+                            <span class="badge bg-${p.status === 'active' ? 'success' : 'secondary'}">${p.status}</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><small class="text-muted">Code:</small> <strong>${p.code}</strong></p>
+                            <p class="mb-2"><small class="text-muted">API URL:</small><br><span class="text-truncate d-block">${p.api_url}</span></p>
+                            <p class="mb-3"><small class="text-muted">Balance:</small> <strong>₦${parseFloat(p.balance).toLocaleString('en-NG', {minimumFractionDigits: 2})}</strong></p>
+                            
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary btn-sm" onclick="checkBalance(${p.id})">
+                                    <i class="fas fa-sync-alt me-2"></i>Check Balance
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-sm btn-outline-secondary" onclick='editProvider(${JSON.stringify(p)})'>
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProvider(${p.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openProviderModal() {
+            document.getElementById('providerForm').reset();
+            document.getElementById('providerId').value = '';
+            document.getElementById('providerModalTitle').textContent = 'Add Provider';
+            providerModal.show();
+        }
+
+        function editProvider(provider) {
+            document.getElementById('providerId').value = provider.id;
+            document.getElementById('providerName').value = provider.name;
+            document.getElementById('providerCode').value = provider.code;
+            document.getElementById('providerUrl').value = provider.api_url;
+            document.getElementById('providerKey').value = provider.api_key || '';
+            document.getElementById('providerSecret').value = provider.api_secret || '';
+            document.getElementById('providerDefault').checked = provider.is_default == 1;
+            document.getElementById('providerActive').checked = provider.status === 'active';
+            document.getElementById('providerModalTitle').textContent = 'Edit Provider';
+            providerModal.show();
+        }
+
+        async function saveProvider() {
+            const id = document.getElementById('providerId').value;
+            const data = {
+                action: id ? 'update' : 'create',
+                id: id,
+                name: document.getElementById('providerName').value,
+                code: document.getElementById('providerCode').value,
+                api_url: document.getElementById('providerUrl').value,
+                api_key: document.getElementById('providerKey').value,
+                api_secret: document.getElementById('providerSecret').value,
+                is_default: document.getElementById('providerDefault').checked ? 1 : 0,
+                status: document.getElementById('providerActive').checked ? 'active' : 'inactive'
+            };
+
+            if (!data.name || !data.code || !data.api_url) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('../api/admin/vtu-providers.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    providerModal.hide();
+                    loadProviders();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving provider');
+            }
+        }
+
+        async function deleteProvider(id) {
+            if (!confirm('Are you sure you want to delete this provider?')) return;
+
+            try {
+                const response = await fetch(`../api/admin/vtu-providers.php?id=${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Provider deleted successfully');
+                    loadProviders();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error deleting provider');
+            }
+        }
+
+        async function checkBalance(id) {
+            try {
+                const response = await fetch('../api/admin/vtu-providers.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken
+                    },
+                    body: JSON.stringify({ action: 'check_balance', id: id })
+                });
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error checking balance');
+            }
+        }
+    </script>
+</body>
+</html>

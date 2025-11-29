@@ -1,6 +1,6 @@
 <?php
+require_once '../../config/config.php';
 require_once '../../config/database.php';
-require_once '../../config/constants.php';
 
 // Set headers for JSON response
 header('Content-Type: application/json');
@@ -13,28 +13,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Check authentication
-$headers = getallheaders();
-$auth_header = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-$token = str_replace('Bearer ', '', $auth_header);
+define('ADMIN_TOKEN_SECRET', 'your-very-secret-key');
 
-if (empty($token)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Authorization token required']);
-    exit;
+function verifyAdminToken() {
+    $headers = getallheaders();
+    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+    
+    if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+        return false;
+    }
+    
+    $token = $matches[1];
+    $parts = explode('.', $token);
+    
+    if (count($parts) !== 2) return false;
+    
+    list($payload_b64, $signature) = $parts;
+    $expected_signature = hash_hmac('sha256', $payload_b64, ADMIN_TOKEN_SECRET);
+    
+    if (!hash_equals($expected_signature, $signature)) return false;
+    
+    $payload = json_decode(base64_decode($payload_b64), true);
+    
+    if (!$payload || (isset($payload['exp']) && $payload['exp'] < time())) return false;
+    
+    return $payload;
 }
 
-// Verify token (simplified - in production, use proper JWT verification)
-if ($token !== 'your-admin-token') { // Replace with actual token verification
+$adminData = verifyAdminToken();
+if (!$adminData) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Invalid token']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
 
 try {
-    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+    $database = new Database();
+    $db = $database->getConnection();
+    
     $method = $_SERVER['REQUEST_METHOD'];
     $input = json_decode(file_get_contents('php://input'), true);
 
@@ -42,7 +58,7 @@ try {
         case 'GET':
             if (isset($_GET['id'])) {
                 // Get specific pricing
-                $stmt = $pdo->prepare("SELECT * FROM pricing WHERE id = ?");
+                $stmt = $db->prepare("SELECT * FROM pricing WHERE id = ?");
                 $stmt->execute(array($_GET['id']));
 
                 $pricing = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -54,7 +70,7 @@ try {
                 }
             } else {
                 // Get all pricing
-                $stmt = $pdo->query("SELECT * FROM pricing ORDER BY id DESC");
+                $stmt = $db->query("SELECT * FROM pricing ORDER BY id DESC");
                 $pricing = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 echo json_encode(['success' => true, 'pricing' => $pricing]);
             }
@@ -68,7 +84,7 @@ try {
                 break;
             }
 
-            $stmt = $pdo->prepare("INSERT INTO pricing (service_name, price, description, status) VALUES (?, ?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO pricing (service_name, price, description, status) VALUES (?, ?, ?, ?)");
             $stmt->execute([
                 $input['service_name'],
                 $input['price'],
@@ -77,7 +93,7 @@ try {
             ]);
 
 
-            echo json_encode(['success' => true, 'message' => 'Pricing added successfully', 'id' => $pdo->lastInsertId()]);
+            echo json_encode(['success' => true, 'message' => 'Pricing added successfully', 'id' => $db->lastInsertId()]);
             break;
 
         case 'PUT':
@@ -88,7 +104,7 @@ try {
                 break;
             }
 
-            $stmt = $pdo->prepare("UPDATE pricing SET service_name = ?, price = ?, description = ?, status = ? WHERE id = ?");
+            $stmt = $db->prepare("UPDATE pricing SET service_name = ?, price = ?, description = ?, status = ? WHERE id = ?");
             $stmt->execute([
                 $input['service_name'],
                 $input['price'],
@@ -113,7 +129,7 @@ try {
                 break;
             }
 
-            $stmt = $pdo->prepare("DELETE FROM pricing WHERE id = ?");
+            $stmt = $db->prepare("DELETE FROM pricing WHERE id = ?");
             $stmt->execute([$input['id']]);
 
             if ($stmt->rowCount() > 0) {

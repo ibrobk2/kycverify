@@ -51,37 +51,8 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-auto sidebar">
-                <div class="p-3">
-                    <h4 class="text-white mb-4">
-                        <i class="fas fa-bolt text-info"></i>
-                        Admin Panel
-                    </h4>
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="index.html">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
-                        <a class="nav-link active" href="users.html">
-                            <i class="fas fa-users me-2"></i>Users
-                        </a>
-                        <a class="nav-link" href="transactions.html">
-                            <i class="fas fa-exchange-alt me-2"></i>Transactions
-                        </a>
-                        <a class="nav-link" href="vtu-management.html">
-                            <i class="fas fa-mobile-alt me-2"></i>VTU Management
-                        </a>
-                        <a class="nav-link" href="api-integrations.html">
-                            <i class="fas fa-plug me-2"></i>API Integrations
-                        </a>
-                        <a class="nav-link" href="pricing.html">
-                            <i class="fas fa-dollar-sign me-2"></i>Pricing
-                        </a>
-                        <a class="nav-link" href="#" id="logout-btn">
-                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                        </a>
-                    </nav>
-                </div>
-            </div>
+            <!-- Sidebar -->
+            <?php include 'includes/sidebar.php'; ?>
 
             <!-- Main Content -->
             <div class="main-content">

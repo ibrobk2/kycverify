@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Pricing - AgentVerify</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-blue: #1e3a8a;
+            --cyan: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-blue), #1e293b);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 0.25rem 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-inactive {
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--cyan));
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .form-control:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: var(--cyan);
+            border-color: var(--cyan);
+        }
+        
+        .btn-primary:hover {
+            background-color: #0891b2;
+            border-color: #0891b2;
+        }
+        
+        .action-btn {
+            margin: 0 2px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <?php include 'includes/sidebar.php'; ?>
+
+            <!-- Main Content -->
+            <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="mb-0">Pricing Management</h2>
+                    <p class="text-muted mb-0">Manage pricing for all services</p>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addPricingModal">
+                        <i class="fas fa-plus me-2"></i>Add Pricing
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="refreshPricing()">
+                        <i class="fas fa-refresh me-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Data Card -->
+        <div class="data-card">
+            <div class="table-responsive">
+                <table id="pricingTable" class="table table-striped table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Service Name</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <div class="loading-spinner">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    Loading pricing...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Pricing Modal -->
+    <div class="modal fade" id="addPricingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Pricing</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPricingForm">
+                        <div class="mb-3">
+                            <label for="addServiceName" class="form-label">Service Name *</label>
+                            <input type="text" class="form-control" id="addServiceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addPrice" class="form-label">Price (₦) *</label>
+                            <input type="number" class="form-control" id="addPrice" min="0" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="addDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addStatus" class="form-label">Status</label>
+                            <select class="form-select" id="addStatus">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addPricing()">Add Pricing</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Pricing Modal -->
+    <div class="modal fade" id="editPricingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Pricing</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPricingForm">
+                        <input type="hidden" id="editPricingId">
+                        <div class="mb-3">
+                            <label for="editServiceName" class="form-label">Service Name *</label>
+                            <input type="text" class="form-control" id="editServiceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPrice" class="form-label">Price (₦) *</label>
+                            <input type="number" class="form-control" id="editPrice" min="0" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStatus" class="form-label">Status</label>
+                            <select class="form-select" id="editStatus">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updatePricing()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Pricing Modal -->
+    <div class="modal fade" id="deletePricingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white">Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning!</strong> This action cannot be undone.
+                    </div>
+                    <p>Are you sure you want to delete this pricing?</p>
+                    <div class="card">
+                        <div class="card-body">
+                            <p><strong>Service Name:</strong> <span id="deleteServiceName"></span></p>
+                            <p><strong>Price:</strong> ₦<span id="deletePrice"></span></p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="deletePricingId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="deletePricing()">
+                        <i class="fas fa-trash me-2"></i>Delete Pricing
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+        let pricingTable;
+        let adminToken = null;
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        async function checkAdminAuth() {
+            adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                return false;
+            }
+
+            try {
+                const response = await fetch('../api/admin-auth.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Authentication failed');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                return false;
+            }
+        }
+
+        async function initializeApp() {
+            const isAuthenticated = await checkAdminAuth();
+            if (!isAuthenticated) {
+                showAuthError();
+                setTimeout(() => {
+                    window.location.href = './login.html';
+                }, 2000);
+                return;
+            }
+
+            await loadPricing();
+            setupEventListeners();
+        }
+
+        function showAuthError() {
+            const container = document.querySelector('.main-content');
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Authentication failed. Redirecting to login...
+                </div>
+            `;
+        }
+
+        function setupEventListeners() {
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutAdmin();
+            });
+
+            // Form submissions
+            document.getElementById('addPricingForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addPricing();
+            });
+
+            document.getElementById('editPricingForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                updatePricing();
+            });
+        }
+
+        async function loadPricing() {
+            if (pricingTable) {
+                pricingTable.ajax.reload();
+                return;
+            }
+
+            pricingTable = $('#pricingTable').DataTable({
+                ajax: {
+                    url: '../api/admin/pricing.php',
+                    type: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + adminToken
+                    },
+                    dataSrc: function(json) {
+                        if (json.success && Array.isArray(json.pricing)) {
+                            return json.pricing;
+                        }
+                        return [];
+                    },
+                    error: function(xhr, status, error) {
+                        showError('Failed to load pricing: ' + error);
+                    }
+                },
+                columns: [
+                    { data: 'id' },
+                    { 
+                        data: 'service_name',
+                        render: function(data) {
+                            return `<strong>${data || 'N/A'}</strong>`;
+                        }
+                    },
+                    { 
+                        data: 'price',
+                        render: function(data) {
+                            const price = parseFloat(data || 0);
+                            return '₦' + price.toLocaleString('en-NG', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
+                    },
+                    { 
+                        data: 'description',
+                        render: function(data) {
+                            return data || 'N/A';
+                        }
+                    },
+                    { 
+                        data: 'status',
+                        render: function(data) {
+                            const statusClass = {
+                                'active': 'status-active',
+                                'inactive': 'status-inactive'
+                            };
+                            return `<span class="status-badge ${statusClass[data] || ''}">${(data || 'active').toUpperCase()}</span>`;
+                        }
+                    },
+                    { 
+                        data: 'created_at',
+                        render: function(data) {
+                            return data ? new Date(data).toLocaleDateString() : 'N/A';
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-primary action-btn" 
+                                            onclick="editPricing(${row.id})" 
+                                            title="Edit Pricing">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger action-btn" 
+                                            onclick="confirmDelete(${row.id}, '${row.service_name}', ${row.price})" 
+                                            title="Delete Pricing">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ],
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                order: [[0, 'desc']],
+                language: {
+                    search: "Search pricing:",
+                    lengthMenu: "Show _MENU_ pricing per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ pricing",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+        }
+
+        // Add Pricing Function
+        async function addPricing() {
+            const formData = {
+                service_name: document.getElementById('addServiceName').value.trim(),
+                price: parseFloat(document.getElementById('addPrice').value),
+                description: document.getElementById('addDescription').value.trim(),
+                status: document.getElementById('addStatus').value
+            };
+
+            if (!validatePricingData(formData)) return;
+
+            try {
+                const response = await fetch('../api/admin/pricing.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Pricing added successfully');
+                    bootstrap.Modal.getInstance(document.getElementById('addPricingModal')).hide();
+                    document.getElementById('addPricingForm').reset();
+                    await refreshPricing();
+                } else {
+                    showError(data.message || 'Failed to add pricing');
+                }
+            } catch (error) {
+                showError('Error adding pricing: ' + error.message);
+            }
+        }
+
+        // Edit Pricing Functions
+        async function editPricing(pricingId) {
+            try {
+                const response = await fetch(`../api/admin/pricing.php?id=${pricingId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + adminToken
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.pricing) {
+                    const pricing = data.pricing;
+                    document.getElementById('editPricingId').value = pricing.id;
+                    document.getElementById('editServiceName').value = pricing.service_name || '';
+                    document.getElementById('editPrice').value = pricing.price || '';
+                    document.getElementById('editDescription').value = pricing.description || '';
+                    document.getElementById('editStatus').value = pricing.status || 'active';
+                    
+                    new bootstrap.Modal(document.getElementById('editPricingModal')).show();
+                } else {
+                    showError(data.message || 'Failed to load pricing data');
+                }
+            } catch (error) {
+                showError('Error loading pricing: ' + error.message);
+            }
+        }
+
+        async function updatePricing() {
+            const pricingId = document.getElementById('editPricingId').value;
+            const formData = {
+                id: parseInt(pricingId),
+                service_name: document.getElementById('editServiceName').value.trim(),
+                price: parseFloat(document.getElementById('editPrice').value),
+                description: document.getElementById('editDescription').value.trim(),
+                status: document.getElementById('editStatus').value
+            };
+
+            if (!validatePricingData(formData, false)) return; // false = not new pricing
+
+            try {
+                const response = await fetch('../api/admin/pricing.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Pricing updated successfully');
+                    bootstrap.Modal.getInstance(document.getElementById('editPricingModal')).hide();
+                    await refreshPricing();
+                } else {
+                    showError(data.message || 'Failed to update pricing');
+                }
+            } catch (error) {
+                showError('Error updating pricing: ' + error.message);
+            }
+        }
+
+        // Delete Pricing Functions
+        function confirmDelete(pricingId, serviceName, price) {
+            document.getElementById('deletePricingId').value = pricingId;
+            document.getElementById('deleteServiceName').textContent = serviceName || 'N/A';
+            document.getElementById('deletePrice').textContent = parseFloat(price || 0).toLocaleString('en-NG', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            new bootstrap.Modal(document.getElementById('deletePricingModal')).show();
+        }
+
+        async function deletePricing() {
+            const pricingId = document.getElementById('deletePricingId').value;
+
+            try {
+                const response = await fetch('../api/admin/pricing.php', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken
+                    },
+                    body: JSON.stringify({ id: parseInt(pricingId) })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Pricing deleted successfully');
+                    bootstrap.Modal.getInstance(document.getElementById('deletePricingModal')).hide();
+                    await refreshPricing();
+                } else {
+                    showError(data.message || 'Failed to delete pricing');
+                }
+            } catch (error) {
+                showError('Error deleting pricing: ' + error.message);
+            }
+        }
+
+        // Utility Functions
+        function validatePricingData(data, isNewPricing = true) {
+            if (!data.service_name || data.service_name.trim() === '') {
+                showError('Service name is required');
+                return false;
+            }
+            
+            if (!data.price || data.price <= 0) {
+                showError('Valid price is required and must be greater than 0');
+                return false;
+            }
+            
+            return true;
+        }
+
+        async function refreshPricing() {
+            if (pricingTable) {
+                pricingTable.ajax.reload();
+            } else {
+                await loadPricing();
+            }
+            showSuccess('Pricing refreshed successfully');
+        }
+
+        function showSuccess(message) {
+            showAlert(message, 'success');
+        }
+
+        function showError(message) {
+            showAlert(message, 'danger');
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.page-header');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+
+        async function logoutAdmin() {
+            const confirmLogout = window.confirm("Are you sure you want to logout?");
+            if (confirmLogout) {
+                localStorage.removeItem("adminToken");
+                localStorage.removeItem("adminData");
+                window.location.href = "login.html";
+            }
+        }
+    </script>
+    </div>
+        </div>
+    </div>
+</body>
+</html>

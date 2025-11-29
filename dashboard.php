@@ -176,6 +176,20 @@ if ($user_id) {
                             </div>
                             <h6 class="service-title">IPE Clearance</h6>
                         </div>
+
+                        <div class="service-card" onclick="window.location.href='airtime-purchase.php'">
+                            <div class="service-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h6 class="service-title">Buy Airtime</h6>
+                        </div>
+
+                        <div class="service-card" onclick="window.location.href='data-purchase.php'">
+                            <div class="service-icon">
+                                <i class="fas fa-wifi"></i>
+                            </div>
+                            <h6 class="service-title">Buy Data</h6>
+                        </div>
                     </div>
                 </div>
             </div>

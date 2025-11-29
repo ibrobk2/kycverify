@@ -36,6 +36,13 @@ define('APP_URL', 'https://agentverify.com.ng');
 define('SUPPORT_EMAIL', 'support@agentverify.com.ng');
 define('SUPPORT_PHONE', '+234-800-123-4567');
 
+// VTU Service Settings
+define('VTU_ENABLED', true);
+define('VTU_MIN_AIRTIME_AMOUNT', 50);
+define('VTU_MAX_AIRTIME_AMOUNT', 50000);
+define('VTU_AIRTIME_COMMISSION_PERCENT', 2.0);
+define('VTU_DATA_COMMISSION_PERCENT', 3.0);
+
 // Security Settings
 define('SESSION_TIMEOUT', 3600); // 1 hour
 define('MAX_LOGIN_ATTEMPTS', 5);

@@ -66,6 +66,7 @@ class Database {
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     service_name VARCHAR(50) UNIQUE NOT NULL,
                     price DECIMAL(10,2) NOT NULL,
+                    description TEXT NULL,
                     currency VARCHAR(3) DEFAULT 'NGN',
                     status ENUM('active', 'inactive') DEFAULT 'active',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -101,6 +102,45 @@ class Database {
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
             ";
+
+            // VTU Providers table
+            $vtuProvidersTable = "
+                CREATE TABLE IF NOT EXISTS vtu_providers (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL,
+                    code VARCHAR(50) UNIQUE NOT NULL,
+                    api_url VARCHAR(255) NOT NULL,
+                    api_key VARCHAR(255) NULL,
+                    api_secret VARCHAR(255) NULL,
+                    balance DECIMAL(10,2) DEFAULT 0.00,
+                    status ENUM('active', 'inactive') DEFAULT 'active',
+                    is_default BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                )
+            ";
+
+            // API Configurations table
+            $apiConfigsTable = "
+                CREATE TABLE IF NOT EXISTS api_configurations (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    service_name VARCHAR(50) UNIQUE NOT NULL,
+                    api_key VARCHAR(255) NULL,
+                    api_secret VARCHAR(255) NULL,
+                    base_url VARCHAR(255) NULL,
+                    status ENUM('active', 'inactive') DEFAULT 'active',
+                    settings JSON NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                )
+            ";
+
+            $this->conn->exec($usersTable);
+            $this->conn->exec($pricingTable);
+            $this->conn->exec($verificationLogsTable);
+            $this->conn->exec($verificationResultsTable);
+            $this->conn->exec($vtuProvidersTable);
+            $this->conn->exec($apiConfigsTable);
             
             // API usage logs table
             $apiLogsTable = "
@@ -147,6 +187,9 @@ class Database {
             // Migration: Add virtual account columns if they don't exist
             $this->migrateVirtualAccountColumns();
 
+            // Migration: Add description column to pricing table if it doesn't exist
+            $this->migratePricingDescriptionColumn();
+
         } catch(PDOException $exception) {
             error_log("Table creation error: " . $exception->getMessage());
             // throw new Exception("Failed to create database tables");
@@ -170,6 +213,18 @@ class Database {
             }
         } catch (PDOException $e) {
             error_log("Migration error: " . $e->getMessage());
+        }
+    }
+
+    private function migratePricingDescriptionColumn() {
+        try {
+            $stmt = $this->conn->prepare("SHOW COLUMNS FROM pricing LIKE ?");
+            $stmt->execute(['description']);
+            if (!$stmt->fetch()) {
+                $this->conn->exec("ALTER TABLE pricing ADD COLUMN description TEXT NULL AFTER price");
+            }
+        } catch (PDOException $e) {
+            error_log("Pricing migration error: " . $e->getMessage());
         }
     }
 

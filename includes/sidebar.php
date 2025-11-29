@@ -63,6 +63,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span>BVN Services</span>
                 </a>
             </li>
+            <li class="nav-item <?php echo ($current_page == 'airtime-purchase.php' || $current_page == 'data-purchase.php') ? 'active' : ''; ?>">
+                <a href="airtime-purchase.php" class="nav-link">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Buy Airtime</span>
+                </a>
+            </li>
+            <li class="nav-item <?php echo ($current_page == 'data-purchase.php') ? 'active' : ''; ?>">
+                <a href="data-purchase.php" class="nav-link">
+                    <i class="fas fa-wifi"></i>
+                    <span>Buy Data</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a href="dashboard.php#fund-wallet" class="nav-link">
                     <i class="fas fa-wallet"></i>

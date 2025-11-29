@@ -4,7 +4,8 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
 
 define('ADMIN_TOKEN_SECRET', 'your-very-secret-key'); // Change this to a secure key
 
@@ -35,15 +36,37 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
+    // Check if admins table exists
+    $tableCheck = $db->query("SHOW TABLES LIKE 'admins'");
+    if ($tableCheck->rowCount() == 0) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Admin table not found. Please run setup first.',
+            'setup_url' => '/lildone/admin/setup.html'
+        ]);
+        exit;
+    }
+    
     // Check if admin exists
     $query = "SELECT id, name, email, password, status, created_at FROM admins WHERE email = ? AND status = 'active'";
     $stmt = $db->prepare($query);
     $stmt->execute([$email]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$admin || !password_verify($password, $admin['password'])) {
+    if (!$admin) {
         http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'No active admin found with this email. Please check your credentials or run setup.',
+            'setup_url' => '/lildone/admin/setup.html'
+        ]);
+        exit;
+    }
+    
+    if (!password_verify($password, $admin['password'])) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Invalid password']);
         exit;
     }
     
@@ -76,10 +99,17 @@ try {
 } catch (PDOException $e) {
     error_log("Admin login error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database error occurred']);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Database error: ' . $e->getMessage(),
+        'debug' => DEBUG_MODE ? $e->getTraceAsString() : null
+    ]);
 } catch (Exception $e) {
     error_log("Admin login error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'An error occurred']);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'An error occurred: ' . $e->getMessage()
+    ]);
 }
 ?>

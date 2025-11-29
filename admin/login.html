@@ -200,7 +200,7 @@
                     
                     // Redirect after 1.5 seconds
                     setTimeout(() => {
-                        window.location.href = './index.html';
+                        window.location.href = './index.php';
                     }, 1500);
                     
                 } else {
@@ -208,8 +208,15 @@
                     errorMessage.style.display = 'block';
                 }
             } catch (error) {
-                errorMessage.textContent = 'Network error. Please try again.';
+                console.error('Login error:', error);
+                errorMessage.textContent = 'Network error. Please check if the server is running and try again.';
                 errorMessage.style.display = 'block';
+                
+                // Add setup link if it's a setup issue
+                const setupLink = document.createElement('div');
+                setupLink.className = 'mt-2';
+                setupLink.innerHTML = '<small><a href="setup.html" class="text-primary">Need to setup admin? Click here</a></small>';
+                errorMessage.appendChild(setupLink);
             } finally {
                 // Hide loading state
                 loading.style.display = 'none';
@@ -220,7 +227,7 @@
         
         // Check if already logged in
         if (localStorage.getItem('adminToken')) {
-            window.location.href = './dashboard.html';
+            window.location.href = './index.php';
         }
     </script>
 

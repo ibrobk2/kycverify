@@ -15,6 +15,30 @@
         .sidebar {
             background: linear-gradient(135deg, var(--primary-blue), #1e293b);
             min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            width: calc(100% - 250px);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                min-height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
         }
         
         .sidebar .nav-link {
@@ -67,46 +91,12 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="p-3">
-                    <h4 class="text-white mb-4">
-                        <i class="fas fa-bolt text-info"></i>
-                        Admin Panel
-                    </h4>
-                    <nav class="nav flex-column">
-                        <a class="nav-link active" href="#dashboard" data-section="dashboard">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
-                        <!-- <a class="nav-link" href="#users" data-section="users"> -->
-                        <a class="nav-link" href="users.html">
-                            <i class="fas fa-users me-2"></i>Users
-                        </a>
-                        <a class="nav-link" href="#verifications" data-section="verifications">
-                            <i class="fas fa-check-circle me-2"></i>Verifications
-                        </a>
-                        <a class="nav-link" href="#wallet" data-section="wallet">
-                            <i class="fas fa-wallet me-2"></i>Wallet Funding
-                        </a>
-     <a class="nav-link" href="pricing.html">
-        <i class="fas fa-dollar-sign me-2"></i>Pricing
-    </a>
-
-                         <a class="nav-link" href="#api" data-section="wallet">
-                            <i class="fas fa-cog me-2"></i>APIs Management
-                        </a>
-                        <a class="nav-link" href="#settings" data-section="settings">
-                            <i class="fas fa-cog me-2"></i>Settings
-                        </a>
-                        <a class="nav-link" href="#" id="logout-btn">
-                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                        </a>
-                    </nav>
-                </div>
-            </div>
+            <!-- Sidebar -->
+            <?php include 'includes/sidebar.php'; ?>
             
             <!-- Main Content -->
-            <div class="col-md-9 col-lg-10">
-                <div class="p-4">
+            <div class="main-content">
+                <div>
                     <!-- Dashboard Section -->
                     <div id="dashboard-section" class="content-section">
                         <h2 class="mb-4">Dashboard Overview</h2>

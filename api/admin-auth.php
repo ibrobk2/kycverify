@@ -12,7 +12,8 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 define('ADMIN_TOKEN_SECRET', 'your-very-secret-key'); // Must match admin-login.php
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
 
 function getBearerToken() {
     $headers = getallheaders();
