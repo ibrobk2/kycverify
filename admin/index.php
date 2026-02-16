@@ -3,80 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - AgentVerify</title>
+    <title>Admin Dashboard - agentify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-blue: #1e3a8a;
-            --cyan: #06b6d4;
-        }
-        
-        .sidebar {
-            background: linear-gradient(135deg, var(--primary-blue), #1e293b);
-            min-height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            z-index: 1000;
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 2rem;
-            width: calc(100% - 250px);
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                position: relative;
-                height: auto;
-                min-height: auto;
-            }
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            margin: 0.25rem 0;
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--primary-blue);
-        }
-        
-        .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
-        }
-        
         .loading {
             display: flex;
             justify-content: center;
@@ -85,7 +15,31 @@
             font-size: 1.2rem;
             color: #666;
         }
+
+        /* Slider Styles */
+        .dashboard-slider {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            height: 300px;
+        }
+        .dashboard-slider .carousel-item {
+            height: 300px;
+        }
+        .dashboard-slider img {
+            object-fit: cover;
+            height: 100%;
+            width: 100%;
+        }
+        .carousel-caption {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 10px;
+            bottom: 20px;
+        }
     </style>
+
 </head>
 <body>
     <div class="container-fluid">
@@ -99,7 +53,34 @@
                 <div>
                     <!-- Dashboard Section -->
                     <div id="dashboard-section" class="content-section">
-                        <h2 class="mb-4">Dashboard Overview</h2>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Dashboard Overview</h2>
+                            <a href="slider-management.php" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-images me-2"></i>Manage Slider
+                            </a>
+                        </div>
+
+                        
+                        <!-- Slider -->
+                        <div id="dashboardCarousel" class="carousel slide dashboard-slider" data-bs-ride="carousel">
+                            <div class="carousel-inner" id="slider-container">
+                                <div class="carousel-item active">
+                                    <div class="d-flex justify-content-center align-items-center h-100 bg-light">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading slider...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#dashboardCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#dashboardCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
                         
                         <!-- Stats Cards -->
                         <div class="row mb-4">
@@ -263,6 +244,7 @@
             
             // Load dashboard
             await loadDashboardData();
+            await loadSliderImages();
 
             // Keep dashboard data updated every 10 seconds
             setInterval(loadDashboardData, 10000);
@@ -418,6 +400,35 @@
             });
         }
         
+        async function loadSliderImages() {
+            if (!adminToken) return;
+
+            try {
+                const response = await fetch('../api/admin/slider-images.php', {
+                    headers: {
+                        'Authorization': 'Bearer ' + adminToken
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    const sliderContainer = document.getElementById('slider-container');
+                    sliderContainer.innerHTML = result.data.map((img, index) => `
+                        <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                            <img src="${img.image_url}" class="d-block w-100" alt="${img.caption || 'Slider Image'}">
+                            ${img.caption ? `
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>${img.caption}</h5>
+                            </div>` : ''}
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading slider images:', error);
+            }
+        }
+
         function updateRecentTransactions(transactions) {
             const tbody = document.querySelector('#recent-transactions-table tbody');
             if (!tbody) return;

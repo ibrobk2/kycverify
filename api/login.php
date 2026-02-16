@@ -47,11 +47,12 @@ try {
     }
 
     // Check if email is verified
-    if ($user['email_verified'] == 0) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Email not verified', 'email_not_verified' => true]);
-        exit;
-    }
+    // Check if email is verified - DISABLED
+    // if ($user['email_verified'] == 0) {
+    //     http_response_code(401);
+    //     echo json_encode(['success' => false, 'message' => 'Email not verified', 'email_not_verified' => true]);
+    //     exit;
+    // }
     
     // Generate JWT token (simplified version)
     $secret = JWT_SECRET;

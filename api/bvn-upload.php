@@ -8,6 +8,9 @@ require_once '../config/database.php';
 require_once 'wallet-helper.php';
 
 
+require_once 'jwt-helper.php';
+require_once '../config/config.php';
+
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
@@ -19,37 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Get authorization header
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-if (!$authHeader || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
-
-$token = $matches[1];
-
-// Dummy function to decode JWT token and get user ID
-function jwt_decode($token) {
-    // In real implementation, decode and verify JWT token here
-    return (object) [
-        'user_id' => 1,
-        'email' => 'ibrobk@gmail.com',
-        'exp' => time() + 3600
-    ];
-}
-
 try {
-    $decoded = jwt_decode($token);
-    $userId = $decoded->user_id;
+    $userId = JWTHelper::getUserIdFromToken();
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
 
     // Initialize wallet helper
     $walletHelper = new WalletHelper();
 
     // Check wallet balance and process payment
-    $paymentResult = $walletHelper->processPayment($userId, 'BVN Upload', 'BVN Upload Service Payment');
+    $paymentResult = $walletHelper->processPayment($userId, 'bvn_upload', 'BVN Upload Service');
     if (!$paymentResult['success']) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => $paymentResult['message']]);

@@ -6,8 +6,32 @@ class RobosttechService {
     private $apiKey;
 
     public function __construct() {
-        $this->baseUrl = ROBOSTTECH_BASE_URL;
-        $this->apiKey = ROBOSTTECH_API_KEY;
+        // Default values from config
+        $this->baseUrl = defined('ROBOSTTECH_BASE_URL') ? ROBOSTTECH_BASE_URL : '';
+        $this->apiKey = defined('ROBOSTTECH_API_KEY') ? ROBOSTTECH_API_KEY : '';
+
+        // Try to fetch from database
+        try {
+            require_once __DIR__ . '/../config/database.php';
+            // Check if Database class is already available, otherwise include it
+            if (!class_exists('Database')) {
+                require_once __DIR__ . '/../config/database.php';
+            }
+            
+            $database = new Database();
+            $db = $database->getConnection();
+            
+            $stmt = $db->prepare("SELECT base_url, api_key FROM api_configurations WHERE service_name = 'robosttech' AND status = 'active' LIMIT 1");
+            $stmt->execute();
+            $config = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($config) {
+                if (!empty($config['base_url'])) $this->baseUrl = $config['base_url'];
+                if (!empty($config['api_key'])) $this->apiKey = $config['api_key'];
+            }
+        } catch (Exception $e) {
+            error_log("RobosttechService Config Error: " . $e->getMessage());
+        }
     }
 
     private function makeRequest($endpoint, $data) {

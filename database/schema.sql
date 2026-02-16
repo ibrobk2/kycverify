@@ -1,4 +1,4 @@
--- AgentVerify Database Schema - Admin Module
+-- agentify Database Schema - Admin Module
 -- MySQL Database Schema for Admin Authentication
 
 -- Create database (if not exists)

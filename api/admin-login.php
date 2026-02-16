@@ -7,7 +7,7 @@ header('Access-Control-Allow-Headers: Content-Type');
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
-define('ADMIN_TOKEN_SECRET', 'your-very-secret-key'); // Change this to a secure key
+// ADMIN_TOKEN_SECRET is defined in config.php
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

@@ -86,6 +86,29 @@ class WalletHelper {
     }
 
     /**
+     * Add amount to user's wallet
+     */
+    public function addAmount($user_id, $amount, $details = '') {
+        try {
+            $this->db->beginTransaction();
+
+            // Update wallet balance
+            $stmt = $this->db->prepare("UPDATE users SET wallet = wallet + ? WHERE id = ?");
+            $stmt->execute([$amount, $user_id]);
+
+            // Record transaction
+            $this->addTransaction($user_id, $amount, 'credit', $details);
+
+            $this->db->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            error_log("Error adding wallet amount: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Add wallet transaction record
      */
     public function addTransaction($user_id, $amount, $type, $details = '') {

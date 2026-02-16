@@ -6,7 +6,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="sidebar-header">
         <div class="logo">
             <i class="fas fa-bolt text-cyan"></i>
-            <span class="logo-text">AgentVerify</span>
+            <span class="logo-text">agentify</span>
         </div>
     </div>
 
@@ -57,7 +57,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span>NIN Services</span>
                 </a>
             </li>
-            <li class="nav-item <?php echo ($current_page == 'bvn-retrieval.php' || $current_page == 'bvn-modification.php') ? 'active' : ''; ?>">
+            <li class="nav-item <?php echo ($current_page == 'bvn-retrieval.php' || $current_page == 'bvn-modification.php' || $current_page == 'bvn-slip-printing.php') ? 'active' : ''; ?>">
                 <a href="bvn-retrieval.php" class="nav-link">
                     <i class="fas fa-university"></i>
                     <span>BVN Services</span>
@@ -76,7 +76,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
             <li class="nav-item">
-                <a href="dashboard.php#fund-wallet" class="nav-link">
+                <a href="javascript:void(0)" onclick="showFundWallet()" class="nav-link">
                     <i class="fas fa-wallet"></i>
                     <span>Fund Wallet</span>
                 </a>

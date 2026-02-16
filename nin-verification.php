@@ -137,70 +137,64 @@ if (!isset($_SESSION['user_id'])) {
                             </div>
                             <div class="card-body">
                                 <form id="ninVerificationForm">
+                                    <!-- Verification Type Selection -->
                                     <div class="mb-3">
                                         <label for="verificationType" class="form-label">Select Verification Type <span class="text-danger">*</span></label>
                                         <select class="form-select" id="verificationType" required>
                                             <option value="">Choose verification type</option>
-                                            <option value="nin">NIN Verification</option>
-                                            <option value="bvn">BVN Verification</option>
-                                            <option value="phone">Phone Number Verification</option>
+                                            <option value="nin">Verify by NIN</option>
+                                            <option value="phone">Verify by Phone Number</option>
+                                            <option value="demographic">Demographic Search</option>
                                         </select>
                                     </div>
 
-                                    <!-- NIN Verification Section -->
-                                    <div id="ninSection" class="form-section" style="display: none;">
+                                    <!-- Slip Type Selection (shown when verification type is selected) -->
+                                    <div id="slipTypeSection" class="mb-3" style="display: none;">
+                                        <label for="slipType" class="form-label">Select Slip Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="slipType" required>
+                                            <option value="">Choose slip type</option>
+                                            <option value="premium">Premium</option>
+                                            <option value="regular">Regular</option>
+                                            <option value="standard">Standard</option>
+                                            <option value="vnin">VNIN</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- NIN Input Section -->
+                                    <div id="ninInputSection" class="form-section" style="display: none;">
                                         <div class="mb-3">
                                             <label for="ninNumber" class="form-label">NIN Number <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="ninNumber" placeholder="Enter 11-digit NIN" maxlength="11" pattern="[0-9]{11}">
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="ninFile" class="form-label">Upload NIN Document <span class="text-danger">*</span></label>
-                                            <input type="file" class="form-control" id="ninFile" accept=".jpg,.jpeg,.png,.pdf">
-                                        </div>
                                     </div>
 
-                                    <!-- BVN Verification Section -->
-                                    <div id="bvnSection" class="form-section" style="display: none;">
-                                        <div class="mb-3">
-                                            <label for="bvnNumber" class="form-label">BVN Number <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="bvnNumber" placeholder="Enter 11-digit BVN" maxlength="11" pattern="[0-9]{11}">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="bvnFile" class="form-label">Upload BVN Document <span class="text-danger">*</span></label>
-                                            <input type="file" class="form-control" id="bvnFile" accept=".jpg,.jpeg,.png,.pdf">
-                                        </div>
-                                    </div>
-
-                                    <!-- Phone Verification Section -->
-                                    <div id="phoneSection" class="form-section" style="display: none;">
+                                    <!-- Phone Input Section -->
+                                    <div id="phoneInputSection" class="form-section" style="display: none;">
                                         <div class="mb-3">
                                             <label for="phoneNumber" class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                            <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter phone number" pattern="[0-9]{11}">
+                                            <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter phone number (11 digits)" maxlength="11" pattern="[0-9]{11}">
+                                        </div>
+                                    </div>
+
+                                    <!-- Demographic Search Section -->
+                                    <div id="demographicInputSection" class="form-section" style="display: none;">
+                                        <div class="mb-3">
+                                            <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="firstName" placeholder="Enter first name">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="phoneFile" class="form-label">Upload Phone Verification Document <span class="text-danger">*</span></label>
-                                            <input type="file" class="form-control" id="phoneFile" accept=".jpg,.jpeg,.png,.pdf">
+                                            <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="lastName" placeholder="Enter last name">
                                         </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="fullName" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fullName" placeholder="Enter your full name as on document">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control" id="email" placeholder="Enter your email address">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="additionalInfo" class="form-label">Additional Information</label>
-                                        <textarea class="form-control" id="additionalInfo" rows="3" placeholder="Any additional information..."></textarea>
+                                        <div class="mb-3">
+                                            <label for="dob" class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" id="dob">
+                                        </div>
                                     </div>
 
                                     <div class="d-grid gap-2">
                                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                                            <i class="fas fa-search me-2"></i>Verify Information
+                                            <i class="fas fa-search me-2"></i>Get NIN Slip
                                         </button>
                                         <button type="button" class="btn btn-secondary" onclick="resetForm()">
                                             <i class="fas fa-refresh me-2"></i>Reset Form
@@ -214,15 +208,23 @@ if (!isset($_SESSION['user_id'])) {
                     <div class="col-lg-4">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="mb-0">Verification Guidelines</h5>
+                                <h5 class="mb-0">How to Use</h5>
                             </div>
                             <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Ensure all documents are clear and readable</li>
-                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Upload documents in JPG, PNG, or PDF format</li>
-                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Maximum file size: 5MB per document</li>
-                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Verification typically takes 24-48 hours</li>
-                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> You'll receive email notifications on progress</li>
+                                <ol class="list">
+                                    <li class="mb-2"><strong>Select Verification Type</strong> - Choose from NIN, Phone Number, or Demographic Search</li>
+                                    <li class="mb-2"><strong>Select Slip Type</strong> - Choose Premium, Regular, Standard, or VNIN</li>
+                                    <li class="mb-2"><strong>Enter Required Information</strong> - Provide NIN, Phone Number, or demographic details</li>
+                                    <li class="mb-2"><strong>Submit Form</strong> - Click "Get NIN Slip" to retrieve your document</li>
+                                    <li class="mb-2"><strong>Download PDF</strong> - Your NIN slip will be automatically downloaded</li>
+                                </ol>
+                                <hr>
+                                <h6 class="mb-2"><i class="fas fa-info-circle me-2"></i>Slip Types:</h6>
+                                <ul class="list-unstyled small">
+                                    <li><strong>Premium:</strong> Full detailed slip</li>
+                                    <li><strong>Regular:</strong> Standard slip format</li>
+                                    <li><strong>Standard:</strong> Basic slip format</li>
+                                    <li><strong>VNIN:</strong> Virtual NIN slip</li>
                                 </ul>
                             </div>
                         </div>
@@ -249,32 +251,48 @@ if (!isset($_SESSION['user_id'])) {
     <!-- Custom JS -->
     <script src="assets/js/dashboard.js"></script>
     <script>
+        // API Configuration
+        // const API_KEY = "your_dataverify_api_key"; // Removed: Processed on backend
+        // const ENDPOINTS = { ... }; // Removed: Handled by backend
+
         // Load wallet balance and service cost on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadWalletBalance();
             loadServiceCost();
+            
             const verificationType = document.getElementById('verificationType');
-            const ninSection = document.getElementById('ninSection');
-            const bvnSection = document.getElementById('bvnSection');
-            const phoneSection = document.getElementById('phoneSection');
+            const slipTypeSection = document.getElementById('slipTypeSection');
+            const slipType = document.getElementById('slipType');
+            const ninInputSection = document.getElementById('ninInputSection');
+            const phoneInputSection = document.getElementById('phoneInputSection');
+            const demographicInputSection = document.getElementById('demographicInputSection');
             const form = document.getElementById('ninVerificationForm');
-
 
             // Handle verification type change
             verificationType.addEventListener('change', function() {
-                // Hide all sections
-                ninSection.style.display = 'none';
-                bvnSection.style.display = 'none';
-                phoneSection.style.display = 'none';
-
-                // Show relevant section
                 const value = this.value;
-                if (value === 'nin') {
-                    ninSection.style.display = 'block';
-                } else if (value === 'bvn') {
-                    bvnSection.style.display = 'block';
-                } else if (value === 'phone') {
-                    phoneSection.style.display = 'block';
+                
+                // Hide all input sections
+                ninInputSection.style.display = 'none';
+                phoneInputSection.style.display = 'none';
+                demographicInputSection.style.display = 'none';
+                
+                // Reset slip type
+                slipType.value = '';
+                
+                if (value === '') {
+                    slipTypeSection.style.display = 'none';
+                } else {
+                    slipTypeSection.style.display = 'block';
+                    
+                    // Show appropriate input section
+                    if (value === 'nin') {
+                        ninInputSection.style.display = 'block';
+                    } else if (value === 'phone') {
+                        phoneInputSection.style.display = 'block';
+                    } else if (value === 'demographic') {
+                        demographicInputSection.style.display = 'block';
+                    }
                 }
             });
 
@@ -298,82 +316,63 @@ if (!isset($_SESSION['user_id'])) {
                 }
             });
 
-
             // Form validation
-            function validateForm() {
+            window.validateForm = function() {
                 const verificationType = document.getElementById('verificationType').value;
-                const fullName = document.getElementById('fullName').value;
-                const email = document.getElementById('email').value;
+                const slipType = document.getElementById('slipType').value;
 
                 if (!verificationType) {
                     showAlert('Please select a verification type', 'danger');
                     return false;
                 }
 
-                if (!fullName.trim()) {
-                    showAlert('Please enter your full name', 'danger');
-                    return false;
-                }
-
-                if (!email.trim() || !isValidEmail(email)) {
-                    showAlert('Please enter a valid email address', 'danger');
+                if (!slipType) {
+                    showAlert('Please select a slip type', 'danger');
                     return false;
                 }
 
                 // Validate specific fields based on verification type
                 if (verificationType === 'nin') {
                     const ninNumber = document.getElementById('ninNumber').value;
-                    const ninFile = document.getElementById('ninFile').files[0];
                     
                     if (!ninNumber || ninNumber.length !== 11 || !/^\d{11}$/.test(ninNumber)) {
                         showAlert('Please enter a valid 11-digit NIN number', 'danger');
-                        return false;
-                    }
-                    
-                    if (!ninFile) {
-                        showAlert('Please upload your NIN document', 'danger');
-                        return false;
-                    }
-                }
-
-                if (verificationType === 'bvn') {
-                    const bvnNumber = document.getElementById('bvnNumber').value;
-                    const bvnFile = document.getElementById('bvnFile').files[0];
-                    
-                    if (!bvnNumber || bvnNumber.length !== 11 || !/^\d{11}$/.test(bvnNumber)) {
-                        showAlert('Please enter a valid 11-digit BVN number', 'danger');
-                        return false;
-                    }
-                    
-                    if (!bvnFile) {
-                        showAlert('Please upload your BVN document', 'danger');
                         return false;
                     }
                 }
 
                 if (verificationType === 'phone') {
                     const phoneNumber = document.getElementById('phoneNumber').value;
-                    const phoneFile = document.getElementById('phoneFile').files[0];
                     
                     if (!phoneNumber || !/^\d{11}$/.test(phoneNumber)) {
                         showAlert('Please enter a valid 11-digit phone number', 'danger');
                         return false;
                     }
+                }
+
+                if (verificationType === 'demographic') {
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const dob = document.getElementById('dob').value;
                     
-                    if (!phoneFile) {
-                        showAlert('Please upload your phone verification document', 'danger');
+                    if (!firstName.trim()) {
+                        showAlert('Please enter your first name', 'danger');
+                        return false;
+                    }
+                    
+                    if (!lastName.trim()) {
+                        showAlert('Please enter your last name', 'danger');
+                        return false;
+                    }
+                    
+                    if (!dob) {
+                        showAlert('Please select your date of birth', 'danger');
                         return false;
                     }
                 }
 
                 return true;
-            }
-
-            // Email validation
-            function isValidEmail(email) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return emailRegex.test(email);
-            }
+            };
         });
 
         // Load wallet balance (moved outside DOMContentLoaded for global access)
@@ -450,42 +449,109 @@ if (!isset($_SESSION['user_id'])) {
             await loadWalletBalance();
         }
 
-        // Submit verification
+        // Submit verification and call DataVerify API
         async function submitVerification() {
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
 
-            const nin = document.getElementById('ninNumber').value;
+            const verificationType = document.getElementById('verificationType').value;
+            const slipType = document.getElementById('slipType').value;
             const token = localStorage.getItem('authToken');
 
             try {
-                const response = await fetch('api/services/verify-nin.php', {
+                let payload = {
+                    verification_type: verificationType,
+                    slip_type: slipType
+                };
+
+                // Add type-specific data
+                if (verificationType === 'nin') {
+                    payload.nin = document.getElementById('ninNumber').value;
+                } else if (verificationType === 'phone') {
+                    payload.phone = document.getElementById('phoneNumber').value;
+                } else if (verificationType === 'demographic') {
+                    payload.first_name = document.getElementById('firstName').value;
+                    payload.last_name = document.getElementById('lastName').value;
+                    payload.dob = document.getElementById('dob').value;
+                }
+
+                // Call Backend API
+                const response = await fetch('api/verify-nin.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ nin: nin })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
 
-                if (data.success) {
-                    showAlert('Verification successful! ' + (data.message || ''), 'success');
-                    // Display result data if needed
-                    console.log(data.data);
+                if (data.status === 'success' && data.pdf_base64) {
+                    // Decode and download PDF
+                    const pdfData = base64ToBlob(data.pdf_base64);
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = URL.createObjectURL(pdfData);
+                    
+                    let filename = 'nin_slip.pdf';
+                    if (verificationType === 'nin') {
+                        filename = `nin_slip_${document.getElementById('ninNumber').value}.pdf`;
+                    } else if (verificationType === 'phone') {
+                        filename = `nin_slip_${document.getElementById('phoneNumber').value}.pdf`;
+                    }
+                    
+                    downloadLink.download = filename;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+
+                    showAlert('NIN Slip retrieved successfully! File is downloading.', 'success');
+                    
+                    // Log the transaction
+                    await logTransaction(verificationType, slipType, token);
+                    
                     resetForm();
-                    loadWalletBalance(); // Refresh balance after successful charge
+                    loadWalletBalance();
                 } else {
-                    showAlert(data.message || 'Verification failed', 'danger');
+                    showAlert(data.message || 'Failed to retrieve NIN Slip', 'danger');
                 }
             } catch (error) {
                 console.error('Error submitting verification:', error);
-                showAlert('An error occurred while processing your request', 'danger');
+                showAlert('An error occurred while processing your request: ' + error.message, 'danger');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-search me-2"></i>Verify Information';
+                submitBtn.innerHTML = '<i class="fas fa-search me-2"></i>Get NIN Slip';
+            }
+        }
+
+        // Convert base64 to Blob
+        function base64ToBlob(base64) {
+            const binaryString = atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return new Blob([bytes], { type: 'application/pdf' });
+        }
+
+        // Log transaction to server
+        async function logTransaction(verificationType, slipType, token) {
+            try {
+                await fetch('api/log-nin-verification.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        verification_type: verificationType,
+                        slip_type: slipType,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+            } catch (error) {
+                console.error('Error logging transaction:', error);
             }
         }
 
@@ -511,14 +577,16 @@ if (!isset($_SESSION['user_id'])) {
         // Reset form
         function resetForm() {
             const form = document.getElementById('ninVerificationForm');
-            const ninSection = document.getElementById('ninSection');
-            const bvnSection = document.getElementById('bvnSection');
-            const phoneSection = document.getElementById('phoneSection');
+            const slipTypeSection = document.getElementById('slipTypeSection');
+            const ninInputSection = document.getElementById('ninInputSection');
+            const phoneInputSection = document.getElementById('phoneInputSection');
+            const demographicInputSection = document.getElementById('demographicInputSection');
             
             form.reset();
-            ninSection.style.display = 'none';
-            bvnSection.style.display = 'none';
-            phoneSection.style.display = 'none';
+            slipTypeSection.style.display = 'none';
+            ninInputSection.style.display = 'none';
+            phoneInputSection.style.display = 'none';
+            demographicInputSection.style.display = 'none';
         }
 
         function logout() {

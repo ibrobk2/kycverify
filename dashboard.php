@@ -90,7 +90,12 @@ if ($user_id) {
                                         <p class="card-label">WALLET BALANCE</p>
                                         <h2 class="card-value" id="walletBalance">₦<?php echo number_format($wallet_balance, 2); ?></h2>
                                         <p class="card-description">Current available funds</p>
-                                        <button class="btn btn-cyan" onclick="showFundWallet()">Fund Wallet</button>
+                                        <button class="btn btn-cyan" onclick="showFundWallet(this)" 
+                                            data-acc-no="<?php echo htmlspecialchars(isset($virtual_account['virtual_account_number']) ? $virtual_account['virtual_account_number'] : ''); ?>"
+                                            data-bank-name="<?php echo htmlspecialchars(isset($virtual_account['bank_name']) ? $virtual_account['bank_name'] : ''); ?>"
+                                            data-acc-name="<?php echo htmlspecialchars(isset($virtual_account['account_name']) ? $virtual_account['account_name'] : ''); ?>">
+                                            Fund Wallet
+                                        </button>
                                     </div>
                                     <div class="card-icon">
                                         <i class="fas fa-wallet"></i>
@@ -231,13 +236,30 @@ if ($user_id) {
             const token = localStorage.getItem('authToken');
             if (!token) return;
             
-            if (!confirm('Generate a new virtual account?')) return;
+            const btn = event.target;
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
 
             try {
-                // Call API to generate account (Need to implement this endpoint)
-                alert('Feature coming soon: API endpoint for account generation.');
+                const response = await fetch('api/generate-virtual-account.php', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Virtual account generated successfully!');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to generate account. Please contact support.');
+                }
             } catch (e) {
                 console.error(e);
+                alert('An error occurred. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
             }
         }
 
@@ -249,6 +271,12 @@ if ($user_id) {
                 window.location.href = 'index.html';
             }
         }
+        // Check for hash on load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash === '#fund-wallet') {
+                showFundWallet();
+            }
+        });
     </script>
 </body>
 </html>

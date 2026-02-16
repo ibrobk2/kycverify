@@ -89,7 +89,7 @@
             <div class="sidebar-header">
                 <div class="logo">
                     <i class="fas fa-bolt text-cyan"></i>
-                    <span class="logo-text">AgentVerify</span>
+                    <span class="logo-text">agentify</span>
                 </div>
             </div>
 
@@ -449,76 +449,61 @@
         }
         
         // Load upload history
-        function loadUploadHistory() {
-            // In a real implementation, this would fetch data from the server
-            // For now, we'll use dummy data
-            const historyData = [
-                {
-                    date: "2023-10-18",
-                    reference: "BVN-2023-0157",
-                    documents: 3,
-                    status: "completed"
-                },
-                {
-                    date: "2023-10-15",
-                    reference: "UBN-2023-0156",
-                    documents: 2,
-                    status: "processing"
-                },
-                {
-                    date: "2023-10-10",
-                    reference: "BVN-2023-0155",
-                    documents: 4,
-                    status: "completed"
-                },
-                {
-                    date: "2023-10-05",
-                    reference: "BVN-2023-0154",
-                    documents: 3,
-                    status: "rejected"
-                },
-                {
-                    date: "2023-09-28",
-                    reference: "BVN-2023-0153",
-                    documents: 2,
-                    status: "completed"
-                }
-            ];
-            
-            // Update stats
-            updateStats(historyData);
-            
-            // Populate table
-            const tableBody = document.getElementById("historyTableBody");
-            tableBody.innerHTML = "";
-            
-            historyData.forEach(item => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${item.date}</td>
-                    <td>${item.reference}</td>
-                    <td>${item.documents} files</td>
-                    <td><span class="badge bg-${getStatusColor(item.status)}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('${item.reference}')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-            
-            // Initialize DataTable
-            if (!$.fn.DataTable.isDataTable('#historyTable')) {
-                $('#historyTable').DataTable({
-                    "order": [[ 0, "desc" ]],
-                    "pageLength": 10,
-                    "responsive": true
+        async function loadUploadHistory() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+
+            try {
+                const response = await fetch('api/get-upload-history.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
+                const result = await response.json();
+                
+                if (result.success) {
+                    const historyData = result.history;
+                    
+                    // Update stats
+                    updateStats(historyData);
+                    
+                    // Populate table
+                    const tableBody = document.getElementById("historyTableBody");
+                    tableBody.innerHTML = "";
+                    
+                    historyData.forEach(item => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${new Date(item.date).toLocaleDateString()}</td>
+                            <td>${item.reference}</td>
+                            <td>${item.documents} files</td>
+                            <td><span class="badge bg-${getStatusColor(item.status)}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('${item.reference}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                    
+                    // Initialize DataTable
+                    if ($.fn.DataTable.isDataTable('#historyTable')) {
+                        $('#historyTable').DataTable().destroy();
+                    }
+                    
+                    $('#historyTable').DataTable({
+                        "order": [[ 0, "desc" ]],
+                        "pageLength": 10,
+                        "responsive": true
+                    });
+                    
+                    // Initialize charts
+                    initializeCharts(historyData);
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
             }
-            
-            // Initialize charts
-            initializeCharts(historyData);
         }
         
         // Update stats

@@ -10,6 +10,6 @@ echo json_encode([
     'message' => 'API is working!',
     'timestamp' => date('Y-m-d H:i:s'),
     'php_version' => PHP_VERSION,
-    'server' => $_SERVER['SERVER_SOFTWARE']'
+    'server' => $_SERVER['SERVER_SOFTWARE']
 ]);
 ?>

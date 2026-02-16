@@ -22,18 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 require_once '../../config/database.php';
+require_once __DIR__ . '/admin-jwt-helper.php';
 
 try {
-    $database = new Database();
-    $db = $database->getConnection();
-
-    $headers = getallheaders();
-    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : null;
-    if (!$authHeader || stripos($authHeader, 'Bearer ') !== 0) {
+    $adminData = AdminJWTHelper::getAdminData();
+    if (!$adminData) {
         http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Authentication required']);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit();
     }
+
+    $database = new Database();
+    $db = $database->getConnection();
 
     $input = json_decode(file_get_contents('php://input'), true);
     if (json_last_error() !== JSON_ERROR_NONE) {

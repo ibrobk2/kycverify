@@ -18,7 +18,7 @@ function sendEmail($to, $subject, $message) {
         $mail->SMTPAuth   = true;
         $mail->Username   = SMTP_USERNAME;
         $mail->Password   = SMTP_PASSWORD;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Use PHPMailer::ENCRYPTION_SMTPS for SSL
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use PHPMailer::ENCRYPTION_SMTPS for SSL
         // $mail->SMTPDebug  = DEBUG_MODE ? SMTP::DEBUG_SERVER : SMTP::DEBUG_OFF;
         $mail->Port       = SMTP_PORT;
         $mail->CharSet    = 'UTF-8';

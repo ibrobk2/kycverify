@@ -183,6 +183,17 @@ require_once 'api/wallet-helper.php';
                                 </ul>
                             </div>
                         </div>
+
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">Recent Transactions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="recentTransactions">
+                                    <p class="text-muted">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,6 +209,7 @@ require_once 'api/wallet-helper.php';
 
         document.addEventListener('DOMContentLoaded', function() {
             loadWalletBalance();
+            loadRecentTransactions();
 
             // Network selection
             document.querySelectorAll('.network-card').forEach(card => {
@@ -313,6 +325,7 @@ require_once 'api/wallet-helper.php';
                     document.getElementById('plansCard').style.display = 'none';
                     document.getElementById('purchaseCard').style.display = 'none';
                     loadWalletBalance();
+                    loadRecentTransactions();
                 } else {
                     showAlert(data.message || 'Purchase failed', 'danger');
                 }
@@ -322,6 +335,33 @@ require_once 'api/wallet-helper.php';
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Purchase Data';
+            }
+        }
+
+        async function loadRecentTransactions() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+
+            try {
+                const response = await fetch('api/vtu-get-transactions.php?type=DATA&limit=5', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data.transactions.length > 0) {
+                    const html = data.data.transactions.map(tx => `
+                        <div class="mb-2 pb-2 border-bottom">
+                            <small class="text-muted">${tx.network} - ${tx.plan_name}</small><br>
+                            <strong>₦${tx.amount}</strong>
+                            <span class="badge bg-${tx.status === 'SUCCESS' ? 'success' : tx.status === 'FAILED' ? 'danger' : 'warning'} float-end">${tx.status}</span>
+                        </div>
+                    `).join('');
+                    document.getElementById('recentTransactions').innerHTML = html;
+                } else {
+                    document.getElementById('recentTransactions').innerHTML = '<p class="text-muted">No recent transactions</p>';
+                }
+            } catch (error) {
+                console.error('Error loading transactions:', error);
             }
         }
 

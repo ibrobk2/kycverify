@@ -40,7 +40,7 @@
             <div class="sidebar-header">
                 <div class="logo">
                     <i class="fas fa-bolt text-cyan"></i>
-                    <span class="logo-text">AgentVerify</span>
+                    <span class="logo-text">agentify</span>
                 </div>
             </div>
 
@@ -339,22 +339,45 @@
                 '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Validating...';
 
             try {
-                // Simulate API call - replace with actual API endpoint
-                await new Promise((resolve) => setTimeout(resolve, 1500));
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    showFeedback('You must be logged in to perform validation.', 'danger');
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-                showFeedback(`Validation submitted successfully! Type: ${selected}`, 'success');
+                const response = await fetch('api/verify-nin.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        nin: formData.ninNumber,
+                        type: selected,
+                        trackingId: formData.trackingId || null
+                    })
+                });
 
-                // Reset form after successful submission
-                setTimeout(() => {
-                    form.reset();
-                    formNoRecord.classList.add('d-none');
-                    formModification.classList.add('d-none');
-                    form.querySelectorAll('.is-valid, .is-invalid').forEach((el) => {
-                        el.classList.remove('is-valid', 'is-invalid');
-                    });
-                }, 2000);
+                const result = await response.json();
+
+                if (result.success) {
+                    showFeedback(`NIN verification successful! Name: ${result.data.name || 'N/A'}`, 'success');
+                    // Reset form after successful submission
+                    setTimeout(() => {
+                        form.reset();
+                        formNoRecord.classList.add('d-none');
+                        formModification.classList.add('d-none');
+                        form.querySelectorAll('.is-valid, .is-invalid').forEach((el) => {
+                            el.classList.remove('is-valid', 'is-invalid');
+                        });
+                    }, 3000);
+                } else {
+                    showFeedback(result.message || 'Validation failed. Please try again.', 'danger');
+                }
             } catch (error) {
-                showFeedback('An error occurred. Please try again.', 'danger');
+                console.error('NIN Validation Error:', error);
+                showFeedback('An error occurred connecting to the server. Please try again later.', 'danger');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Validate';

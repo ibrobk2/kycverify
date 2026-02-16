@@ -1,4 +1,4 @@
--- AgentVerify Database Schema - Verifications Module
+-- agentify Database Schema - Verifications Module
 -- MySQL Database Schema for User Verification Management
 
 -- Use the existing database

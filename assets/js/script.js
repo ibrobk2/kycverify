@@ -1,4 +1,4 @@
-// AgentVerify - Main JavaScript File
+// agentify - Main JavaScript File
 // Global variables
 let currentUser = null
 let isLoggedIn = false
@@ -22,7 +22,7 @@ function initializeApp() {
   // Setup form validation
   setupFormValidation()
 
-  console.log("AgentVerify App Initialized")
+  console.log("agentify App Initialized")
 }
 
 // Setup Event Listeners
@@ -184,7 +184,25 @@ async function handleSignup(e) {
       const data = JSON.parse(responseText);
 
       if (data.success) {
-        window.location.href = `otp-verification.html?email=${email}`;
+        showAlert("Account created! Please login.", "success");
+        
+        if (typeof bootstrap !== 'undefined') {
+             const signupModalEl = document.getElementById("signupModal");
+             if (signupModalEl) {
+                 const signupModal = bootstrap.Modal.getInstance(signupModalEl);
+                 if (signupModal) signupModal.hide();
+             }
+             
+             const loginModalEl = document.getElementById("loginModal");
+             if (loginModalEl) {
+                 const loginModal = new bootstrap.Modal(loginModalEl);
+                 loginModal.show();
+             } else {
+                 setTimeout(() => window.location.reload(), 1500);
+             }
+        } else {
+             setTimeout(() => window.location.reload(), 1500);
+        }
       } else {
         showAlert(data.message || "Signup failed", "danger")
       }

@@ -157,11 +157,16 @@ function showBVNServices() {
     showServiceSection("BVN Services")
 }
 
-function showFundWallet() {
-    hideAllContent()
-    document.getElementById("pageTitle").textContent = "Fund Wallet"
-    setActiveNavItem("Fund Wallet")
-    showFundWalletModal()
+function showFundWallet(btn) {
+    if (btn) {
+        const accNo = btn.getAttribute('data-acc-no');
+        const bankName = btn.getAttribute('data-bank-name');
+        const accName = btn.getAttribute('data-acc-name');
+        showFundWalletModal(accNo, bankName, accName);
+    } else {
+        // Fetch from API first if we don't have the data-attributes (e.g. from sidebar)
+        showFundWalletModal();
+    }
 }
 
 function showFundingHistory() {
@@ -324,46 +329,102 @@ function openBVNVerificationModal() {
     document.getElementById("bvnVerificationForm").addEventListener("submit", handleBVNVerification)
 }
 
-function showFundWalletModal() {
+async function showFundWalletModal(accNo = '', bankName = '', accName = '') {
+    // Remove existing modal if any
+    const existingModal = document.getElementById("fundWalletModal");
+    if (existingModal) existingModal.remove();
+
+    // If no accNo provided, try to fetch fresh user data
+    if (!accNo) {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            try {
+                const response = await fetch('api/verify-token.php', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.success && data.user && data.user.virtual_account_number) {
+                    accNo = data.user.virtual_account_number;
+                    bankName = data.user.bank_name;
+                    accName = data.user.account_name;
+                }
+            } catch (e) { console.error("Error fetching acc details", e); }
+        }
+    }
+
+    let contentHtml = '';
+
+    if (accNo) {
+        contentHtml = `
+            <div class="text-center mb-4">
+                <div class="p-4 rounded-4 bg-light border border-dashed mb-3">
+                    <p class="text-muted small mb-1">DEDICATED VIRTUAL ACCOUNT</p>
+                    <h2 class="fw-bold text-primary mb-2" id="copyAccNo">${accNo} <i class="fas fa-copy ms-2 fs-6 text-muted cursor-pointer" onclick="copyText('copyAccNo', 'Account Number')"></i></h2>
+                    <h5 class="mb-1">${bankName}</h5>
+                    <p class="mb-0 text-muted">${accName}</p>
+                </div>
+                <div class="alert alert-info py-2 small">
+                    <i class="fas fa-info-circle me-1"></i> Funds sent to this account will appear in your wallet instantly.
+                </div>
+            </div>
+            <div class="d-grid shadow-sm">
+                <button type="button" class="btn btn-primary btn-lg rounded-3" onclick="copyText('copyAccNo', 'Account Number')">
+                    <i class="fas fa-copy me-2"></i>Copy Account Number
+                </button>
+            </div>
+        `;
+    } else {
+        contentHtml = `
+            <div class="text-center py-4">
+                <div class="mb-3">
+                    <i class="fas fa-university fa-3x text-muted opacity-25"></i>
+                </div>
+                <h5 class="fw-bold">No Account Generated</h5>
+                <p class="text-muted small px-3">You don't have a dedicated funding account yet. Click the button below to generate one instantly.</p>
+                <div class="d-grid px-4 mt-4">
+                    <button class="btn btn-primary rounded-pill py-2" id="modalGenBtn" onclick="generateVirtualAccountFromModal()">
+                        <i class="fas fa-magic me-2"></i>Generate My Account
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
     const modalHtml = `
         <div class="modal fade" id="fundWalletModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Fund Wallet</h5>
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0 rounded-4">
+                    <div class="modal-header border-0 pb-0">
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <form id="fundWalletForm">
-                            <div class="mb-3">
-                                <label for="fundAmount" class="form-label">Amount (₦)</label>
-                                <input type="number" class="form-control" id="fundAmount" placeholder="Enter amount" min="100" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="paymentMethod" class="form-label">Payment Method</label>
-                                <select class="form-control" id="paymentMethod" required>
-                                    <option value="">Select payment method</option>
-                                    <option value="card">Debit/Credit Card</option>
-                                    <option value="bank_transfer">Bank Transfer</option>
-                                    <option value="ussd">USSD</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-credit-card me-2"></i>Fund Wallet
-                            </button>
-                        </form>
+                    <div class="modal-body pt-0">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-wallet fa-2x text-primary shadow-sm p-3 rounded-circle bg-white mt-n4"></i>
+                        </div>
+                        <h4 class="text-center mb-4">Fund Your Wallet</h4>
+                        ${contentHtml}
                     </div>
                 </div>
             </div>
         </div>
-    `
+        <style>
+            .mt-n4 { margin-top: -2.5rem !important; }
+            .cursor-pointer { cursor: pointer; }
+        </style>
+    `;
 
-    document.body.insertAdjacentHTML("beforeend", modalHtml)
-    const modal = new window.bootstrap.Modal(document.getElementById("fundWalletModal"))
-    modal.show()
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    const modal = new window.bootstrap.Modal(document.getElementById("fundWalletModal"));
+    modal.show();
+}
 
-    // Setup form handler
-    document.getElementById("fundWalletForm").addEventListener("submit", handleFundWallet)
+function copyText(elementId, label) {
+    const text = document.getElementById(elementId).innerText.trim();
+    navigator.clipboard.writeText(text).then(() => {
+        showAlert(`${label} copied!`, "success");
+    }).catch(err => {
+        console.error('Could not copy text: ', err);
+    });
 }
 
 // Verification handlers
@@ -767,6 +828,42 @@ function deleteAccount() {
         showAlert("Account deletion feature is coming soon", "warning")
     } else if (confirmation) {
         showAlert("Account deletion cancelled", "info")
+    }
+}
+
+async function generateVirtualAccountFromModal() {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    const btn = document.getElementById('modalGenBtn');
+    if (!btn) return;
+
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+
+    try {
+        const response = await fetch('api/generate-virtual-account.php', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            showAlert('Virtual account generated successfully!', 'success');
+            // Re-open modal with new data
+            showFundWalletModal();
+        } else {
+            showAlert(data.message || 'Failed to generate account.', 'danger');
+        }
+    } catch (e) {
+        console.error(e);
+        showAlert('An error occurred.', 'danger');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
     }
 }
 

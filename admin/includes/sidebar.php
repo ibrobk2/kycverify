@@ -1,7 +1,7 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
-<div class="col-auto sidebar">
+<div class="sidebar">
     <div class="p-3">
         <h4 class="text-white mb-4">
             <i class="fas fa-bolt text-info"></i>
@@ -38,12 +38,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         </nav>
     </div>
 </div>
-<script>
-    document.getElementById('logout-btn').addEventListener('click', function(e) {
-        e.preventDefault();
-        if (confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('adminToken');
-            window.location.href = 'login.html';
-        }
-    });
-</script>
+
+<link rel="stylesheet" href="assets/css/admin-custom.css">
+<script src="assets/js/admin-main.js"></script>
+

@@ -11,29 +11,15 @@ if (DEBUG_MODE) {
     ini_set('display_errors', 1);
 }
 
-// Get authorization header
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+require_once __DIR__ . '/jwt-helper.php';
 
-if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+$userId = JWTHelper::getUserIdFromToken();
+
+if (!$userId) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
-
-$token = $matches[1];
-
-// Verify token and get user
-require_once __DIR__ . '/../api/verify-token.php';
-$tokenData = verifyJWT($token);
-
-if (!$tokenData) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
-    exit;
-}
-
-$userId = $tokenData['user_id'];
 
 // Get request data
 $input = json_decode(file_get_contents('php://input'), true);
@@ -191,7 +177,7 @@ try {
     $transactionId = $db->lastInsertId();
     
     // Deduct from wallet
-    $deductResult = $walletHelper->deductBalance($userId, $totalAmount, "Airtime purchase - {$network} - {$phone}");
+    $deductResult = $walletHelper->deductAmount($userId, $totalAmount, "Airtime purchase - {$network} - {$phone}");
     
     if (!$deductResult) {
         // Update transaction status
@@ -251,7 +237,7 @@ try {
         ]);
     } else {
         // Refund wallet
-        $walletHelper->addBalance($userId, $totalAmount, "Airtime purchase refund - {$transactionRef}");
+        $walletHelper->addAmount($userId, $totalAmount, "Airtime purchase refund - {$transactionRef}");
         
         $stmt = $db->prepare("
             UPDATE vtu_transactions 

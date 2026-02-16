@@ -8,34 +8,11 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../api/wallet-helper.php';
 
-define('ADMIN_TOKEN_SECRET', 'your-very-secret-key');
+// ADMIN_TOKEN_SECRET is defined in config.php
 
-function verifyAdminToken() {
-    $headers = getallheaders();
-    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-    
-    if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        return false;
-    }
-    
-    $token = $matches[1];
-    $parts = explode('.', $token);
-    
-    if (count($parts) !== 2) return false;
-    
-    list($payload_b64, $signature) = $parts;
-    $expected_signature = hash_hmac('sha256', $payload_b64, ADMIN_TOKEN_SECRET);
-    
-    if (!hash_equals($expected_signature, $signature)) return false;
-    
-    $payload = json_decode(base64_decode($payload_b64), true);
-    
-    if (!$payload || (isset($payload['exp']) && $payload['exp'] < time())) return false;
-    
-    return $payload;
-}
+require_once __DIR__ . '/admin-jwt-helper.php';
 
-$adminData = verifyAdminToken();
+$adminData = AdminJWTHelper::getAdminData();
 if (!$adminData) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
@@ -149,7 +126,7 @@ try {
             }
             
             $walletHelper = new WalletHelper();
-            $result = $walletHelper->addBalance($userId, $amount, $details);
+            $result = $walletHelper->addAmount($userId, $amount, $details);
             
             if ($result) {
                 echo json_encode([
@@ -173,7 +150,7 @@ try {
             }
             
             $walletHelper = new WalletHelper();
-            $result = $walletHelper->deductBalance($userId, $amount, $details);
+            $result = $walletHelper->deductAmount($userId, $amount, $details);
             
             if ($result) {
                 echo json_encode([

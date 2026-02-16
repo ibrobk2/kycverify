@@ -4,23 +4,11 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/services/VTUServiceFactory.php';
 
-// Get authorization
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+require_once __DIR__ . '/jwt-helper.php';
 
-if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+if (!JWTHelper::getUserIdFromToken()) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
-}
-
-$token = $matches[1];
-require_once __DIR__ . '/../api/verify-token.php';
-$tokenData = verifyJWT($token);
-
-if (!$tokenData) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
     exit;
 }
 

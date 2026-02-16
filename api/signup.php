@@ -9,6 +9,7 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/PaymentPointService.php';
 
 // Clear any previous output
 ob_clean();
@@ -62,16 +63,16 @@ try {
     $existingUser = $checkStmt->fetch();
 
     if ($existingUser) {
-        if ($existingUser['email_verified'] == 0) {
-            // User exists but email is not verified, resend OTP
-            $_POST['email'] = $email;
-            require_once 'resend-otp.php';
-            exit; // Stop execution after resending OTP
-        } else {
+        // if ($existingUser['email_verified'] == 0) {
+        //     // User exists but email is not verified, resend OTP
+        //     $_POST['email'] = $email;
+        //     require_once 'resend-otp.php';
+        //     exit; // Stop execution after resending OTP
+        // } else {
             http_response_code(409);
             echo json_encode(['success' => false, 'message' => 'Email already registered']);
             exit;
-        }
+        // }
     }
 
     // Hash password
@@ -81,24 +82,47 @@ try {
     $otp = rand(100000, 999999);
     $otpExpiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
 
-    // Insert new user with email_verified set to 0 and OTP
-    $insertQuery = "INSERT INTO users (name, email, phone, password, status, email_verified, otp, otp_expires_at, created_at) VALUES (?, ?, ?, ?, 'active', 0, ?, ?, NOW())";
+    // Insert new user with email_verified set to 1 (Verified) and OTP (optional)
+    $insertQuery = "INSERT INTO users (name, email, phone, password, status, email_verified, otp, otp_expires_at, created_at) VALUES (?, ?, ?, ?, 'active', 1, ?, ?, NOW())";
     $insertStmt = $db->prepare($insertQuery);
     $insertStmt->execute([$name, $email, $phone, $hashedPassword, $otp, $otpExpiresAt]);
 
     $userId = $db->lastInsertId();
 
-    // Send OTP email
-    require_once 'send-email.php';
-    $emailSent = sendOTP($email, $otp);
+    // Generate PaymentPoint Virtual Account
+    $ppService = new PaymentPointService();
+    $vaResult = $ppService->createVirtualAccount($userId, $name, $email, $phone);
+
+    if ($vaResult['success']) {
+        $vaData = $vaResult['data'];
+        // Assume response structure based on typical API: 
+        // { "account_number": "...", "bank_name": "...", "account_name": "..." }
+        if (isset($vaData['account_number'])) {
+            $updateQuery = "UPDATE users SET virtual_account_number = ?, bank_name = ?, account_name = ? WHERE id = ?";
+            $updateStmt = $db->prepare($updateQuery);
+            $updateStmt->execute([
+                $vaData['account_number'],
+                isset($vaData['bank_name']) ? $vaData['bank_name'] : 'PaymentPoint Bank',
+                isset($vaData['account_name']) ? $vaData['account_name'] : $name,
+                $userId
+            ]);
+        }
+    } else {
+        error_log("Failed to generate virtual account for user $userId: " . $vaResult['message']);
+    }
+
+    // Send OTP email - DISABLED
+    // require_once 'send-email.php';
+    // $emailSent = sendOTP($email, $otp);
+    $emailSent = true;
 
     if ($emailSent) {
         echo json_encode([
             'success' => true,
-            'message' => 'Account created successfully. An OTP has been sent to your email for verification.',
+            'message' => 'Account created successfully. Please login.',
             'user_id' => $userId
         ]);
-    } else {
+    } else { // This block is practically unreachable now
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Failed to send OTP email.']);
     }

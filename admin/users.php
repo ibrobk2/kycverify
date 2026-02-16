@@ -7,45 +7,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-blue: #1e3a8a;
-            --cyan: #06b6d4;
-        }
-        
-        .sidebar {
-            background: linear-gradient(135deg, var(--primary-blue), #1e293b);
-            min-height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 250px;
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            margin: 0.25rem 0;
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 2rem;
-        }
-        
         .stat-badge {
             padding: 0.25rem 0.75rem;
             border-radius: 1rem;
             font-size: 0.875rem;
         }
     </style>
+
 </head>
 <body>
     <div class="container-fluid">

@@ -5,27 +5,15 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/wallet-helper.php';
 require_once __DIR__ . '/services/VTUServiceFactory.php';
 
-// Get authorization and verify user
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+require_once __DIR__ . '/jwt-helper.php';
 
-if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+$userId = JWTHelper::getUserIdFromToken();
+
+if (!$userId) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
-
-$token = $matches[1];
-require_once __DIR__ . '/../api/verify-token.php';
-$tokenData = verifyJWT($token);
-
-if (!$tokenData) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
-    exit;
-}
-
-$userId = $tokenData['user_id'];
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
@@ -136,7 +124,7 @@ try {
     $transactionId = $db->lastInsertId();
     
     // Deduct from wallet
-    if (!$walletHelper->deductBalance($userId, $totalAmount, "Data purchase - {$network} - {$plan['plan_name']}")) {
+    if (!$walletHelper->deductAmount($userId, $totalAmount, "Data purchase - {$network} - {$plan['plan_name']}")) {
         $stmt = $db->prepare("UPDATE vtu_transactions SET status = 'FAILED', status_message = ? WHERE id = ?");
         $stmt->execute(['Wallet deduction failed', $transactionId]);
         http_response_code(500);
@@ -186,7 +174,7 @@ try {
         ]);
     } else {
         // Refund wallet
-        $walletHelper->addBalance($userId, $totalAmount, "Data purchase refund - {$transactionRef}");
+        $walletHelper->addAmount($userId, $totalAmount, "Data purchase refund - {$transactionRef}");
         
         $stmt = $db->prepare("
             UPDATE vtu_transactions 

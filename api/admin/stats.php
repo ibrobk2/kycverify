@@ -7,42 +7,11 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 
-define('ADMIN_TOKEN_SECRET', 'your-very-secret-key');
+// ADMIN_TOKEN_SECRET is defined in config.php
 
-// Verify admin token
-function verifyAdminToken() {
-    $headers = getallheaders();
-    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-    
-    if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        return false;
-    }
-    
-    $token = $matches[1];
-    $parts = explode('.', $token);
-    
-    if (count($parts) !== 2) {
-        return false;
-    }
-    
-    list($payload_b64, $signature) = $parts;
-    $expected_signature = hash_hmac('sha256', $payload_b64, ADMIN_TOKEN_SECRET);
-    
-    if (!hash_equals($expected_signature, $signature)) {
-        return false;
-    }
-    
-    $payload_json = base64_decode($payload_b64);
-    $payload = json_decode($payload_json, true);
-    
-    if (!$payload || (isset($payload['exp']) && $payload['exp'] < time())) {
-        return false;
-    }
-    
-    return $payload;
-}
+require_once __DIR__ . '/admin-jwt-helper.php';
 
-$adminData = verifyAdminToken();
+$adminData = AdminJWTHelper::getAdminData();
 if (!$adminData) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);

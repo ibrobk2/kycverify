@@ -3,27 +3,15 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
-// Get authorization
-$headers = getallheaders();
-$authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+require_once __DIR__ . '/jwt-helper.php';
 
-if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+$userId = JWTHelper::getUserIdFromToken();
+
+if (!$userId) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
-
-$token = $matches[1];
-require_once __DIR__ . '/../api/verify-token.php';
-$tokenData = verifyJWT($token);
-
-if (!$tokenData) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
-    exit;
-}
-
-$userId = $tokenData['user_id'];
 
 // Get query parameters
 $page = max(1, intval(isset($_GET['page']) ? $_GET['page'] : 1));

@@ -7,37 +7,7 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
-// JWT decode function
-function jwt_decode($token) {
-    $secret = JWT_SECRET;
-
-    $parts = explode('.', $token);
-    if (count($parts) !== 3) {
-        return false;
-    }
-
-    list($headerBase64, $payloadBase64, $signatureBase64) = $parts;
-
-    $header = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $headerBase64)), true);
-    $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $payloadBase64)), true);
-
-    if (!$header || !$payload) {
-        return false;
-    }
-
-    $signature = base64_decode(str_replace(['-', '_'], ['+', '/'], $signatureBase64));
-    $expectedSignature = hash_hmac('sha256', "$headerBase64.$payloadBase64", $secret, true);
-
-    if (!hash_equals($expectedSignature, $signature)) {
-        return false;
-    }
-
-    if (isset($payload['exp']) && $payload['exp'] < time()) {
-        return false;
-    }
-
-    return (object) $payload;
-}
+require_once __DIR__ . '/jwt-helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
@@ -49,34 +19,10 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // Get user ID from token
-    $headers = getallheaders();
-    if (!isset($headers['Authorization'])) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Authorization header missing']);
-        exit;
-    }
-
-    $authHeader = $headers['Authorization'];
-    if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Invalid authorization header']);
-        exit;
-    }
-
-    $token = $matches[1];
-
-    $decoded = jwt_decode($token);
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized: Invalid or expired token']);
-        exit;
-    }
-
-    $user_id = $decoded->user_id;
+    $user_id = JWTHelper::getUserIdFromToken();
     if (!$user_id) {
         http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Invalid token: user_id not found']);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit;
     }
 

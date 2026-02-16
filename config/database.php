@@ -135,12 +135,51 @@ class Database {
                 )
             ";
 
+            // Birth Attestations table
+            $birthAttestationsTable = "
+                CREATE TABLE IF NOT EXISTS birth_attestations (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    title VARCHAR(20) NULL,
+                    nin VARCHAR(20) NULL,
+                    surname VARCHAR(100) NOT NULL,
+                    first_name VARCHAR(100) NOT NULL,
+                    middle_name VARCHAR(100) NULL,
+                    gender ENUM('male', 'female', 'other') NOT NULL,
+                    new_date_of_birth DATE NOT NULL,
+                    phone_number VARCHAR(20) NOT NULL,
+                    marital_status VARCHAR(50) NULL,
+                    town_city_residence VARCHAR(100) NULL,
+                    state_residence VARCHAR(100) NULL,
+                    lga_residence VARCHAR(100) NULL,
+                    address_residence TEXT NULL,
+                    state_origin VARCHAR(100) NULL,
+                    lga_origin VARCHAR(100) NULL,
+                    father_surname VARCHAR(100) NULL,
+                    father_first_name VARCHAR(100) NULL,
+                    father_state VARCHAR(100) NULL,
+                    father_lga VARCHAR(100) NULL,
+                    father_town VARCHAR(100) NULL,
+                    mother_surname VARCHAR(100) NULL,
+                    mother_first_name VARCHAR(100) NULL,
+                    mother_maiden_name VARCHAR(100) NULL,
+                    mother_state VARCHAR(100) NULL,
+                    mother_lga VARCHAR(100) NULL,
+                    mother_town VARCHAR(100) NULL,
+                    reference_code VARCHAR(50) UNIQUE NOT NULL,
+                    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            ";
+
             $this->conn->exec($usersTable);
             $this->conn->exec($pricingTable);
             $this->conn->exec($verificationLogsTable);
             $this->conn->exec($verificationResultsTable);
             $this->conn->exec($vtuProvidersTable);
             $this->conn->exec($apiConfigsTable);
+            $this->conn->exec($birthAttestationsTable);
             
             // API usage logs table
             $apiLogsTable = "
@@ -173,6 +212,20 @@ class Database {
                 )
             ";
             
+            // BVN Modification Uploads table
+            $bvnModUploadsTable = "
+                CREATE TABLE IF NOT EXISTS bvn_modification_uploads (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    reference VARCHAR(50) NOT NULL,
+                    file_name VARCHAR(255) NOT NULL,
+                    file_path VARCHAR(255) NOT NULL,
+                    status ENUM('pending', 'processing', 'completed', 'rejected') DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            ";
+
             // Execute table creation queries
             $this->conn->exec($usersTable);
             $this->conn->exec($pricingTable);
@@ -180,6 +233,10 @@ class Database {
             $this->conn->exec($verificationResultsTable);
             $this->conn->exec($apiLogsTable);
             $this->conn->exec($walletTransactionsTable);
+            $this->conn->exec($vtuProvidersTable);
+            $this->conn->exec($apiConfigsTable);
+            $this->conn->exec($birthAttestationsTable);
+            $this->conn->exec($bvnModUploadsTable);
             
             // Seed pricing table if empty
             $this->seedPricing();

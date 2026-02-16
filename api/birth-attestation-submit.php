@@ -13,78 +13,20 @@ require_once '../config/database.php';
 require_once 'wallet-helper.php';
 
 
-// JWT decode function
-function jwt_decode($token) {
-    $secret = 'your-secret-key'; // Replace with your actual secret key
-
-    $parts = explode('.', $token);
-    if (count($parts) !== 3) {
-        return false;
-    }
-
-    list($headerBase64, $payloadBase64, $signatureBase64) = $parts;
-
-    $header = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $headerBase64)), true);
-    $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $payloadBase64)), true);
-
-    if (!$header || !$payload) {
-        return false;
-    }
-
-    $signature = base64_decode(str_replace(['-', '_'], ['+', '/'], $signatureBase64));
-    $expectedSignature = hash_hmac('sha256', "$headerBase64.$payloadBase64", $secret, true);
-
-    if (!hash_equals($expectedSignature, $signature)) {
-        return false;
-    }
-
-    if (isset($payload['exp']) && $payload['exp'] < time()) {
-        return false;
-    }
-
-    return (object) $payload;
-}
+require_once 'jwt-helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
 
 try {
-    $database = new Database();
-    $db = $database->getConnection();
-
-    // Get user ID from token
-    $headers = getallheaders();
-    if (!isset($headers['Authorization'])) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Authorization header missing']);
-        exit;
-    }
-
-    $authHeader = $headers['Authorization'];
-    if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Invalid authorization header']);
-        exit;
-    }
-
-    $token = $matches[1];
-
-    // Example: replace jwt_decode with your actual decode function
-    $decoded = jwt_decode($token);
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized: Invalid or expired token']);
-        exit;
-    }
-
-    $user_id = $decoded->user_id;
+    // Authenticate user
+    $user_id = JWTHelper::getUserIdFromToken();
     if (!$user_id) {
         http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Invalid token: user_id not found']);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized: Invalid or expired token']);
         exit;
     }
 
@@ -92,7 +34,7 @@ try {
     $walletHelper = new WalletHelper();
 
     // Check wallet balance and process payment
-    $paymentResult = $walletHelper->processPayment($user_id, 'Birth Attestation', 'Birth Attestation Service Payment');
+    $paymentResult = $walletHelper->processPayment($user_id, 'birth_attestation', 'Birth Attestation Service');
     if (!$paymentResult['success']) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => $paymentResult['message']]);

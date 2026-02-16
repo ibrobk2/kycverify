@@ -40,7 +40,7 @@
             <div class="sidebar-header">
                 <div class="logo">
                     <i class="fas fa-bolt text-cyan"></i>
-                    <span class="logo-text">AgentVerify</span>
+                    <span class="logo-text">agentify</span>
                 </div>
             </div>
 
@@ -217,7 +217,7 @@
 
             const form = document.getElementById('ipeClearanceForm');
 
-            form.addEventListener('submit', function (event) {
+            form.addEventListener('submit', async function (event) {
                 event.preventDefault();
                 event.stopPropagation();
 
@@ -226,18 +226,47 @@
                     return;
                 }
 
-                // Simulate form submission
+                // Show loading state
                 const submitBtn = form.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
 
-                setTimeout(() => {
-                    alert('IPE Clearance form submitted successfully!');
-                    form.reset();
-                    form.classList.remove('was-validated');
+                try {
+                    const token = localStorage.getItem('authToken');
+                    if (!token) {
+                        alert('You must be logged in to perform this action.');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+
+                    const response = await fetch('api/ipe-clearance.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('IPE Clearance request submitted successfully! Reference: ' + result.reference);
+                        form.reset();
+                        form.classList.remove('was-validated');
+                    } else {
+                        alert(result.message || 'Submission failed.');
+                    }
+                } catch (error) {
+                    console.error('IPE Clearance Error:', error);
+                    alert('An error occurred. Please try again later.');
+                } finally {
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit';
-                }, 1500);
+                    submitBtn.textContent = originalText;
+                }
             }, false);
         })();
 

@@ -7,34 +7,9 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 
-define('ADMIN_TOKEN_SECRET', 'your-very-secret-key');
+require_once __DIR__ . '/admin-jwt-helper.php';
 
-function verifyAdminToken() {
-    $headers = getallheaders();
-    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-    
-    if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        return false;
-    }
-    
-    $token = $matches[1];
-    $parts = explode('.', $token);
-    
-    if (count($parts) !== 2) return false;
-    
-    list($payload_b64, $signature) = $parts;
-    $expected_signature = hash_hmac('sha256', $payload_b64, ADMIN_TOKEN_SECRET);
-    
-    if (!hash_equals($expected_signature, $signature)) return false;
-    
-    $payload = json_decode(base64_decode($payload_b64), true);
-    
-    if (!$payload || (isset($payload['exp']) && $payload['exp'] < time())) return false;
-    
-    return $payload;
-}
-
-$adminData = verifyAdminToken();
+$adminData = AdminJWTHelper::getAdminData();
 if (!$adminData) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
@@ -53,13 +28,14 @@ try {
         // If no configs exist, return defaults
         if (empty($configs)) {
             $defaults = [
-                ['service_name' => 'robosttech', 'base_url' => 'https://api.robosttech.com', 'status' => 'inactive'],
-                ['service_name' => 'gafiapay', 'base_url' => 'https://api.gafiapay.com', 'status' => 'inactive'],
-                ['service_name' => 'monnify', 'base_url' => 'https://api.monnify.com', 'status' => 'inactive']
+                ['service_name' => 'robosttech', 'base_url' => 'https://api.robosttech.com/v1', 'status' => 'inactive'],
+                ['service_name' => 'dataverify', 'base_url' => 'https://api.dataverify.com.ng/v1', 'status' => 'active'],
+                ['service_name' => 'gafiapay', 'base_url' => 'https://api.gafiapay.com/v1', 'status' => 'inactive'],
+                ['service_name' => 'monnify', 'base_url' => 'https://api.monnify.com/v1', 'status' => 'inactive']
             ];
             
             foreach ($defaults as $default) {
-                $stmt = $db->prepare("INSERT INTO api_configurations (service_name, base_url, status) VALUES (?, ?, ?)");
+                $stmt = $db->prepare("INSERT IGNORE INTO api_configurations (service_name, base_url, status) VALUES (?, ?, ?)");
                 $stmt->execute([$default['service_name'], $default['base_url'], $default['status']]);
             }
             
