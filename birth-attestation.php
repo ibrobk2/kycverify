@@ -342,7 +342,7 @@ if (!isset($_SESSION['user_id'])) {
         // Load service cost
         async function loadServiceCost() {
             try {
-                const response = await fetch('api/get-service-price.php?service=Birth Attestation');
+                const response = await fetch('api/get-service-price.php?service=birth_attestation');
                 const data = await response.json();
 
                 if (data.success) {

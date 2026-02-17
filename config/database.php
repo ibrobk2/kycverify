@@ -125,11 +125,13 @@ class Database {
                 CREATE TABLE IF NOT EXISTS api_configurations (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     service_name VARCHAR(50) UNIQUE NOT NULL,
-                    api_key VARCHAR(255) NULL,
-                    api_secret VARCHAR(255) NULL,
+                    api_key TEXT NULL,
+                    api_secret TEXT NULL,
+                    merchant_id VARCHAR(255) NULL,
+                    webhook_secret TEXT NULL,
                     base_url VARCHAR(255) NULL,
                     status ENUM('active', 'inactive') DEFAULT 'active',
-                    settings JSON NULL,
+                    settings TEXT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 )
@@ -217,12 +219,109 @@ class Database {
                 CREATE TABLE IF NOT EXISTS bvn_modification_uploads (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id INT NOT NULL,
-                    reference VARCHAR(50) NOT NULL,
-                    file_name VARCHAR(255) NOT NULL,
-                    file_path VARCHAR(255) NOT NULL,
+                    member_id VARCHAR(50) NULL,
+                    first_name VARCHAR(100) NULL,
+                    last_name VARCHAR(100) NULL,
+                    phone VARCHAR(20) NULL,
+                    email VARCHAR(100) NULL,
+                    service_type VARCHAR(50) NULL,
+                    amount DECIMAL(10,2) NULL,
                     status ENUM('pending', 'processing', 'completed', 'rejected') DEFAULT 'pending',
+                    reference VARCHAR(100) UNIQUE NULL,
+                    file_path VARCHAR(255) NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            ";
+            
+            // Service transactions table
+            $serviceTransactionsTable = "
+                CREATE TABLE IF NOT EXISTS service_transactions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    service_type VARCHAR(50) NOT NULL,
+                    reference_number VARCHAR(100) NULL,
+                    status VARCHAR(20) DEFAULT 'pending',
+                    amount DECIMAL(10,2) DEFAULT 0.00,
+                    request_data TEXT NULL,
+                    response_data TEXT NULL,
+                    error_message TEXT NULL,
+                    provider VARCHAR(50) NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            ";
+
+            // NIN Verification Logs table
+            $ninVerificationLogsTable = "
+                CREATE TABLE IF NOT EXISTS nin_verification_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    nin VARCHAR(20) NOT NULL,
+                    status ENUM('pending', 'success', 'failed') DEFAULT 'pending',
+                    response_data TEXT NULL,
+                    error_message TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            ";
+
+            // VTU API Settings table
+            $vtuSettingsTable = "
+                CREATE TABLE IF NOT EXISTS vtu_api_settings (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    setting_key VARCHAR(50) UNIQUE NOT NULL,
+                    setting_value TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                )
+            ";
+
+            // VTU Transactions table
+            $vtuTransactionsTable = "
+                CREATE TABLE IF NOT EXISTS vtu_transactions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    provider_id INT NOT NULL,
+                    transaction_ref VARCHAR(50) UNIQUE NOT NULL,
+                    provider_ref VARCHAR(50) NULL,
+                    transaction_type ENUM('AIRTIME', 'DATA') NOT NULL,
+                    network VARCHAR(20) NOT NULL,
+                    phone_number VARCHAR(20) NOT NULL,
+                    amount DECIMAL(10,2) NOT NULL,
+                    commission DECIMAL(10,2) DEFAULT 0.00,
+                    plan_id VARCHAR(50) NULL,
+                    plan_name VARCHAR(100) NULL,
+                    data_amount VARCHAR(50) NULL,
+                    status ENUM('PENDING', 'PROCESSING', 'SUCCESS', 'FAILED') DEFAULT 'PENDING',
+                    status_message TEXT NULL,
+                    wallet_balance_before DECIMAL(10,2) NULL,
+                    wallet_balance_after DECIMAL(10,2) NULL,
+                    api_request TEXT NULL,
+                    api_response TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    completed_at TIMESTAMP NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            ";
+
+            // Data Plans table
+            $dataPlansTable = "
+                CREATE TABLE IF NOT EXISTS data_plans (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    provider_id INT NOT NULL,
+                    network VARCHAR(20) NOT NULL,
+                    plan_id VARCHAR(50) NOT NULL,
+                    plan_name VARCHAR(100) NOT NULL,
+                    plan_type VARCHAR(50) DEFAULT 'DATA',
+                    data_amount VARCHAR(50) NULL,
+                    validity VARCHAR(50) NULL,
+                    price DECIMAL(10,2) NOT NULL,
+                    cost_price DECIMAL(10,2) NULL,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    UNIQUE KEY network_plan (provider_id, network, plan_id)
                 )
             ";
 
@@ -237,6 +336,11 @@ class Database {
             $this->conn->exec($apiConfigsTable);
             $this->conn->exec($birthAttestationsTable);
             $this->conn->exec($bvnModUploadsTable);
+            $this->conn->exec($serviceTransactionsTable);
+            $this->conn->exec($ninVerificationLogsTable);
+            $this->conn->exec($vtuSettingsTable);
+            $this->conn->exec($vtuTransactionsTable);
+            $this->conn->exec($dataPlansTable);
             
             // Seed pricing table if empty
             $this->seedPricing();

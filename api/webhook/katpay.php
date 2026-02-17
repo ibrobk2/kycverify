@@ -100,14 +100,9 @@ if ($eventType === 'virtual_account.payment_received') {
 
         $db->beginTransaction();
 
-        // Credit wallet
+        // Credit wallet using the improved WalletHelper which now handles references
         $details = "Automated Deposit via KatPay (Ref: $reference)";
-        if ($walletHelper->addAmount($userId, $amount, $details)) {
-            // Update the transaction reference for tracking
-            $lastId = $db->lastInsertId();
-            $updateRefStmt = $db->prepare("UPDATE wallet_transactions SET transaction_ref = ? WHERE id = ?");
-            $updateRefStmt->execute([$reference, $lastId]);
-
+        if ($walletHelper->addAmount($userId, $amount, $details, $reference)) {
             $db->commit();
             
             http_response_code(200);

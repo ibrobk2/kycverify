@@ -1,76 +1,70 @@
 <?php
-session_start();
-require_once '../config/config.php';
-require_once '../config/database.php';
-require_once 'jwt-helper.php';
-
-// Set JSON response header
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-// Get auth token
-$headers = getallheaders();
-$token = isset($headers['Authorization']) ? str_replace('Bearer ', '', $headers['Authorization']) : null;
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/jwt-helper.php';
 
-if (!$token) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit;
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
 }
 
-// Verify token
-$decoded = verifyToken($token);
-if (!$decoded) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
-    exit;
-}
-
-$userId = $decoded->sub;
-
-// Get POST data
-$data = json_decode(file_get_contents('php://input'), true);
-
-if (!$data) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid request data']);
-    exit;
-}
-
-$verificationType = $data['verification_type'] ?? null;
-$slipType = $data['slip_type'] ?? null;
-$timestamp = $data['timestamp'] ?? date('Y-m-d H:i:s');
-
-if (!$verificationType || !$slipType) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing required fields']);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
 
 try {
-    // Insert transaction log into database
-    $stmt = $conn->prepare("
-        INSERT INTO nin_verification_logs (user_id, verification_type, slip_type, created_at)
-        VALUES (?, ?, ?, NOW())
+    $database = new Database();
+    $db = $database->getConnection();
+
+    $userId = JWTHelper::getUserIdFromToken();
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input || !isset($input['verification_type']) || !isset($input['slip_type'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Missing required fields']);
+        exit;
+    }
+
+    $verificationType = $input['verification_type'];
+    $slipType = $input['slip_type'];
+    $nin = isset($input['nin']) ? $input['nin'] : '';
+
+    $stmt = $db->prepare("
+        INSERT INTO nin_verification_logs (user_id, nin, status, response_data)
+        VALUES (?, ?, 'success', ?)
     ");
     
-    $stmt->bind_param('iss', $userId, $verificationType, $slipType);
-    
-    if ($stmt->execute()) {
+    $logData = [
+        'verification_type' => $verificationType,
+        'slip_type' => $slipType,
+        'timestamp' => date('Y-m-d H:i:s')
+    ];
+
+    if ($stmt->execute([$userId, $nin, json_encode($logData)])) {
         echo json_encode([
             'success' => true,
             'message' => 'Transaction logged successfully',
-            'transaction_id' => $conn->insert_id
+            'transaction_id' => $db->lastInsertId()
         ]);
     } else {
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Failed to log transaction']);
     }
-    
-    $stmt->close();
+
 } catch (Exception $e) {
+    error_log('Log NIN verification error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
-
-$conn->close();
 ?>

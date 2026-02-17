@@ -36,23 +36,13 @@ define('PAYMENTPOINT_SECRET', 'your-paymentpoint-secret'); // Placeholder
 
 // KatPay API Configuration (Active Payment Gateway)
 define('KATPAY_BASE_URL', 'https://api.katpay.co/v1');
-define('KATPAY_API_KEY', 'your-katpay-public-key'); // Replace with your KatPay public key
-define('KATPAY_API_SECRET', 'your-katpay-api-secret'); // Replace with your KatPay API secret
-define('KATPAY_MERCHANT_ID', 'your-katpay-merchant-id'); // Replace with your KatPay merchant ID
-define('KATPAY_WEBHOOK_SECRET', 'your-katpay-webhook-secret'); // Replace with your KatPay webhook secret
+define('KATPAY_API_KEY', 'pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ'); // Replace with your KatPay public key
+define('KATPAY_API_SECRET', 'eyJpdiI6InpRMDQzdGlQckt4Ukc2dG9UU2JKaGc9PSIsInZhbHVlIjoiQy81dkttWC9EV0o1Q3h0bVkwKy9ES2xiOFNDREhLYU5maGdRZkFRSkx5a1NKaGNtcG9qNDFVQnBsaXBQcnFkck5IZjI2QmZXU1I4ZG5tVzV0TnhQTnA3VkZRVjVGM1BKNldEcjVmWkRyYy9jODlGa1VQZXlJUkM3SWIvZjBaSjUiLCJtYWMiOiIxODBjZjI3YmUwNTA0YmZjZGE2YTA3YzY1MDIwNjQ2ODJhMjEzM2U2YmFhOTQ1ZGU4ZjFmNTNjZDVkZDliNGUxIiwidGFnIjoiIn0='); // Replace with your KatPay API secret
+define('KATPAY_MERCHANT_ID', 'KAT8882490666'); // Replace with your KatPay merchant ID
+define('KATPAY_WEBHOOK_SECRET', 'eyJpdiI6InpRMDQzdGlQckt4Ukc2dG9UU2JKaGc9PSIsInZhbHVlIjoiQy81dkttWC9EV0o1Q3h0bVkwKy9ES2xiOFNDREhLYU5maGdRZkFRSkx5a1NKaGNtcG9qNDFVQnBsaXBQcnFkck5IZjI2QmZXU1I4ZG5tVzV0TnhQTnA3VkZRVjVGM1BKNldEcjVmWkRyYy9jODlGa1VQZXlJUkM3SWIvZjBaSjUiLCJtYWMiOiIxODBjZjI3YmUwNTA0YmZjZGE2YTA3YzY1MDIwNjQ2ODJhMjEzM2U2YmFhOTQ1ZGU4ZjFmNTNjZDVkZDliNGUxIiwidGFnIjoiIn0='); // Replace with your KatPay webhook secret
 
 // Payment Gateway Selection (katpay or paymentpoint)
 define('PAYMENT_GATEWAY', 'katpay');
-
-// Service Costs (Fallback/Initial)
-define('NIN_VERIFICATION_COST', 50);
-define('BVN_VERIFICATION_COST', 30);
-define('BIRTH_ATTESTATION_COST', 100);
-define('IPE_CLEARANCE_COST', 200);
-
-// Payment Configuration
-define('PAYSTACK_PUBLIC_KEY', 'pk_test_your_paystack_public_key');
-define('PAYSTACK_SECRET_KEY', 'sk_test_your_paystack_secret_key');
 
 // Application Settings
 define('APP_NAME', 'Agentify Verification Service');

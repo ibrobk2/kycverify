@@ -4,12 +4,12 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-require_once '../config/database.php';
-require_once '../config/config.php';
-require_once 'wallet-helper.php';
-require_once 'jwt-helper.php';
-require_once 'RobosttechService.php';
-require_once 'DataVerifyService.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/wallet-helper.php';
+require_once __DIR__ . '/jwt-helper.php';
+require_once __DIR__ . '/RobosttechService.php';
+require_once __DIR__ . '/DataVerifyService.php';
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -145,6 +145,21 @@ try {
             $providerUsed
         ]);
 
+        // Log to service_transactions for admin tracking
+        $stmtSt = $pdo->prepare("
+            INSERT INTO service_transactions (user_id, service_type, reference_number, status, amount, request_data, response_data, provider)
+            VALUES (?, ?, ?, 'completed', ?, ?, ?, ?)
+        ");
+        $stmtSt->execute([
+            $userId,
+            'nin_' . $slipType,
+            $referenceNumber,
+            $paymentResult['amount_deducted'],
+            json_encode($requestData),
+            json_encode($logData),
+            $providerUsed
+        ]);
+
         echo json_encode([
             'success' => true,
             'message' => 'Verification successful',
@@ -163,6 +178,19 @@ try {
         $stmt->execute([
             $userId,
             $referenceNumber,
+            $verificationResult['message'],
+            $providerUsed
+        ]);
+
+        // Log failed to service_transactions
+        $stmtSt = $pdo->prepare("
+            INSERT INTO service_transactions (user_id, service_type, reference_number, status, amount, error_message, provider)
+            VALUES (?, 'nin_verification', ?, 'failed', ?, ?, ?)
+        ");
+        $stmtSt->execute([
+            $userId,
+            $referenceNumber,
+            $paymentResult['amount_deducted'],
             $verificationResult['message'],
             $providerUsed
         ]);

@@ -404,7 +404,7 @@ if (!isset($_SESSION['user_id'])) {
         // Load service cost
         async function loadServiceCost() {
             try {
-                const response = await fetch('api/get-service-price.php?service=BVN Modification');
+                const response = await fetch('api/get-service-price.php?service=bvn_modification');
                 const data = await response.json();
 
                 if (data.success) {

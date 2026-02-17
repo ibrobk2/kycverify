@@ -1,6 +1,6 @@
 <?php
 // filepath: C:/xampp/htdocs/lildone/api/auth.php
-require_once __DIR__ . '/../config/constants.php';
+require_once __DIR__ . '/../config/config.php';
 
 class Auth {
     public static function getBearerToken() {

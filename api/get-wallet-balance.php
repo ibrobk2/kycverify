@@ -26,15 +26,20 @@ try {
         exit;
     }
 
-    // Get wallet balance
-    $stmt = $db->prepare("SELECT wallet FROM users WHERE id = ?");
+    // Get wallet balance and virtual account info
+    $stmt = $db->prepare("SELECT wallet, virtual_account_number, bank_name, account_name FROM users WHERE id = ?");
     $stmt->execute([$user_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($result) {
         echo json_encode([
             'success' => true,
-            'balance' => floatval($result['wallet'])
+            'balance' => floatval($result['wallet']),
+            'virtual_account' => [
+                'account_number' => $result['virtual_account_number'],
+                'bank_name' => $result['bank_name'],
+                'account_name' => $result['account_name']
+            ]
         ]);
     } else {
         echo json_encode([

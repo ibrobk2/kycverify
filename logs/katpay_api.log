@@ -1,0 +1,127 @@
+[2026-02-17 18:28:21] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 18:28:21] KatPay Request: GET https://api.katpay.co/v1/wallet/balance Data: []
+[2026-02-17 18:28:24] KatPay Response (404): {
+    "message": "The route v1/wallet/balance could not be found."
+}
+[2026-02-17 18:28:33] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 18:28:33] KatPay Request: GET https://api.katpay.co/v1/banks Data: []
+[2026-02-17 18:28:35] KatPay Response (404): {
+    "message": "The route v1/banks could not be found."
+}
+[2026-02-17 18:28:43] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 18:28:43] KatPay Request: GET https://api.katpay.co/v1/virtual-accounts Data: []
+[2026-02-17 18:28:45] KatPay Response (405): {
+    "message": "The GET method is not supported for route v1/virtual-accounts. Supported methods: POST."
+}
+[2026-02-17 18:28:54] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 18:28:54] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: []
+[2026-02-17 18:28:56] KatPay Response (422): {"message":"The email field is required. (and 4 more errors)","errors":{"email":["The email field is required."],"name":["The name field is required."],"phoneNumber":["The phone number field is required."],"bankCode":["The bank code field is required."],"merchantID":["The merchant i d field is required."]}}
+[2026-02-17 18:29:11] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 18:29:11] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":"PALMPAY","merchantID":"test"}
+[2026-02-17 18:29:13] KatPay Response (422): {"message":"The bank code field must be an array.","errors":{"bankCode":["The bank code field must be an array."]}}
+[2026-02-17 19:08:16] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 19:08:16] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"ibrobk@gmail.com","name":"Ibrahim Yusuf","phoneNumber":"08135363778","bankCode":["PALMPAY"],"merchantID":"your-katpay-merchant-id"}
+[2026-02-17 19:08:18] KatPay Response (404): {"success":false,"message":"Merchant not found or invalid API key"}
+[2026-02-17 19:28:18] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 19:28:18] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 19:28:21] KatPay Response (404): {"success":false,"message":"Merchant not found or invalid API key"}
+[2026-02-17 19:38:50] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 19:38:50] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"ibrobk@gmail.com","name":"Ibrahim Yusuf","phoneNumber":"08135363778","bankCode":["PALMPAY"],"merchantID":"your-katpay-merchant-id"}
+[2026-02-17 19:38:51] KatPay Response (404): {"success":false,"message":"Merchant not found or invalid API key"}
+[2026-02-17 19:39:15] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 19:39:15] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"ibrobk@gmail.com","name":"Ibrahim Yusuf","phoneNumber":"08135363778","bankCode":["PALMPAY"],"merchantID":"your-katpay-merchant-id"}
+[2026-02-17 19:39:16] KatPay Response (404): {"success":false,"message":"Merchant not found or invalid API key"}
+[2026-02-17 19:41:46] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 19:41:46] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"ibrobk@gmail.com","name":"Ibrahim Yusuf","phoneNumber":"08135363778","bankCode":["PALMPAY"],"merchantID":"your-katpay-merchant-id"}
+[2026-02-17 19:41:47] KatPay Response (404): {"success":false,"message":"Merchant not found or invalid API key"}
+[2026-02-17 19:48:23] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 19:48:23] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"ibrobk@gmail.com","name":"Ibrahim Yusuf","phoneNumber":"08135363778","bankCode":["PALMPAY"],"merchantID":"your-katpay-merchant-id"}
+[2026-02-17 19:48:24] KatPay Response (404): {"success":false,"message":"Merchant not found or invalid API key"}
+[2026-02-17 19:50:51] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 19:50:51] KatPay Request: GET https://api.katpay.co/v1/wallet/balance Data: []
+[2026-02-17 19:50:52] KatPay Response (404): {
+    "message": "The route v1/wallet/balance could not be found."
+}
+[2026-02-17 19:51:07] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 19:51:07] KatPay Request: GET https://api.katpay.co/v1/wallet/balance Data: []
+[2026-02-17 19:51:08] KatPay Response (404): {
+    "message": "The route v1/wallet/balance could not be found."
+}
+[2026-02-17 19:51:14] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 19:51:14] KatPay Request: GET https://api.katpay.co/v1/wallet/balance Data: []
+[2026-02-17 19:51:15] KatPay Response (404): {
+    "message": "The route v1/wallet/balance could not be found."
+}
+[2026-02-17 19:51:35] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 19:51:35] KatPay Request: GET https://api.katpay.co/v1/wallet/balance Data: []
+[2026-02-17 19:51:36] KatPay Response (404): {
+    "message": "The route v1/wallet/balance could not be found."
+}
+[2026-02-17 20:13:33] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 20:13:33] KatPay Connection Test: POST https://api.katpay.co/v1/virtual-accounts
+[2026-02-17 20:13:36] KatPay Connection Test Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 20:13:43] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 20:13:43] KatPay Connection Test: POST https://api.katpay.co/v1/virtual-accounts
+[2026-02-17 20:13:45] KatPay Connection Test Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 20:13:54] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 20:13:54] KatPay Connection Test: POST https://api.katpay.co/v1/virtual-accounts
+[2026-02-17 20:13:55] KatPay Connection Test Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 20:14:10] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 20:14:10] KatPay Connection Test: POST https://api.katpay.co/v1/virtual-accounts
+[2026-02-17 20:14:12] KatPay Connection Test Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 20:16:06] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 20:16:06] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 20:16:07] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 21:49:59] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 21:49:59] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 21:50:01] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 21:51:21] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 21:51:21] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 21:51:59] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 21:51:59] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 21:52:10] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:07:26] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:07:26] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 22:07:37] KatPay Curl Error: Could not resolve host: api.katpay.co
+[2026-02-17 22:07:57] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:07:57] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 22:07:59] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:08:44] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:08:44] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 22:08:46] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:12:20] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:12:20] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"pk_live_yLoloF9JV0C7AUozJzd4bJU4hU6AV0nMf0FanZlMJGg9BRZhKngiOhVm6rHvNSjZ"}
+[2026-02-17 22:12:22] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:14:44] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:14:44] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"KAT8882490666"}
+[2026-02-17 22:14:47] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:17:48] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:17:48] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"KAT8882490666"}
+[2026-02-17 22:17:49] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:21:15] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:21:15] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"KAT8882490666"}
+[2026-02-17 22:21:17] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:23:37] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:23:37] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"KAT8882490666"}
+[2026-02-17 22:23:39] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:24:44] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:24:44] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"KAT8882490666"}
+[2026-02-17 22:24:47] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:29:21] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:29:21] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"KAT8882490666"}
+[2026-02-17 22:29:24] KatPay Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:29:45] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...wNTA
+[2026-02-17 22:29:45] KatPay Connection Test: POST https://api.katpay.co/v1/virtual-accounts
+[2026-02-17 22:29:47] KatPay Connection Test Response (401): {"success":false,"error":"Invalid API key","message":"The provided API key is invalid or has been revoked."}
+[2026-02-17 22:34:17] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 22:34:17] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"KAT8882490666"}
+[2026-02-17 22:34:19] KatPay Response (201): {"success":true,"message":"Virtual account created successfully","data":{"account_number":"6618215602","account_name":"https:\/\/agentify.com.ng\/ Test(KATPAY)","bank_name":"PalmPay","provider_reference":"1ca9676d10e1e3994d79a5d067788232","status":"active","total_received":null,"transaction_count":null,"last_transaction_at":null,"created_at":"2026-02-17T21:36:39.000000Z","already_exists":false}}
+[2026-02-17 22:34:34] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 22:34:34] KatPay Request: POST https://api.katpay.co/v1/virtual-accounts Data: {"email":"test@example.com","name":"Test User","phoneNumber":"08012345678","bankCode":["PALMPAY"],"merchantID":"KAT8882490666"}
+[2026-02-17 22:34:35] KatPay Response (200): {"success":true,"message":"Virtual account already exists for this customer","data":{"account_number":"6618215602","account_name":"https:\/\/agentify.com.ng\/ Test(KATPAY)","bank_name":"PalmPay","provider_reference":"1ca9676d10e1e3994d79a5d067788232","status":"active","total_received":"0.00","transaction_count":0,"last_transaction_at":null,"created_at":"2026-02-17T21:36:39.000000Z","already_exists":true}}
+[2026-02-17 23:23:37] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 23:23:37] KatPay Connection Test: POST https://api.katpay.co/v1/virtual-accounts
+[2026-02-17 23:23:49] KatPay Connection Test Curl Error: Could not resolve host: api.katpay.co
+[2026-02-17 23:24:34] KatPayService Initialized: BaseUrl=https://api.katpay.co/v1, ApiKey=pk_l...NSjZ, ApiSecret=eyJp...In0=
+[2026-02-17 23:24:34] KatPay Connection Test: POST https://api.katpay.co/v1/virtual-accounts
+[2026-02-17 23:24:37] KatPay Connection Test Response (422): {"message":"The email field is required. (and 4 more errors)","errors":{"email":["The email field is required."],"name":["The name field is required."],"phoneNumber":["The phone number field is required."],"bankCode":["The bank code field is required."],"merchantID":["The merchant i d field is required."]}}

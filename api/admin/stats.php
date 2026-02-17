@@ -29,13 +29,26 @@ try {
                         FROM users");
     $userStats = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Get total verifications
-    $stmt = $db->query("SELECT COUNT(*) as total,
-                        SUM(CASE WHEN verification_status = 'verified' THEN 1 ELSE 0 END) as success,
-                        SUM(CASE WHEN verification_status = 'pending' OR verification_status = 'processing' THEN 1 ELSE 0 END) as pending,
-                        SUM(CASE WHEN verification_status = 'rejected' OR verification_status = 'expired' THEN 1 ELSE 0 END) as failed
-                        FROM verifications");
-    $verificationStats = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Get service transaction stats from service_transactions
+    $serviceStats = ['total' => 0, 'completed' => 0, 'pending' => 0, 'processing' => 0, 'failed' => 0];
+    $tableCheck = $db->query("SHOW TABLES LIKE 'service_transactions'");
+    if ($tableCheck->rowCount() > 0) {
+        $stmt = $db->query("SELECT COUNT(*) as total,
+                            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                            SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) as processing,
+                            SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed
+                            FROM service_transactions");
+        $serviceStats = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    // For compatibility with frontend expecting 'verifications'
+    $verificationStats = [
+        'total' => (int)$serviceStats['total'],
+        'success' => (int)$serviceStats['completed'],
+        'pending' => (int)$serviceStats['pending'],
+        'failed' => (int)$serviceStats['failed']
+    ];
     
     // Get total revenue from wallet transactions (debits)
     $stmt = $db->query("SELECT 
@@ -67,21 +80,44 @@ try {
                         ORDER BY date ASC");
     $userGrowth = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Get recent transactions (last 10)
-    $stmt = $db->query("SELECT wt.*, u.name as user_name, u.email as user_email
-                        FROM wallet_transactions wt
-                        LEFT JOIN users u ON wt.user_id = u.id
-                        ORDER BY wt.created_at DESC
-                        LIMIT 10");
-    $recentTransactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Get daily transaction trends (last 7 days) from service_transactions
+    $dailyTrends = [];
+    $tableCheck = $db->query("SHOW TABLES LIKE 'service_transactions'");
+    if ($tableCheck->rowCount() > 0) {
+        $stmt = $db->query("SELECT DATE(created_at) as date, COUNT(*) as count,
+                            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                            SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+                            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
+                            FROM service_transactions
+                            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                            GROUP BY DATE(created_at)
+                            ORDER BY date ASC");
+        $dailyTrends = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    // Get recent transactions (last 10 from service_transactions)
+    $recentTransactions = [];
+    $tableCheck = $db->query("SHOW TABLES LIKE 'service_transactions'");
+    if ($tableCheck->rowCount() > 0) {
+        $stmt = $db->query("SELECT st.*, u.name as user_name, u.email as user_email
+                            FROM service_transactions st
+                            LEFT JOIN users u ON st.user_id = u.id
+                            ORDER BY st.created_at DESC
+                            LIMIT 10");
+        $recentTransactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
     // Get service usage statistics
-    $stmt = $db->query("SELECT service_type, COUNT(*) as count
-                        FROM verification_logs
-                        GROUP BY service_type
-                        ORDER BY count DESC
-                        LIMIT 5");
-    $serviceUsage = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $serviceUsage = [];
+    $tableCheck = $db->query("SHOW TABLES LIKE 'service_transactions'");
+    if ($tableCheck->rowCount() > 0) {
+        $stmt = $db->query("SELECT service_type, COUNT(*) as count
+                            FROM service_transactions
+                            GROUP BY service_type
+                            ORDER BY count DESC
+                            LIMIT 10");
+        $serviceUsage = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
     // Get new users today
     $stmt = $db->query("SELECT COUNT(*) as count FROM users WHERE DATE(created_at) = CURDATE()");
@@ -92,16 +128,18 @@ try {
         'data' => [
             'users' => [
                 'total' => (int)$userStats['total'],
-                'active' => (int)$userStats['active'],
-                'inactive' => (int)$userStats['inactive'],
+                'active' => (int)(isset($userStats['active']) ? $userStats['active'] : 0),
+                'inactive' => (int)(isset($userStats['inactive']) ? $userStats['inactive'] : 0),
                 'new_today' => (int)$newUsersToday
             ],
-            'verifications' => [
-                'total' => (int)(isset($verificationStats['total']) ? $verificationStats['total'] : 0),
-                'success' => (int)(isset($verificationStats['success']) ? $verificationStats['success'] : 0),
-                'pending' => (int)(isset($verificationStats['pending']) ? $verificationStats['pending'] : 0),
-                'failed' => (int)(isset($verificationStats['failed']) ? $verificationStats['failed'] : 0)
+            'services' => [
+                'total' => (int)(isset($serviceStats['total']) ? $serviceStats['total'] : 0),
+                'completed' => (int)(isset($serviceStats['completed']) ? $serviceStats['completed'] : 0),
+                'pending' => (int)(isset($serviceStats['pending']) ? $serviceStats['pending'] : 0),
+                'processing' => (int)(isset($serviceStats['processing']) ? $serviceStats['processing'] : 0),
+                'failed' => (int)(isset($serviceStats['failed']) ? $serviceStats['failed'] : 0)
             ],
+            'verifications' => $verificationStats,
             'revenue' => [
                 'total' => (float)(isset($revenueStats['total_revenue']) ? $revenueStats['total_revenue'] : 0),
                 'today' => (float)(isset($revenueStats['today_revenue']) ? $revenueStats['today_revenue'] : 0),
@@ -116,6 +154,7 @@ try {
                 'revenue' => (float)(isset($vtuStats['revenue']) ? $vtuStats['revenue'] : 0)
             ],
             'user_growth' => $userGrowth,
+            'daily_trends' => $dailyTrends,
             'recent_transactions' => $recentTransactions,
             'service_usage' => $serviceUsage
         ]

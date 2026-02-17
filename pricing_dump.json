@@ -1,0 +1,102 @@
+[
+    {
+        "id": "5",
+        "service_name": "nin_verification",
+        "price": "88.00",
+        "description": "Fast and secure NIN verification",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "6",
+        "service_name": "bvn_verification",
+        "price": "163.00",
+        "description": "Reliable BVN verification service",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "7",
+        "service_name": "birth_attestation",
+        "price": "503.00",
+        "description": "Official birth attestation processing",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "8",
+        "service_name": "ipe_clearance",
+        "price": "1010.00",
+        "description": "IPE clearance and verification",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "9",
+        "service_name": "nin_validation",
+        "price": "234.00",
+        "description": "In-depth NIN validation against records",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "10",
+        "service_name": "bvn_modification",
+        "price": "2485.00",
+        "description": "Service for BVN details modification",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "11",
+        "service_name": "bvn_retrieval",
+        "price": "314.00",
+        "description": "Retrieve lost or forgotten BVN",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "12",
+        "service_name": "bvn_slip_printing",
+        "price": "435.00",
+        "description": "High-quality BVN slip printing",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "13",
+        "service_name": "airtime_purchase",
+        "price": "337.00",
+        "description": "Buy airtime for all networks",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    },
+    {
+        "id": "14",
+        "service_name": "data_purchase",
+        "price": "122.00",
+        "description": "Buy data bundles for all networks",
+        "currency": "NGN",
+        "status": "active",
+        "created_at": "2026-02-17 13:44:26",
+        "updated_at": "2026-02-17 13:44:26"
+    }
+]

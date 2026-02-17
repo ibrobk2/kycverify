@@ -4,12 +4,10 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-require_once '../config/database.php';
-require_once 'wallet-helper.php';
-
-
-require_once 'jwt-helper.php';
-require_once '../config/config.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/wallet-helper.php';
+require_once __DIR__ . '/jwt-helper.php';
+require_once __DIR__ . '/../config/config.php';
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

@@ -4,7 +4,8 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
@@ -16,8 +17,8 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // Get service name from query parameter
-    $service_name = isset($_GET['service']) ? $_GET['service'] : '';
+    // Get service name from query parameter and normalize it
+    $service_name = isset($_GET['service']) ? strtolower(str_replace(' ', '_', $_GET['service'])) : '';
 
 
     if (empty($service_name)) {

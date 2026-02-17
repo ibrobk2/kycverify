@@ -222,8 +222,12 @@
                     }
                 });
                 const data = await response.json();
+                if (!data.success) {
+                    console.error('Auth verification failed:', data.message);
+                }
                 return data.success === true;
             } catch (error) {
+                console.error('Auth verification error:', error);
                 return false;
             }
         }
@@ -232,10 +236,9 @@
             // Check authentication
             const isAuthenticated = await checkAdminAuth();
             if (!isAuthenticated) {
+                localStorage.removeItem('adminToken');
                 showAuthError();
-                setTimeout(() => {
-                    window.location.href = './login.html';
-                }, 2000);
+                window.location.href = './login.html';
                 return;
             }
             
@@ -248,12 +251,6 @@
 
             // Keep dashboard data updated every 10 seconds
             setInterval(loadDashboardData, 10000);
-            
-            // Setup logout
-            document.getElementById('logout-btn').addEventListener('click', function(e) {
-                e.preventDefault();
-                logoutAdmin();
-            });
         }
 
         function showAuthError() {
@@ -347,57 +344,70 @@
             const userGrowthData = stats.user_growth.map(d => d.count);
             
             const ctx1 = document.getElementById('verificationChart').getContext('2d');
-            if (window.verificationChart) window.verificationChart.destroy();
-            window.verificationChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: userGrowthLabels.length > 0 ? userGrowthLabels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'New Users',
-                        data: userGrowthData.length > 0 ? userGrowthData : [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: '#06b6d4',
-                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true
+            if (window.verificationChart) {
+                // Update existing chart
+                window.verificationChart.data.labels = userGrowthLabels.length > 0 ? userGrowthLabels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                window.verificationChart.data.datasets[0].data = userGrowthData.length > 0 ? userGrowthData : [0, 0, 0, 0, 0, 0, 0];
+                window.verificationChart.update('none'); // Update without animation to prevent jumping
+            } else {
+                window.verificationChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: userGrowthLabels.length > 0 ? userGrowthLabels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'New Users',
+                            data: userGrowthData.length > 0 ? userGrowthData : [0, 0, 0, 0, 0, 0, 0],
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
             
             // Status distribution chart
             const ctx2 = document.getElementById('statusChart').getContext('2d');
-            if (window.statusChart) window.statusChart.destroy();
-            window.statusChart = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Success', 'Pending', 'Failed'],
-                    datasets: [{
-                        data: [
-                            stats.verifications.success || 0,
-                            stats.verifications.pending || 0,
-                            stats.verifications.failed || 0
-                        ],
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
+            const doughnutData = [
+                stats.verifications.success || 0,
+                stats.verifications.pending || 0,
+                stats.verifications.failed || 0
+            ];
+
+            if (window.statusChart) {
+                // Update existing chart
+                window.statusChart.data.datasets[0].data = doughnutData;
+                window.statusChart.update('none');
+            } else {
+                window.statusChart = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Success', 'Pending', 'Failed'],
+                        datasets: [{
+                            data: doughnutData,
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
         
         async function loadSliderImages() {
@@ -488,23 +498,6 @@
             });
         }
 
-        async function logoutAdmin() {
-            // try {
-            //     localStorage.removeItem('adminToken');
-            //     localStorage.removeItem('adminUser');
-            //     // Optionally, call a logout API endpoint if you have one
-            // } catch (error) {
-            //     console.error('Logout error:', error);
-            // } finally {
-            //     window.location.href = './login.html';
-             const confirmLogout = window.confirm("Are you sure you want to logout?");
-            if (confirmLogout) {
-                localStorage.removeItem("adminToken");
-                localStorage.removeItem("adminData");
-                window.location.href = "login.html";
-    
-            }
-        }
 
         async function refreshUsers() {
             if (!adminToken) return;

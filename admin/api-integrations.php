@@ -54,9 +54,14 @@
             <div class="main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2><i class="fas fa-plug me-2"></i>API Integrations</h2>
-                    <button class="btn btn-primary" onclick="loadConfigs()">
-                        <i class="fas fa-refresh me-2"></i>Refresh
-                    </button>
+                    <div>
+                        <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addConfigModal">
+                            <i class="fas fa-plus me-2"></i>Add API Integration
+                        </button>
+                        <button class="btn btn-primary" onclick="loadConfigs()">
+                            <i class="fas fa-refresh me-2"></i>Refresh
+                        </button>
+                    </div>
                 </div>
 
                 <!-- API Configs List -->
@@ -65,6 +70,54 @@
                         <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
                         <p class="mt-3">Loading configurations...</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Config Modal -->
+    <div class="modal fade" id="addConfigModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New API Integration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addConfigForm">
+                        <div class="mb-3">
+                            <label class="form-label">Service Name (e.g. katpay, monnify)</label>
+                            <input type="text" class="form-control" id="addServiceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Base URL</label>
+                            <input type="url" class="form-control" id="addBaseUrl" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">API Key</label>
+                            <input type="text" class="form-control" id="addApiKey">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">API Secret</label>
+                            <input type="password" class="form-control" id="addApiSecret">
+                        </div>
+                        <div class="mb-3 katpay-only" style="display:none;">
+                            <label class="form-label">Merchant ID</label>
+                            <input type="text" class="form-control" id="addMerchantId">
+                        </div>
+                        <div class="mb-3 katpay-only" style="display:none;">
+                            <label class="form-label">Webhook Secret</label>
+                            <input type="text" class="form-control" id="addWebhookSecret">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="addIsActive" checked>
+                            <label class="form-check-label">Active</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addConfig()">Add Integration</button>
                 </div>
             </div>
         </div>
@@ -97,6 +150,14 @@
                             <label class="form-label">API Secret</label>
                             <input type="password" class="form-control" id="apiSecret" placeholder="Leave empty to keep unchanged">
                         </div>
+                        <div class="mb-3 katpay-only" style="display:none;">
+                            <label class="form-label">Merchant ID</label>
+                            <input type="text" class="form-control" id="merchantId">
+                        </div>
+                        <div class="mb-3 katpay-only" style="display:none;">
+                            <label class="form-label">Webhook Secret</label>
+                            <input type="text" class="form-control" id="webhookSecret">
+                        </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="isActive">
                             <label class="form-check-label">Active</label>
@@ -128,14 +189,6 @@
 
             configModal = new bootstrap.Modal(document.getElementById('configModal'));
             loadConfigs();
-
-            document.getElementById('logout-btn').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('Are you sure you want to logout?')) {
-                    localStorage.removeItem('adminToken');
-                    window.location.href = 'login.html';
-                }
-            });
         });
 
         async function loadConfigs() {
@@ -191,8 +244,63 @@
             document.getElementById('baseUrl').value = config.base_url;
             document.getElementById('apiKey').value = config.api_key || '';
             document.getElementById('apiSecret').value = config.api_secret || '';
+            document.getElementById('merchantId').value = config.merchant_id || '';
+            document.getElementById('webhookSecret').value = config.webhook_secret || '';
             document.getElementById('isActive').checked = config.status === 'active';
+            
+            // Toggle KatPay only fields
+            const katpayFields = document.querySelectorAll('.katpay-only');
+            katpayFields.forEach(el => el.style.display = config.service_name === 'katpay' ? 'block' : 'none');
+            
             configModal.show();
+        }
+
+        // Add listener for service name change in add modal
+        document.getElementById('addServiceName').addEventListener('input', function() {
+            const isKatpay = this.value.toLowerCase().includes('katpay');
+            document.querySelectorAll('#addConfigModal .katpay-only').forEach(el => el.style.display = isKatpay ? 'block' : 'none');
+        });
+
+        async function addConfig() {
+            const data = {
+                action: 'add',
+                service_name: document.getElementById('addServiceName').value.trim(),
+                base_url: document.getElementById('addBaseUrl').value.trim(),
+                api_key: document.getElementById('addApiKey').value,
+                api_secret: document.getElementById('addApiSecret').value,
+                merchant_id: document.getElementById('addMerchantId').value,
+                webhook_secret: document.getElementById('addWebhookSecret').value,
+                status: document.getElementById('addIsActive').checked ? 'active' : 'inactive'
+            };
+
+            if (!data.service_name || !data.base_url) {
+                alert('Service Name and Base URL are required');
+                return;
+            }
+
+            try {
+                const response = await fetch('../api/admin/api-config.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + adminToken
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    bootstrap.Modal.getInstance(document.getElementById('addConfigModal')).hide();
+                    document.getElementById('addConfigForm').reset();
+                    loadConfigs();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding configuration');
+            }
         }
 
         async function saveConfig() {
@@ -203,6 +311,8 @@
                 base_url: document.getElementById('baseUrl').value,
                 api_key: document.getElementById('apiKey').value,
                 api_secret: document.getElementById('apiSecret').value,
+                merchant_id: document.getElementById('merchantId').value,
+                webhook_secret: document.getElementById('webhookSecret').value,
                 status: document.getElementById('isActive').checked ? 'active' : 'inactive'
             };
 

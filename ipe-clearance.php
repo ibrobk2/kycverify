@@ -276,7 +276,7 @@ if (!isset($_SESSION['user_id'])) {
         // Load service cost
         async function loadServiceCost() {
             try {
-                const response = await fetch('api/get-service-price.php?service=IPE Clearance');
+                const response = await fetch('api/get-service-price.php?service=ipe_clearance');
                 const data = await response.json();
 
                 if (data.success) {

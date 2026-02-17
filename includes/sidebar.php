@@ -57,10 +57,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span>NIN Services</span>
                 </a>
             </li>
-            <li class="nav-item <?php echo ($current_page == 'bvn-retrieval.php' || $current_page == 'bvn-modification.php' || $current_page == 'bvn-slip-printing.php') ? 'active' : ''; ?>">
+            <li class="nav-item <?php echo ($current_page == 'bvn-retrieval.php' || $current_page == 'bvn-modification.php') ? 'active' : ''; ?>">
                 <a href="bvn-retrieval.php" class="nav-link">
                     <i class="fas fa-university"></i>
                     <span>BVN Services</span>
+                </a>
+            </li>
+            <li class="nav-item <?php echo ($current_page == 'bvn-slip-printing.php') ? 'active' : ''; ?>">
+                <a href="bvn-slip-printing.php" class="nav-link">
+                    <i class="fas fa-print"></i>
+                    <span>BVN SLIP</span>
                 </a>
             </li>
             <li class="nav-item <?php echo ($current_page == 'airtime-purchase.php' || $current_page == 'data-purchase.php') ? 'active' : ''; ?>">

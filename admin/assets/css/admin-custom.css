@@ -12,12 +12,14 @@ body {
 .sidebar {
     background: linear-gradient(135deg, var(--primary-blue), #1e293b);
     min-height: 100vh;
+    height: 100%;
     position: fixed;
     top: 0;
     left: 0;
     width: var(--sidebar-width);
     z-index: 1000;
     transition: transform 0.3s ease;
+    overflow-y: auto;
 }
 
 .main-content {

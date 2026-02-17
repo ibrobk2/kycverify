@@ -19,162 +19,209 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    $page = max(1, intval(isset($_GET['page']) ? $_GET['page'] : 1));
-    $limit = min(100, max(10, intval(isset($_GET['limit']) ? $_GET['limit'] : 50)));
-    $offset = ($page - 1) * $limit;
-    $type = isset($_GET['type']) ? $_GET['type'] : ''; // wallet, vtu, verification
+    // DataTables server-side parameters
+    $draw = isset($_GET['draw']) ? intval($_GET['draw']) : 0;
+    $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
+    $length = isset($_GET['length']) ? intval($_GET['length']) : 50;
+    $searchValue = isset($_GET['search']['value']) ? trim($_GET['search']['value']) : '';
+    
+    // Custom filters
+    $type = isset($_GET['type']) ? $_GET['type'] : 'all'; // all, wallet, vtu, service, or specific service types
     $status = isset($_GET['status']) ? $_GET['status'] : '';
     $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : '';
     $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
     
     $transactions = [];
-    $totalCount = 0;
+    $totalRecords = 0;
+    $filteredRecords = 0;
+    
+    // Service types that go to service_transactions
+    $serviceTypes = ['nin_verification', 'nin_premium', 'nin_regular', 'nin_standard', 'nin_vnin',
+                     'bvn_verification', 'bvn_slip', 'bvn_modification', 'ipe_clearance', 
+                     'birth_attestation', 'bvn_upload'];
+    
+    // Determine which tables to query
+    $queryService = ($type === 'all' || in_array($type, $serviceTypes) || $type === 'service');
+    $queryWallet = ($type === 'all' || $type === 'wallet');
+    $queryVtu = ($type === 'all' || $type === 'vtu');
+    
+    // If specific service type, only query service_transactions
+    if (in_array($type, $serviceTypes)) {
+        $queryWallet = false;
+        $queryVtu = false;
+    }
+    
+    // Build UNION query for all transaction types
+    $unionParts = [];
+    $unionParams = [];
+    
+    // Service transactions
+    if ($queryService) {
+        $serviceWhere = ['1=1'];
+        if (in_array($type, $serviceTypes)) {
+            $serviceWhere[] = "st.service_type = ?";
+            $unionParams[] = $type;
+        }
+        if (!empty($status)) {
+            $serviceWhere[] = "st.status = ?";
+            $unionParams[] = strtolower($status);
+        }
+        if (!empty($startDate)) {
+            $serviceWhere[] = "DATE(st.created_at) >= ?";
+            $unionParams[] = $startDate;
+        }
+        if (!empty($endDate)) {
+            $serviceWhere[] = "DATE(st.created_at) <= ?";
+            $unionParams[] = $endDate;
+        }
+        if (!empty($searchValue)) {
+            $serviceWhere[] = "(u.name LIKE ? OR u.email LIKE ? OR st.reference_number LIKE ? OR st.service_type LIKE ?)";
+            $unionParams[] = "%$searchValue%";
+            $unionParams[] = "%$searchValue%";
+            $unionParams[] = "%$searchValue%";
+            $unionParams[] = "%$searchValue%";
+        }
+        $serviceWhereStr = implode(' AND ', $serviceWhere);
+        
+        $unionParts[] = "SELECT st.id, 'service' as source_type, st.service_type, 
+                         u.name as user_name, u.email as user_email,
+                         st.reference_number, st.status, st.amount, st.provider,
+                         st.admin_notes, st.created_at
+                         FROM service_transactions st
+                         LEFT JOIN users u ON st.user_id = u.id
+                         WHERE $serviceWhereStr";
+    }
     
     // Wallet transactions
-    if (empty($type) || $type === 'wallet') {
-        $where = ['1=1'];
-        $params = [];
-        
+    if ($queryWallet) {
+        $walletWhere = ['1=1'];
         if (!empty($status)) {
-            // Wallet transactions don't have status, but we can filter by type
-            if ($status === 'credit') {
-                $where[] = "transaction_type = 'credit'";
-            } elseif ($status === 'debit') {
-                $where[] = "transaction_type = 'debit'";
+            if (strtolower($status) === 'completed') {
+                // wallet transactions are always completed
+            } else {
+                // skip wallet transactions for non-completed status
+                $queryWallet = false;
             }
         }
-        
-        if (!empty($startDate)) {
-            $where[] = "DATE(created_at) >= ?";
-            $params[] = $startDate;
-        }
-        
-        if (!empty($endDate)) {
-            $where[] = "DATE(created_at) <= ?";
-            $params[] = $endDate;
-        }
-        
-        $whereClause = implode(' AND ', $where);
-        
-        // Get count
-        $countQuery = "SELECT COUNT(*) FROM wallet_transactions WHERE $whereClause";
-        $stmt = $db->prepare($countQuery);
-        $stmt->execute($params);
-        $totalCount = $stmt->fetchColumn();
-        
-        // Get transactions
-        $query = "SELECT wt.*, u.name as user_name, u.email as user_email
-                  FROM wallet_transactions wt
-                  LEFT JOIN users u ON wt.user_id = u.id
-                  WHERE $whereClause
-                  ORDER BY wt.created_at DESC
-                  LIMIT ? OFFSET ?";
-        $stmt = $db->prepare($query);
-        
-        // Bind params manually
-        $paramIndex = 1;
-        foreach ($params as $value) {
-            $stmt->bindValue($paramIndex++, $value);
-        }
-        $stmt->bindValue($paramIndex++, $limit, PDO::PARAM_INT);
-        $stmt->bindValue($paramIndex++, $offset, PDO::PARAM_INT);
-        
-        $stmt->execute();
-        $walletTxs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        foreach ($walletTxs as $tx) {
-            $transactions[] = [
-                'id' => $tx['id'],
-                'type' => 'wallet',
-                'user_name' => $tx['user_name'],
-                'user_email' => $tx['user_email'],
-                'amount' => $tx['amount'],
-                'transaction_type' => $tx['transaction_type'],
-                'details' => $tx['details'],
-                'reference' => $tx['reference'],
-                'created_at' => $tx['created_at']
-            ];
+        if ($queryWallet) {
+            if (!empty($startDate)) {
+                $walletWhere[] = "DATE(wt.created_at) >= ?";
+                $unionParams[] = $startDate;
+            }
+            if (!empty($endDate)) {
+                $walletWhere[] = "DATE(wt.created_at) <= ?";
+                $unionParams[] = $endDate;
+            }
+            if (!empty($searchValue)) {
+                $walletWhere[] = "(u.name LIKE ? OR u.email LIKE ? OR wt.description LIKE ? OR wt.reference LIKE ?)";
+                $unionParams[] = "%$searchValue%";
+                $unionParams[] = "%$searchValue%";
+                $unionParams[] = "%$searchValue%";
+                $unionParams[] = "%$searchValue%";
+            }
+            $walletWhereStr = implode(' AND ', $walletWhere);
+            
+            $unionParts[] = "SELECT wt.id, 'wallet' as source_type, 
+                             CONCAT('wallet_', wt.transaction_type) as service_type,
+                             u.name as user_name, u.email as user_email,
+                             wt.reference as reference_number, 
+                             'completed' as status,
+                             wt.amount, 'wallet' as provider,
+                             wt.description as admin_notes, wt.created_at
+                             FROM wallet_transactions wt
+                             LEFT JOIN users u ON wt.user_id = u.id
+                             WHERE $walletWhereStr";
         }
     }
     
     // VTU transactions
-    if ($type === 'vtu') {
+    if ($queryVtu) {
         $tableCheck = $db->query("SHOW TABLES LIKE 'vtu_transactions'");
         if ($tableCheck->rowCount() > 0) {
-            $where = ['1=1'];
-            $params = [];
-            
+            $vtuWhere = ['1=1'];
             if (!empty($status)) {
-                $where[] = "status = ?";
-                $params[] = strtoupper($status);
+                $statusMap = ['completed' => 'SUCCESS', 'pending' => 'PENDING', 'failed' => 'FAILED', 'processing' => 'PROCESSING'];
+                $mappedStatus = isset($statusMap[strtolower($status)]) ? $statusMap[strtolower($status)] : strtoupper($status);
+                $vtuWhere[] = "vt.status = ?";
+                $unionParams[] = $mappedStatus;
             }
-            
             if (!empty($startDate)) {
-                $where[] = "DATE(created_at) >= ?";
-                $params[] = $startDate;
+                $vtuWhere[] = "DATE(vt.created_at) >= ?";
+                $unionParams[] = $startDate;
             }
-            
             if (!empty($endDate)) {
-                $where[] = "DATE(created_at) <= ?";
-                $params[] = $endDate;
+                $vtuWhere[] = "DATE(vt.created_at) <= ?";
+                $unionParams[] = $endDate;
             }
-            
-            $whereClause = implode(' AND ', $where);
-            
-            $countQuery = "SELECT COUNT(*) FROM vtu_transactions WHERE $whereClause";
-            $stmt = $db->prepare($countQuery);
-            $stmt->execute($params);
-            $totalCount = $stmt->fetchColumn();
-            
-            $query = "SELECT vt.*, u.name as user_name, u.email as user_email
-                      FROM vtu_transactions vt
-                      LEFT JOIN users u ON vt.user_id = u.id
-                      WHERE $whereClause
-                      ORDER BY vt.created_at DESC
-                      LIMIT ? OFFSET ?";
-            $stmt = $db->prepare($query);
-            
-            // Bind params manually
-            $paramIndex = 1;
-            foreach ($params as $value) {
-                $stmt->bindValue($paramIndex++, $value);
+            if (!empty($searchValue)) {
+                $vtuWhere[] = "(u.name LIKE ? OR u.email LIKE ? OR vt.transaction_ref LIKE ? OR vt.phone_number LIKE ?)";
+                $unionParams[] = "%$searchValue%";
+                $unionParams[] = "%$searchValue%";
+                $unionParams[] = "%$searchValue%";
+                $unionParams[] = "%$searchValue%";
             }
-            $stmt->bindValue($paramIndex++, $limit, PDO::PARAM_INT);
-            $stmt->bindValue($paramIndex++, $offset, PDO::PARAM_INT);
+            $vtuWhereStr = implode(' AND ', $vtuWhere);
             
-            $stmt->execute();
-            $vtuTxs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            foreach ($vtuTxs as $tx) {
-                $transactions[] = [
-                    'id' => $tx['id'],
-                    'type' => 'vtu',
-                    'user_name' => $tx['user_name'],
-                    'user_email' => $tx['user_email'],
-                    'transaction_ref' => $tx['transaction_ref'],
-                    'transaction_type' => $tx['transaction_type'],
-                    'network' => $tx['network'],
-                    'phone_number' => $tx['phone_number'],
-                    'amount' => $tx['amount'],
-                    'commission' => $tx['commission'],
-                    'status' => $tx['status'],
-                    'created_at' => $tx['created_at']
-                ];
-            }
+            $unionParts[] = "SELECT vt.id, 'vtu' as source_type,
+                             CONCAT('vtu_', LOWER(vt.transaction_type)) as service_type,
+                             u.name as user_name, u.email as user_email,
+                             vt.transaction_ref as reference_number,
+                             LOWER(vt.status) as status,
+                             vt.amount, 'vtu' as provider,
+                             vt.status_message as admin_notes, vt.created_at
+                             FROM vtu_transactions vt
+                             LEFT JOIN users u ON vt.user_id = u.id
+                             WHERE $vtuWhereStr";
         }
+    }
+    
+    if (empty($unionParts)) {
+        echo json_encode([
+            'success' => true,
+            'draw' => $draw,
+            'recordsTotal' => 0,
+            'recordsFiltered' => 0,
+            'data' => []
+        ]);
+        exit;
+    }
+    
+    $unionQuery = implode(" UNION ALL ", $unionParts);
+    
+    // Count total
+    $countQuery = "SELECT COUNT(*) FROM ($unionQuery) as combined";
+    $stmt = $db->prepare($countQuery);
+    $paramIndex = 1;
+    foreach ($unionParams as $value) {
+        $stmt->bindValue($paramIndex++, $value);
+    }
+    $stmt->execute();
+    $filteredRecords = $stmt->fetchColumn();
+    $totalRecords = $filteredRecords; // For simplicity
+    
+    // Get paginated results
+    $finalQuery = "SELECT * FROM ($unionQuery) as combined ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    $stmt = $db->prepare($finalQuery);
+    $paramIndex = 1;
+    foreach ($unionParams as $value) {
+        $stmt->bindValue($paramIndex++, $value);
+    }
+    $stmt->bindValue($paramIndex++, $length, PDO::PARAM_INT);
+    $stmt->bindValue($paramIndex++, $start, PDO::PARAM_INT);
+    $stmt->execute();
+    $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Format status for VTU
+    foreach ($transactions as &$tx) {
+        if ($tx['status'] === 'success') $tx['status'] = 'completed';
     }
     
     echo json_encode([
         'success' => true,
-        'data' => [
-            'transactions' => $transactions,
-            'pagination' => [
-                'page' => $page,
-                'limit' => $limit,
-                'total' => $totalCount,
-                'total_pages' => ceil($totalCount / $limit)
-            ]
-        ]
+        'draw' => $draw,
+        'recordsTotal' => $totalRecords,
+        'recordsFiltered' => $filteredRecords,
+        'data' => $transactions
     ]);
     
 } catch (Exception $e) {
@@ -182,6 +229,10 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
+        'draw' => isset($draw) ? $draw : 0,
+        'recordsTotal' => 0,
+        'recordsFiltered' => 0,
+        'data' => [],
         'message' => 'Error: ' . $e->getMessage()
     ]);
 }

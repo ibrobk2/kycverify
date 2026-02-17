@@ -90,7 +90,7 @@ if ($user_id) {
                                         <p class="card-label">WALLET BALANCE</p>
                                         <h2 class="card-value" id="walletBalance">₦<?php echo number_format($wallet_balance, 2); ?></h2>
                                         <p class="card-description">Current available funds</p>
-                                        <button class="btn btn-cyan" onclick="showFundWallet(this)" 
+                                        <button class="btn btn-cyan" id="fundWalletBtn" onclick="showFundWallet(this)" 
                                             data-acc-no="<?php echo htmlspecialchars(isset($virtual_account['virtual_account_number']) ? $virtual_account['virtual_account_number'] : ''); ?>"
                                             data-bank-name="<?php echo htmlspecialchars(isset($virtual_account['bank_name']) ? $virtual_account['bank_name'] : ''); ?>"
                                             data-acc-name="<?php echo htmlspecialchars(isset($virtual_account['account_name']) ? $virtual_account['account_name'] : ''); ?>">
@@ -105,13 +105,16 @@ if ($user_id) {
                         </div>
                         
                         <!-- Virtual Account Card -->
-                        <div class="col-md-6">
-                            <div class="summary-card bg-white text-dark border">
+                        <div class="col-md-6" id="virtualAccountCardContainer">
+                            <div class="summary-card bg-white text-dark border" id="virtualAccountCard">
                                 <div class="card-content">
                                     <div class="card-info">
                                         <p class="card-label text-muted">VIRTUAL ACCOUNT</p>
                                         <?php if ($virtual_account): ?>
-                                            <h3 class="mb-1 text-primary"><?php echo htmlspecialchars($virtual_account['virtual_account_number']); ?></h3>
+                                            <h3 class="mb-1 text-primary">
+                                                <span id="copyDashAccNo"><?php echo htmlspecialchars($virtual_account['virtual_account_number']); ?></span>
+                                                <i class="fas fa-copy ms-2 fs-6 text-muted cursor-pointer" onclick="copyText('copyDashAccNo', 'Account Number')"></i>
+                                            </h3>
                                             <p class="mb-0 fw-bold"><?php echo htmlspecialchars($virtual_account['bank_name']); ?></p>
                                             <small class="text-muted"><?php echo htmlspecialchars($virtual_account['account_name']); ?></small>
                                             <div class="mt-2">
@@ -145,6 +148,13 @@ if ($user_id) {
                                 <i class="fas fa-search-plus"></i>
                             </div>
                             <h6 class="service-title">BVN Retrieval</h6>
+                        </div>
+
+                        <div class="service-card" onclick="window.location.href='bvn-slip-printing.php'">
+                            <div class="service-icon">
+                                <i class="fas fa-print"></i>
+                            </div>
+                            <h6 class="service-title">BVN SLIP</h6>
                         </div>
                         
                         <div class="service-card" onclick="window.location.href='nin-validation.php'">
@@ -225,7 +235,43 @@ if ($user_id) {
                 });
                 const data = await response.json();
                 if (data.success) {
+                    // Update balance
                     document.getElementById('walletBalance').innerText = '₦' + parseFloat(data.balance).toLocaleString('en-NG', {minimumFractionDigits: 2});
+                    
+                    // Update Virtual Account UI
+                    const va = data.virtual_account;
+                    if (va && va.account_number) {
+                        const cardContainer = document.getElementById('virtualAccountCard');
+                        if (cardContainer) {
+                            cardContainer.innerHTML = `
+                                <div class="card-content">
+                                    <div class="card-info">
+                                        <p class="card-label text-muted">VIRTUAL ACCOUNT</p>
+                                        <h3 class="mb-1 text-primary">
+                                            <span id="copyDashAccNo">${va.account_number}</span>
+                                            <i class="fas fa-copy ms-2 fs-6 text-muted cursor-pointer" onclick="copyText('copyDashAccNo', 'Account Number')"></i>
+                                        </h3>
+                                        <p class="mb-0 fw-bold">${va.bank_name}</p>
+                                        <small class="text-muted">${va.account_name}</small>
+                                        <div class="mt-2">
+                                            <small class="text-success"><i class="fas fa-check-circle"></i> Active</small>
+                                        </div>
+                                    </div>
+                                    <div class="card-icon text-primary">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        // Update Fund Wallet Button Data
+                        const fundBtn = document.getElementById('fundWalletBtn');
+                        if (fundBtn) {
+                            fundBtn.setAttribute('data-acc-no', va.account_number);
+                            fundBtn.setAttribute('data-bank-name', va.bank_name);
+                            fundBtn.setAttribute('data-acc-name', va.account_name);
+                        }
+                    }
                 }
             } catch (e) {
                 console.error(e);

@@ -1,4 +1,4 @@
-<?php
+=-o<?php
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 
@@ -37,6 +37,11 @@ try {
         [
             'service_name' => 'gafiapay', 
             'base_url' => defined('GAFIAPAY_BASE_URL') ? GAFIAPAY_BASE_URL : 'https://api.gafiapay.com/v1', 
+            'status' => 'inactive'
+        ],
+        [
+            'service_name' => 'katpay', 
+            'base_url' => defined('KATPAY_BASE_URL') ? KATPAY_BASE_URL : 'https://api.katpay.co/v1',
             'status' => 'inactive'
         ]
     ];

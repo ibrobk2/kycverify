@@ -8,12 +8,10 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-require_once '../config/config.php';
-require_once '../config/database.php';
-require_once 'wallet-helper.php';
-
-
-require_once 'jwt-helper.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/wallet-helper.php';
+require_once __DIR__ . '/jwt-helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -111,6 +109,18 @@ try {
 
     $stmt = $db->prepare($sql);
     $stmt->execute($values);
+
+    // Log to service_transactions for admin tracking
+    $stmtSt = $db->prepare("
+        INSERT INTO service_transactions (user_id, service_type, reference_number, status, amount, request_data, provider)
+        VALUES (?, 'birth_attestation', ?, 'pending', ?, ?, 'internal')
+    ");
+    $stmtSt->execute([
+        $user_id,
+        $reference_code,
+        $paymentResult['amount_deducted'],
+        json_encode($input)
+    ]);
 
     echo json_encode([
         'success' => true,

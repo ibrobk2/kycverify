@@ -76,7 +76,7 @@ async function loadWalletBalance() {
     }
 
     try {
-        const response = await fetch('../api/get-wallet-balance.php', {
+        const response = await fetch('api/get-wallet-balance.php', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -88,7 +88,43 @@ async function loadWalletBalance() {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
-            checkBalance();
+
+            // Update Virtual Account UI if on dashboard
+            const va = data.virtual_account;
+            if (va && va.account_number) {
+                const cardContainer = document.getElementById('virtualAccountCard');
+                if (cardContainer) {
+                    cardContainer.innerHTML = `
+                        <div class="card-content">
+                            <div class="card-info">
+                                <p class="card-label text-muted">VIRTUAL ACCOUNT</p>
+                                <h3 class="mb-1 text-primary">
+                                    <span id="copyDashAccNo">${va.account_number}</span>
+                                    <i class="fas fa-copy ms-2 fs-6 text-muted cursor-pointer" onclick="copyText('copyDashAccNo', 'Account Number')"></i>
+                                </h3>
+                                <p class="mb-0 fw-bold">${va.bank_name}</p>
+                                <small class="text-muted">${va.account_name}</small>
+                                <div class="mt-2">
+                                    <small class="text-success"><i class="fas fa-check-circle"></i> Active</small>
+                                </div>
+                            </div>
+                            <div class="card-icon text-primary">
+                                <i class="fas fa-university"></i>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Update Fund Wallet Button Data
+                const fundBtn = document.getElementById('fundWalletBtn');
+                if (fundBtn) {
+                    fundBtn.setAttribute('data-acc-no', va.account_number);
+                    fundBtn.setAttribute('data-bank-name', va.bank_name);
+                    fundBtn.setAttribute('data-acc-name', va.account_name);
+                }
+            }
+
+            if (typeof checkBalance === 'function') checkBalance();
         } else {
             document.getElementById('walletBalance').textContent = '₦0.00';
         }

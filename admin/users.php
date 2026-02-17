@@ -154,14 +154,6 @@
             walletModal = new bootstrap.Modal(document.getElementById('walletModal'));
             loadUsers();
 
-            document.getElementById('logout-btn').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('Are you sure you want to logout?')) {
-                    localStorage.removeItem('adminToken');
-                    window.location.href = 'login.html';
-                }
-            });
-
             document.getElementById('searchInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') applyFilters();
             });

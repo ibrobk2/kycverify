@@ -65,7 +65,7 @@ class WalletHelper {
     /**
      * Deduct amount from user's wallet
      */
-    public function deductAmount($user_id, $amount, $details = '') {
+    public function deductAmount($user_id, $amount, $details = '', $reference = null) {
         try {
             $this->db->beginTransaction();
 
@@ -74,7 +74,7 @@ class WalletHelper {
             $stmt->execute([$amount, $user_id]);
 
             // Record transaction
-            $this->addTransaction($user_id, $amount, 'debit', $details);
+            $this->addTransaction($user_id, $amount, 'debit', $details, $reference);
 
             $this->db->commit();
             return true;
@@ -88,7 +88,7 @@ class WalletHelper {
     /**
      * Add amount to user's wallet
      */
-    public function addAmount($user_id, $amount, $details = '') {
+    public function addAmount($user_id, $amount, $details = '', $reference = null) {
         try {
             $this->db->beginTransaction();
 
@@ -97,7 +97,7 @@ class WalletHelper {
             $stmt->execute([$amount, $user_id]);
 
             // Record transaction
-            $this->addTransaction($user_id, $amount, 'credit', $details);
+            $this->addTransaction($user_id, $amount, 'credit', $details, $reference);
 
             $this->db->commit();
             return true;
@@ -111,10 +111,10 @@ class WalletHelper {
     /**
      * Add wallet transaction record
      */
-    public function addTransaction($user_id, $amount, $type, $details = '') {
+    public function addTransaction($user_id, $amount, $type, $details = '', $reference = null) {
         try {
-            $stmt = $this->db->prepare("INSERT INTO wallet_transactions (user_id, amount, transaction_type, details) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$user_id, $amount, $type, $details]);
+            $stmt = $this->db->prepare("INSERT INTO wallet_transactions (user_id, amount, transaction_type, details, transaction_ref) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$user_id, $amount, $type, $details, $reference]);
             return true;
         } catch (PDOException $e) {
             error_log("Error adding wallet transaction: " . $e->getMessage());

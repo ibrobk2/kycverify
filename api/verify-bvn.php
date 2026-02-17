@@ -4,12 +4,12 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-require_once '../config/database.php';
-require_once '../config/config.php';
-require_once 'wallet-helper.php';
-require_once 'jwt-helper.php';
-require_once 'RobosttechService.php';
-require_once 'DataVerifyService.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/wallet-helper.php';
+require_once __DIR__ . '/jwt-helper.php';
+require_once __DIR__ . '/RobosttechService.php';
+require_once __DIR__ . '/DataVerifyService.php';
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -89,6 +89,19 @@ try {
             $provider
         ]);
 
+        // Log to service_transactions for admin tracking
+        $stmtSt = $pdo->prepare("
+            INSERT INTO service_transactions (user_id, service_type, reference_number, status, amount, response_data, provider)
+            VALUES (?, 'bvn_verification', ?, 'completed', ?, ?, ?)
+        ");
+        $stmtSt->execute([
+            $userId,
+            $bvn,
+            $paymentResult['amount_deducted'],
+            json_encode($verificationResult['data']),
+            $provider
+        ]);
+
         echo json_encode([
             'success' => true,
             'message' => 'BVN verification successful',
@@ -105,6 +118,19 @@ try {
         $stmt->execute([
             $userId,
             $bvn,
+            $verificationResult['message'],
+            $provider
+        ]);
+
+        // Log failed to service_transactions
+        $stmtSt = $pdo->prepare("
+            INSERT INTO service_transactions (user_id, service_type, reference_number, status, amount, error_message, provider)
+            VALUES (?, 'bvn_verification', ?, 'failed', ?, ?, ?)
+        ");
+        $stmtSt->execute([
+            $userId,
+            $bvn,
+            $paymentResult['amount_deducted'],
             $verificationResult['message'],
             $provider
         ]);

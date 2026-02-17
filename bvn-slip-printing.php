@@ -266,7 +266,7 @@ if (!isset($_SESSION['user_id'])) {
         // Load service cost
         async function loadServiceCost() {
             try {
-                const response = await fetch('api/get-service-price.php?service=BVN Slip Printing');
+                const response = await fetch('api/get-service-price.php?service=bvn_slip_printing');
                 const data = await response.json();
 
                 if (data.success) {

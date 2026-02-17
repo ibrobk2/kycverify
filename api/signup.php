@@ -9,7 +9,7 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/PaymentPointService.php';
+// require_once __DIR__ . '/PaymentPointService.php';
 
 // Clear any previous output
 ob_clean();
@@ -89,26 +89,34 @@ try {
 
     $userId = $db->lastInsertId();
 
-    // Generate PaymentPoint Virtual Account
-    $ppService = new PaymentPointService();
-    $vaResult = $ppService->createVirtualAccount($userId, $name, $email, $phone);
+    // Generate Virtual Account using active gateway
+    $gateway = defined('PAYMENT_GATEWAY') ? PAYMENT_GATEWAY : 'katpay';
+    
+    if ($gateway === 'katpay') {
+        require_once 'KatPayService.php';
+        $paymentService = new KatPayService();
+    } else {
+        require_once 'PaymentPointService.php';
+        $paymentService = new PaymentPointService();
+    }
+    
+    $vaResult = $paymentService->createVirtualAccount($userId, $name, $email, $phone);
 
     if ($vaResult['success']) {
         $vaData = $vaResult['data'];
-        // Assume response structure based on typical API: 
-        // { "account_number": "...", "bank_name": "...", "account_name": "..." }
-        if (isset($vaData['account_number'])) {
+        // KatPay returns account_number, bank_name, account_name in its data
+        // Our service now normalizes this, but we'll be extra careful
+        $accNo = isset($vaData['account_number']) ? $vaData['account_number'] : (isset($vaData['accountNumber']) ? $vaData['accountNumber'] : null);
+        $bankName = isset($vaData['bank_name']) ? $vaData['bank_name'] : (isset($vaData['bankName']) ? $vaData['bankName'] : ($gateway === 'katpay' ? 'KatPay Bank' : 'PaymentPoint Bank'));
+        $accName = isset($vaData['account_name']) ? $vaData['account_name'] : (isset($vaData['accountName']) ? $vaData['accountName'] : $name);
+
+        if ($accNo) {
             $updateQuery = "UPDATE users SET virtual_account_number = ?, bank_name = ?, account_name = ? WHERE id = ?";
             $updateStmt = $db->prepare($updateQuery);
-            $updateStmt->execute([
-                $vaData['account_number'],
-                isset($vaData['bank_name']) ? $vaData['bank_name'] : 'PaymentPoint Bank',
-                isset($vaData['account_name']) ? $vaData['account_name'] : $name,
-                $userId
-            ]);
+            $updateStmt->execute([$accNo, $bankName, $accName, $userId]);
         }
     } else {
-        error_log("Failed to generate virtual account for user $userId: " . $vaResult['message']);
+        error_log("Failed to generate virtual account for user $userId via $gateway: " . $vaResult['message']);
     }
 
     // Send OTP email - DISABLED

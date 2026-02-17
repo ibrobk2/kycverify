@@ -4,11 +4,11 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-require_once '../config/database.php';
-require_once '../config/config.php';
-require_once 'jwt-helper.php';
-require_once 'KatPayService.php';
-require_once 'PaymentPointService.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/jwt-helper.php';
+require_once __DIR__ . '/KatPayService.php';
+require_once __DIR__ . '/PaymentPointService.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -54,26 +54,34 @@ try {
     $result = $paymentService->createVirtualAccount($userId, $user['name'], $user['email'], isset($user['phone']) ? $user['phone'] : '');
 
     if ($result['success']) {
-        // Update user record
-        $stmt = $db->prepare("
-            UPDATE users SET 
-            virtual_account_number = ?, 
-            bank_name = ?, 
-            account_name = ? 
-            WHERE id = ?
-        ");
-        $stmt->execute([
-            $result['data']['account_number'],
-            $result['data']['bank_name'],
-            $result['data']['account_name'],
-            $userId
-        ]);
+        $vaData = $result['data'];
+        $accNo = isset($vaData['account_number']) ? $vaData['account_number'] : (isset($vaData['accountNumber']) ? $vaData['accountNumber'] : null);
+        $bankName = isset($vaData['bank_name']) ? $vaData['bank_name'] : (isset($vaData['bankName']) ? $vaData['bankName'] : ($gateway === 'katpay' ? 'KatPay Bank' : 'PaymentPoint Bank'));
+        $accName = isset($vaData['account_name']) ? $vaData['account_name'] : (isset($vaData['accountName']) ? $vaData['accountName'] : $user['name']);
 
-        echo json_encode([
-            'success' => true,
-            'message' => 'Virtual account generated successfully',
-            'data' => $result['data']
-        ]);
+        if ($accNo) {
+            // Update user record
+            $stmt = $db->prepare("
+                UPDATE users SET 
+                virtual_account_number = ?, 
+                bank_name = ?, 
+                account_name = ? 
+                WHERE id = ?
+            ");
+            $stmt->execute([$accNo, $bankName, $accName, $userId]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Virtual account generated successfully',
+                'data' => [
+                    'account_number' => $accNo,
+                    'bank_name' => $bankName,
+                    'account_name' => $accName
+                ]
+            ]);
+        } else {
+             throw new Exception("Account number missing in gateway response");
+        }
     } else {
         http_response_code(400);
         echo json_encode([

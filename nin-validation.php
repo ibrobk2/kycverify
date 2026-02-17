@@ -74,6 +74,45 @@ if (!isset($_SESSION['user_id'])) {
             </header>
 
             <div class="content-area">
+                <!-- Wallet Balance Section -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-wallet me-2"></i>
+                                    Wallet Balance & Service Cost
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="alert alert-success">
+                                            <h6><i class="fas fa-coins me-2"></i>Current Balance</h6>
+                                            <h3 id="walletBalance">₦0.00</h3>
+                                            <button class="btn btn-outline-success btn-sm" onclick="refreshWalletBalance()">
+                                                <i class="fas fa-refresh me-1"></i>Refresh Balance
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-warning">
+                                            <h6><i class="fas fa-dollar-sign me-2"></i>Service Cost</h6>
+                                            <h3 id="serviceCost">₦0.00</h3>
+                                            <small class="text-muted">Cost will be deducted from your wallet upon successful submission</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="balanceAlert" class="alert alert-danger" style="display: none;">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>Insufficient Balance!</strong> Your wallet balance is not enough to process this request.
+                                    Please <a href="dashboard.php#fund-wallet" class="alert-link">fund your wallet</a> first.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- NIN Validation Form -->
                 <div class="row">
                     <div class="col-lg-8">
@@ -188,6 +227,86 @@ if (!isset($_SESSION['user_id'])) {
     <script src="assets/js/dashboard.js"></script>
 
     <script>
+        // Load wallet balance and service cost on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWalletBalance();
+            loadServiceCost();
+        });
+
+        // Load wallet balance
+        async function loadWalletBalance() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                document.getElementById('walletBalance').textContent = '₦0.00';
+                return;
+            }
+
+            try {
+                const response = await fetch('api/get-wallet-balance.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('walletBalance').textContent = '₦' + parseFloat(data.balance).toLocaleString('en-NG', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    checkBalance();
+                } else {
+                    document.getElementById('walletBalance').textContent = '₦0.00';
+                }
+            } catch (error) {
+                console.error('Error loading wallet balance:', error);
+                document.getElementById('walletBalance').textContent = '₦0.00';
+            }
+        }
+
+        // Load service cost
+        async function loadServiceCost() {
+            try {
+                const response = await fetch('api/get-service-price.php?service=nin_validation');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('serviceCost').textContent = '₦' + parseFloat(data.price).toLocaleString('en-NG', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    checkBalance();
+                } else {
+                    document.getElementById('serviceCost').textContent = '₦0.00';
+                }
+            } catch (error) {
+                console.error('Error loading service cost:', error);
+                document.getElementById('serviceCost').textContent = '₦0.00';
+            }
+        }
+
+        // Check if balance is sufficient
+        function checkBalance() {
+            const balanceText = document.getElementById('walletBalance').textContent;
+            const costText = document.getElementById('serviceCost').textContent;
+
+            const balance = parseFloat(balanceText.replace(/[^\d.-]/g, ''));
+            const cost = parseFloat(costText.replace(/[^\d.-]/g, ''));
+
+            const alertDiv = document.getElementById('balanceAlert');
+
+            if (balance < cost && cost > 0) {
+                alertDiv.style.display = 'block';
+            } else {
+                alertDiv.style.display = 'none';
+            }
+        }
+
+        // Refresh wallet balance
+        async function refreshWalletBalance() {
+            await loadWalletBalance();
+        }
+
         // NIN Validation Form Logic
         const validationTypeSelect = document.getElementById('validationType');
         const formNoRecord = document.getElementById('formNoRecord');

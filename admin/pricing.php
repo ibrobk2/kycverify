@@ -391,12 +391,6 @@
         }
 
         function setupEventListeners() {
-            // Logout button
-            document.getElementById('logout-btn').addEventListener('click', function(e) {
-                e.preventDefault();
-                logoutAdmin();
-            });
-
             // Form submissions
             document.getElementById('addPricingForm').addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -700,15 +694,6 @@
                     alertDiv.parentNode.removeChild(alertDiv);
                 }
             }, 5000);
-        }
-
-        async function logoutAdmin() {
-            const confirmLogout = window.confirm("Are you sure you want to logout?");
-            if (confirmLogout) {
-                localStorage.removeItem("adminToken");
-                localStorage.removeItem("adminData");
-                window.location.href = "login.html";
-            }
         }
     </script>
     </div>
