@@ -1,5 +1,5 @@
-<?php
 header('Content-Type: application/json');
+ini_set('display_errors', 0);
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -109,6 +109,14 @@ try {
             'amount_deducted' => $paymentResult['amount_deducted']
         ]);
     } else {
+        // REFUND LOGIC START
+        $refundAmount = $paymentResult['amount_deducted'];
+        $refundDetails = "Refund for failed BVN Verification (" . $bvn . ")";
+        $refundReference = "REF-" . uniqid();
+        
+        $walletHelper->addAmount($userId, $refundAmount, $refundDetails, $refundReference);
+        // REFUND LOGIC END
+
         $database = new Database();
         $pdo = $database->getConnection();
         $stmt = $pdo->prepare("
@@ -137,7 +145,7 @@ try {
 
         echo json_encode([
             'success' => false,
-            'message' => $verificationResult['message']
+            'message' => $verificationResult['message'] . ". Amount refunded."
         ]);
     }
     

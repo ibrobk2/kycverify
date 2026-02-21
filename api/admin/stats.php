@@ -22,10 +22,11 @@ try {
     $database = new Database();
     $db = $database->getConnection();
     
-    // Get total users
+    // Get total users and total wallet balances
     $stmt = $db->query("SELECT COUNT(*) as total, 
                         SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
-                        SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive
+                        SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive,
+                        COALESCE(SUM(wallet), 0) as total_wallet_balance
                         FROM users");
     $userStats = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -50,14 +51,36 @@ try {
         'failed' => (int)$serviceStats['failed']
     ];
     
-    // Get total revenue from wallet transactions (debits)
+    // Get total revenue from wallet transactions (debits) + service transactions
+    $revenueStats = ['total_revenue' => 0, 'today_revenue' => 0, 'week_revenue' => 0, 'month_revenue' => 0];
+    
+    // Wallet debits (service payments from wallet)
     $stmt = $db->query("SELECT 
-                        SUM(CASE WHEN transaction_type = 'debit' THEN amount ELSE 0 END) as total_revenue,
-                        SUM(CASE WHEN transaction_type = 'debit' AND DATE(created_at) = CURDATE() THEN amount ELSE 0 END) as today_revenue,
-                        SUM(CASE WHEN transaction_type = 'debit' AND YEARWEEK(created_at) = YEARWEEK(NOW()) THEN amount ELSE 0 END) as week_revenue,
-                        SUM(CASE WHEN transaction_type = 'debit' AND MONTH(created_at) = MONTH(NOW()) THEN amount ELSE 0 END) as month_revenue
+                        COALESCE(SUM(CASE WHEN transaction_type = 'debit' THEN amount ELSE 0 END), 0) as total_revenue,
+                        COALESCE(SUM(CASE WHEN transaction_type = 'debit' AND DATE(created_at) = CURDATE() THEN amount ELSE 0 END), 0) as today_revenue,
+                        COALESCE(SUM(CASE WHEN transaction_type = 'debit' AND YEARWEEK(created_at) = YEARWEEK(NOW()) THEN amount ELSE 0 END), 0) as week_revenue,
+                        COALESCE(SUM(CASE WHEN transaction_type = 'debit' AND MONTH(created_at) = MONTH(NOW()) AND YEAR(created_at) = YEAR(NOW()) THEN amount ELSE 0 END), 0) as month_revenue
                         FROM wallet_transactions");
-    $revenueStats = $stmt->fetch(PDO::FETCH_ASSOC);
+    $walletRevenue = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Service transactions revenue
+    $serviceRevenue = ['total_revenue' => 0, 'today_revenue' => 0, 'week_revenue' => 0, 'month_revenue' => 0];
+    $tableCheck2 = $db->query("SHOW TABLES LIKE 'service_transactions'");
+    if ($tableCheck2->rowCount() > 0) {
+        $stmt = $db->query("SELECT 
+                            COALESCE(SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END), 0) as total_revenue,
+                            COALESCE(SUM(CASE WHEN status = 'completed' AND DATE(created_at) = CURDATE() THEN amount ELSE 0 END), 0) as today_revenue,
+                            COALESCE(SUM(CASE WHEN status = 'completed' AND YEARWEEK(created_at) = YEARWEEK(NOW()) THEN amount ELSE 0 END), 0) as week_revenue,
+                            COALESCE(SUM(CASE WHEN status = 'completed' AND MONTH(created_at) = MONTH(NOW()) AND YEAR(created_at) = YEAR(NOW()) THEN amount ELSE 0 END), 0) as month_revenue
+                            FROM service_transactions");
+        $serviceRevenue = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    // Combine revenue - use whichever is higher (avoid double-counting)
+    $revenueStats['total_revenue'] = max((float)$walletRevenue['total_revenue'], (float)$serviceRevenue['total_revenue']);
+    $revenueStats['today_revenue'] = max((float)$walletRevenue['today_revenue'], (float)$serviceRevenue['today_revenue']);
+    $revenueStats['week_revenue'] = max((float)$walletRevenue['week_revenue'], (float)$serviceRevenue['week_revenue']);
+    $revenueStats['month_revenue'] = max((float)$walletRevenue['month_revenue'], (float)$serviceRevenue['month_revenue']);
     
     // Get VTU statistics if table exists
     $vtuStats = ['total' => 0, 'success' => 0, 'pending' => 0, 'failed' => 0, 'revenue' => 0];
@@ -130,7 +153,8 @@ try {
                 'total' => (int)$userStats['total'],
                 'active' => (int)(isset($userStats['active']) ? $userStats['active'] : 0),
                 'inactive' => (int)(isset($userStats['inactive']) ? $userStats['inactive'] : 0),
-                'new_today' => (int)$newUsersToday
+                'new_today' => (int)$newUsersToday,
+                'total_wallet_balance' => (float)(isset($userStats['total_wallet_balance']) ? $userStats['total_wallet_balance'] : 0)
             ],
             'services' => [
                 'total' => (int)(isset($serviceStats['total']) ? $serviceStats['total'] : 0),

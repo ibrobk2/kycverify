@@ -103,11 +103,7 @@ if (!isset($_SESSION['user_id'])) {
                                         </div>
                                     </div>
                                 </div>
-                                <div id="balanceAlert" class="alert alert-danger" style="display: none;">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    <strong>Insufficient Balance!</strong> Your wallet balance is not enough to process this request.
-                                    Please <a href="dashboard.php#fund-wallet" class="alert-link">fund your wallet</a> first.
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -128,6 +124,9 @@ if (!isset($_SESSION['user_id'])) {
                                             <option value="" selected disabled>Choose validation type</option>
                                             <option value="no-record">No Record Found</option>
                                             <option value="modification">Modification Validation</option>
+                                            <option value="photo-error">Photograph Error</option>
+                                            <option value="bank-validation">Bank Validation</option>
+                                            <option value="sim-validation">SIM Validation</option>
                                         </select>
                                     </div>
 
@@ -140,7 +139,7 @@ if (!isset($_SESSION['user_id'])) {
                                                 id="ninNumberNoRecord"
                                                 name="ninNumberNoRecord"
                                                 required
-                                                pattern="\\d{11}"
+                                                pattern="\d{11}"
                                                 maxlength="11"
                                                 minlength="11"
                                                 aria-required="true"
@@ -154,32 +153,48 @@ if (!isset($_SESSION['user_id'])) {
                                     <div id="formModification" class="d-none">
                                         <div class="mb-3">
                                             <label for="ninNumberModification" class="form-label">NIN Number <span class="text-danger">*</span></label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="ninNumberModification"
-                                                name="ninNumberModification"
-                                                required
-                                                pattern="\\d{11}"
-                                                maxlength="11"
-                                                minlength="11"
-                                                aria-required="true"
-                                                aria-describedby="ninHelpModification"
-                                                placeholder="Enter 11-digit NIN number"
-                                            />
-                                            <div id="ninHelpModification" class="form-text">Please enter exactly 11 digits</div>
+                                            <input type="text" class="form-control" id="ninNumberModification" name="ninNumberModification" required pattern="\d{11}" maxlength="11" minlength="11" placeholder="Enter 11-digit NIN number" />
                                         </div>
                                         <div class="mb-3">
                                             <label for="trackingId" class="form-label">Tracking Id <span class="text-danger">*</span></label>
-                                            <input
-                                                type="text"
-                                                class="form-control"
-                                                id="trackingId"
-                                                name="trackingId"
-                                                required
-                                                aria-required="true"
-                                                placeholder="Enter your tracking ID"
-                                            />
+                                            <input type="text" class="form-control" id="trackingId" name="trackingId" required placeholder="Enter your tracking ID" />
+                                        </div>
+                                    </div>
+
+                                    <div id="formPhotoError" class="d-none">
+                                        <div class="mb-3">
+                                            <label for="ninNumberPhoto" class="form-label">NIN Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="ninNumberPhoto" name="ninNumberPhoto" required pattern="\d{11}" maxlength="11" minlength="11" placeholder="Enter 11-digit NIN number" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="trackingIdPhoto" class="form-label">Tracking Id <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="trackingIdPhoto" name="trackingIdPhoto" required placeholder="Enter tracking ID for photo correction" />
+                                        </div>
+                                    </div>
+
+                                    <div id="formBankValidation" class="d-none">
+                                        <div class="mb-3">
+                                            <label for="ninNumberBank" class="form-label">NIN Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="ninNumberBank" name="ninNumberBank" required pattern="\d{11}" maxlength="11" minlength="11" placeholder="Enter 11-digit NIN number" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="bankName" class="form-label">Bank Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="bankName" name="bankName" required placeholder="Enter your bank name" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="accountNumber" class="form-label">Account Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="accountNumber" name="accountNumber" required pattern="\d{10}" maxlength="10" minlength="10" placeholder="Enter 10-digit account number" />
+                                        </div>
+                                    </div>
+
+                                    <div id="formSimValidation" class="d-none">
+                                        <div class="mb-3">
+                                            <label for="ninNumberSim" class="form-label">NIN Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="ninNumberSim" name="ninNumberSim" required pattern="\d{11}" maxlength="11" minlength="11" placeholder="Enter 11-digit NIN number" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="phoneNumberSim" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="phoneNumberSim" name="phoneNumberSim" required pattern="0[789][01]\d{8}" maxlength="11" placeholder="Enter phone number linked to SIM" />
                                         </div>
                                     </div>
 
@@ -254,7 +269,6 @@ if (!isset($_SESSION['user_id'])) {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
                     });
-                    checkBalance();
                 } else {
                     document.getElementById('walletBalance').textContent = '₦0.00';
                 }
@@ -275,7 +289,6 @@ if (!isset($_SESSION['user_id'])) {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
                     });
-                    checkBalance();
                 } else {
                     document.getElementById('serviceCost').textContent = '₦0.00';
                 }
@@ -285,22 +298,7 @@ if (!isset($_SESSION['user_id'])) {
             }
         }
 
-        // Check if balance is sufficient
-        function checkBalance() {
-            const balanceText = document.getElementById('walletBalance').textContent;
-            const costText = document.getElementById('serviceCost').textContent;
 
-            const balance = parseFloat(balanceText.replace(/[^\d.-]/g, ''));
-            const cost = parseFloat(costText.replace(/[^\d.-]/g, ''));
-
-            const alertDiv = document.getElementById('balanceAlert');
-
-            if (balance < cost && cost > 0) {
-                alertDiv.style.display = 'block';
-            } else {
-                alertDiv.style.display = 'none';
-            }
-        }
 
         // Refresh wallet balance
         async function refreshWalletBalance() {
@@ -311,6 +309,9 @@ if (!isset($_SESSION['user_id'])) {
         const validationTypeSelect = document.getElementById('validationType');
         const formNoRecord = document.getElementById('formNoRecord');
         const formModification = document.getElementById('formModification');
+        const formPhotoError = document.getElementById('formPhotoError');
+        const formBankValidation = document.getElementById('formBankValidation');
+        const formSimValidation = document.getElementById('formSimValidation');
         const submitBtn = document.querySelector('#ninValidationForm button[type="submit"]');
         const form = document.getElementById('ninValidationForm');
 
@@ -319,15 +320,12 @@ if (!isset($_SESSION['user_id'])) {
             const selected = validationTypeSelect.value;
 
             // Reset all forms
-            formNoRecord.classList.add('d-none');
-            formModification.classList.add('d-none');
-            formNoRecord.querySelectorAll('input').forEach((input) => {
-                input.value = '';
-                input.classList.remove('is-invalid', 'is-valid');
-            });
-            formModification.querySelectorAll('input').forEach((input) => {
-                input.value = '';
-                input.classList.remove('is-invalid', 'is-valid');
+            [formNoRecord, formModification, formPhotoError, formBankValidation, formSimValidation].forEach(f => {
+                f.classList.add('d-none');
+                f.querySelectorAll('input').forEach(input => {
+                    input.value = '';
+                    input.classList.remove('is-invalid', 'is-valid');
+                });
             });
 
             // Show appropriate form
@@ -335,6 +333,12 @@ if (!isset($_SESSION['user_id'])) {
                 formNoRecord.classList.remove('d-none');
             } else if (selected === 'modification') {
                 formModification.classList.remove('d-none');
+            } else if (selected === 'photo-error') {
+                formPhotoError.classList.remove('d-none');
+            } else if (selected === 'bank-validation') {
+                formBankValidation.classList.remove('d-none');
+            } else if (selected === 'sim-validation') {
+                formSimValidation.classList.remove('d-none');
             }
         });
 
@@ -373,8 +377,8 @@ if (!isset($_SESSION['user_id'])) {
                     isValid = false;
                     ninField.focus();
                 } else {
-                    formData.ninNumber = ninField.value.trim();
-                    formData.validationType = 'no-record';
+                    formData.nin = ninField.value.trim();
+                    formData.verification_type = 'no-record';
                 }
             } else if (selected === 'modification') {
                 const ninField = document.getElementById('ninNumberModification');
@@ -387,9 +391,59 @@ if (!isset($_SESSION['user_id'])) {
                     isValid = false;
                     trackingField.focus();
                 } else {
-                    formData.ninNumber = ninField.value.trim();
-                    formData.trackingId = trackingField.value.trim();
-                    formData.validationType = 'modification';
+                    formData.nin = ninField.value.trim();
+                    formData.tracking_id = trackingField.value.trim();
+                    formData.verification_type = 'modification';
+                }
+            } else if (selected === 'photo-error') {
+                const ninField = document.getElementById('ninNumberPhoto');
+                const trackingField = document.getElementById('trackingIdPhoto');
+
+                if (!validateField(ninField)) {
+                    isValid = false;
+                    ninField.focus();
+                } else if (!validateField(trackingField)) {
+                    isValid = false;
+                    trackingField.focus();
+                } else {
+                    formData.nin = ninField.value.trim();
+                    formData.tracking_id = trackingField.value.trim();
+                    formData.verification_type = 'photo-error';
+                }
+            } else if (selected === 'bank-validation') {
+                const ninField = document.getElementById('ninNumberBank');
+                const bankField = document.getElementById('bankName');
+                const accountField = document.getElementById('accountNumber');
+
+                if (!validateField(ninField)) {
+                    isValid = false;
+                    ninField.focus();
+                } else if (!validateField(bankField)) {
+                    isValid = false;
+                    bankField.focus();
+                } else if (!validateField(accountField)) {
+                    isValid = false;
+                    accountField.focus();
+                } else {
+                    formData.nin = ninField.value.trim();
+                    formData.bank_name = bankField.value.trim();
+                    formData.account_number = accountField.value.trim();
+                    formData.verification_type = 'bank-validation';
+                }
+            } else if (selected === 'sim-validation') {
+                const ninField = document.getElementById('ninNumberSim');
+                const phoneField = document.getElementById('phoneNumberSim');
+
+                if (!validateField(ninField)) {
+                    isValid = false;
+                    ninField.focus();
+                } else if (!validateField(phoneField)) {
+                    isValid = false;
+                    phoneField.focus();
+                } else {
+                    formData.nin = ninField.value.trim();
+                    formData.phone_number = phoneField.value.trim();
+                    formData.verification_type = 'sim-validation';
                 }
             }
 
@@ -404,22 +458,45 @@ if (!isset($_SESSION['user_id'])) {
                 '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Validating...';
 
             try {
-                // Simulate API call - replace with actual API endpoint
-                await new Promise((resolve) => setTimeout(resolve, 1500));
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    showFeedback('You must be logged in to perform this action.', 'danger');
+                    window.location.href = 'index.html';
+                    return;
+                }
 
-                showFeedback(`Validation submitted successfully! Type: ${selected}`, 'success');
+                // Call real API
+                const response = await fetch('api/verify-nin.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-                // Reset form after successful submission
-                setTimeout(() => {
-                    form.reset();
-                    formNoRecord.classList.add('d-none');
-                    formModification.classList.add('d-none');
-                    form.querySelectorAll('.is-valid, .is-invalid').forEach((el) => {
-                        el.classList.remove('is-valid', 'is-invalid');
-                    });
-                }, 2000);
+                const result = await response.json();
+
+                if (result.success) {
+                    showFeedback(result.message || 'Validation request submitted successfully!', 'success');
+                    
+                    // Update balance after payment
+                    await loadWalletBalance();
+
+                    // Reset form after successful submission
+                    setTimeout(() => {
+                        form.reset();
+                        [formNoRecord, formModification, formPhotoError, formBankValidation, formSimValidation].forEach(f => f.classList.add('d-none'));
+                        form.querySelectorAll('.is-valid, .is-invalid').forEach((el) => {
+                            el.classList.remove('is-valid', 'is-invalid');
+                        });
+                    }, 2000);
+                } else {
+                    showFeedback(result.message || 'Validation failed. Please try again.', 'danger');
+                }
             } catch (error) {
-                showFeedback('An error occurred. Please try again.', 'danger');
+                console.error('Submission error:', error);
+                showFeedback('An error occurred. Please check your connection and try again.', 'danger');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Validate';
@@ -469,6 +546,16 @@ if (!isset($_SESSION['user_id'])) {
 
         // Initialize form
         document.addEventListener('DOMContentLoaded', () => {
+            // Check for type parameter in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const typeParam = urlParams.get('type');
+            if (typeParam) {
+                validationTypeSelect.value = typeParam;
+                // Trigger change event manually
+                const event = new Event('change');
+                validationTypeSelect.dispatchEvent(event);
+            }
+            
             // Set focus to validation type select
             validationTypeSelect.focus();
         });

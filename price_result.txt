@@ -1,0 +1,2 @@
+DB Price for 'ipe_clearance': 1010.00
+Constant IPE_CLEARANCE_COST: Not defined

@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Birth Attestation - Lildone Verification Services</title>
+    <title>Birth Attestation - agentify Verification Services</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -372,13 +372,46 @@ if (!isset($_SESSION['user_id'])) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
 
-            // TODO: Implement actual API call
-            setTimeout(() => {
-                alert('Birth attestation application submitted successfully! You will receive a confirmation email shortly.');
-                this.reset();
+            try {
+                const token = localStorage.getItem('authToken');
+                const formData = {
+                    full_name: document.getElementById('fullName').value,
+                    date_of_birth: document.getElementById('dateOfBirth').value,
+                    place_of_birth: document.getElementById('placeOfBirth').value,
+                    certificate_number: document.getElementById('certificateNumber').value,
+                    father_name: document.getElementById('fatherName').value,
+                    mother_name: document.getElementById('motherName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    purpose: document.getElementById('purposeOfAttestation').value,
+                    instructions: document.getElementById('specialInstructions').value
+                };
+
+                const response = await fetch('api/birth-attestation-submit.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Birth attestation application submitted successfully! Reference: ' + result.reference_code);
+                    this.reset();
+                    await loadWalletBalance();
+                } else {
+                    alert('Submission failed: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Application';
-            }, 1500);
+            }
         });
 
         function showNotifications() {

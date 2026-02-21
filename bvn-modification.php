@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BVN Modification - Lildone Verification Services</title>
+    <title>BVN Modification - agentify Verification Services</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -161,93 +161,74 @@ if (!isset($_SESSION['user_id'])) {
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="modificationType" class="form-label">
-                                                <strong>Select Modification Type *</strong>
-                                            </label>
-                                            <select class="form-select" id="modificationType" required>
-                                                <option value="">Select Modification Type</option>
-                                                <option value="change-name">Change of Name</option>
-                                                <option value="change-dob">Change of Date of Birth</option>
-                                                <option value="change-phone">Change of Phone Number</option>
-                                                <option value="name-dob">Name and Date of Birth</option>
-                                                <option value="phone-name">Phone and Name</option>
-                                                <option value="dob-phone">Date of Birth and Phone Number</option>
-                                            </select>
+                                            <div class="mb-3">
+                                        <label for="modificationType" class="form-label">Modification Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="modificationType" name="modificationType" required>
+                                            <option value="">Select Modification Type</option>
+                                            <option value="name">Name Correction</option>
+                                            <option value="dob">Date of Birth Correction</option>
+                                            <option value="phone">Phone Number Update</option>
+                                            <option value="address">Address Update</option>
+                                            <option value="metadata">Metadata Update</option>
+                                        </select>
+                                    </div>
                                         </div>
                                     </div>
 
                                     <!-- Dynamic Forms Container -->
                                     <div id="dynamicFormsContainer">
-                                        <!-- Change of Name Form -->
-                                        <div class="dynamic-form" id="change-name-form">
-                                            <h5 class="mb-3">Change of Name Details</h5>
+                                        <div class="mb-3">
+                                        <label for="bvnNumber" class="form-label">BVN Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="bvnNumber" name="bvnNumber" required pattern="\d{11}" maxlength="11" placeholder="Enter 11-digit BVN">
+                                    </div>
+                                    
+                                    <!-- Dynamic Detail Fields -->
+                                    <div id="bvnDetailsFields">
+                                        <!-- Name Modification Fields -->
+                                        <div id="bvnNameFields" class="d-none">
+                                            <h5 class="mb-3">Name Correction Details</h5>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="bvnNumber-name" class="form-label">BVN Number *</label>
-                                                    <input type="text" class="form-control" id="bvnNumber-name" maxlength="11" pattern="\d{11}" required>
+                                                    <label class="form-label">Old Full Name</label>
+                                                    <input type="text" class="form-control" id="oldBvnName" placeholder="Previous Name">
                                                 </div>
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="ninNumber-name" class="form-label">NIN Number *</label>
-                                                    <input type="text" class="form-control" id="ninNumber-name" maxlength="11" pattern="\d{11}" required>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="newFirstName" class="form-label">New First Name *</label>
-                                                    <input type="text" class="form-control" id="newFirstName" required>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="newMiddleName" class="form-label">New Middle Name (Optional)</label>
-                                                    <input type="text" class="form-control" id="newMiddleName">
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="newLastName" class="form-label">New Last Name *</label>
-                                                    <input type="text" class="form-control" id="newLastName" required>
+                                                    <label class="form-label">New Full Name</label>
+                                                    <input type="text" class="form-control" id="newBvnName" placeholder="Correct Name">
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Change of Date of Birth Form -->
-                                        <div class="dynamic-form" id="change-dob-form">
-                                            <h5 class="mb-3">Change of Date of Birth Details</h5>
+                                        
+                                        <!-- DOB Modification Fields -->
+                                        <div id="bvnDobFields" class="d-none">
+                                            <h5 class="mb-3">Date of Birth Correction Details</h5>
                                             <div class="row">
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="bvnNumber-dob" class="form-label">BVN Number *</label>
-                                                    <input type="text" class="form-control" id="bvnNumber-dob" maxlength="11" pattern="\d{11}" required>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Old Date of Birth</label>
+                                                    <input type="date" class="form-control" id="oldBvnDob">
                                                 </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="ninNumber-dob" class="form-label">NIN Number *</label>
-                                                    <input type="text" class="form-control" id="ninNumber-dob" maxlength="11" pattern="\d{11}" required>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="newDateOfBirth" class="form-label">New Date of Birth *</label>
-                                                    <input type="date" class="form-control" id="newDateOfBirth" required>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">New Date of Birth</label>
+                                                    <input type="date" class="form-control" id="newBvnDob">
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Change of Phone Number Form -->
-                                        <div class="dynamic-form" id="change-phone-form">
-                                            <h5 class="mb-3">Change of Phone Number Details</h5>
+                                        
+                                        <!-- Phone Modification Fields -->
+                                        <div id="bvnPhoneFields" class="d-none">
+                                            <h5 class="mb-3">Phone Number Update Details</h5>
                                             <div class="row">
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="bvnNumber-phone" class="form-label">BVN Number *</label>
-                                                    <input type="text" class="form-control" id="bvnNumber-phone" maxlength="11" pattern="\d{11}" required>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Old Phone Number</label>
+                                                    <input type="tel" class="form-control" id="oldBvnPhone" placeholder="Previous Number">
                                                 </div>
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="ninNumber-phone" class="form-label">NIN Number *</label>
-                                                    <input type="text" class="form-control" id="ninNumber-phone" maxlength="11" pattern="\d{11}" required>
-                                                </div>
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="fullName-phone" class="form-label">Full Name *</label>
-                                                    <input type="text" class="form-control" id="fullName-phone" required>
-                                                </div>
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="newPhoneNumber" class="form-label">New Phone Number *</label>
-                                                    <input type="tel" class="form-control" id="newPhoneNumber" pattern="[0-9]{11}" required>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">New Phone Number</label>
+                                                    <input type="tel" class="form-control" id="newBvnPhone" placeholder="New Number">
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                     </div>
 
                                     <div class="row mt-4">
@@ -314,60 +295,78 @@ if (!isset($_SESSION['user_id'])) {
             loadWalletBalance();
             loadServiceCost();
             
-            const modificationType = document.getElementById('modificationType');
-            const dynamicFormsContainer = document.getElementById('dynamicFormsContainer');
+            const modTypeSelect = document.getElementById('modificationType');
+            const bvnNameFields = document.getElementById('bvnNameFields');
+            const bvnDobFields = document.getElementById('bvnDobFields');
+            const bvnPhoneFields = document.getElementById('bvnPhoneFields');
             
-            // Hide all forms initially
-            function hideAllForms() {
-                const forms = dynamicFormsContainer.querySelectorAll('.dynamic-form');
-                forms.forEach(form => form.classList.remove('active'));
-            }
-            
-            // Show specific form based on selection
-            function showForm(formId) {
-                hideAllForms();
-                const targetForm = document.getElementById(formId);
-                if (targetForm) {
-                    targetForm.classList.add('active');
-                }
-            }
-            
-            // Handle modification type change
-            modificationType.addEventListener('change', function() {
-                const selectedType = this.value;
-                if (selectedType) {
-                    showForm(selectedType + '-form');
-                } else {
-                    hideAllForms();
-                }
+            modTypeSelect.addEventListener('change', function() {
+                const type = this.value;
+                // Hide all
+                bvnNameFields.classList.add('d-none');
+                bvnDobFields.classList.add('d-none');
+                bvnPhoneFields.classList.add('d-none');
+                
+                // Show relevant
+                if (type === 'name') bvnNameFields.classList.remove('d-none');
+                else if (type === 'dob') bvnDobFields.classList.remove('d-none');
+                else if (type === 'phone') bvnPhoneFields.classList.remove('d-none');
             });
-            
-            // Form submission
-            document.getElementById('bvnModificationForm').addEventListener('submit', function(e) {
+
+            document.getElementById('bvnModificationForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const selectedType = modificationType.value;
-                if (!selectedType) {
-                    alert('Please select a modification type');
-                    return;
-                }
-                
-                // Collect form data based on selected type
-                const formData = new FormData();
-                formData.append('modificationType', selectedType);
-                formData.append('bvnType', document.getElementById('bvnType').value);
-                
-                // Show loading state
                 const submitBtn = this.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                const originalText = submitBtn.innerHTML;
                 
-                // TODO: Implement actual API call
-                setTimeout(() => {
-                    alert('BVN modification feature coming soon!');
+                const selectedType = modTypeSelect.value;
+                let details = {};
+                if (selectedType === 'name') {
+                    details = { old_name: document.getElementById('oldBvnName').value, new_name: document.getElementById('newBvnName').value };
+                } else if (selectedType === 'dob') {
+                    details = { old_dob: document.getElementById('oldBvnDob').value, new_dob: document.getElementById('newBvnDob').value };
+                } else if (selectedType === 'phone') {
+                    details = { old_phone: document.getElementById('oldBvnPhone').value, new_phone: document.getElementById('newBvnPhone').value };
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await fetch('api/bvn-modification.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            modificationType: selectedType,
+                            bvnNumber: document.getElementById('bvnNumber').value,
+                            details: details
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('Modification request submitted successfully! Reference: ' + data.reference);
+                        this.reset();
+                        // Hide fields again
+                        bvnNameFields.classList.add('d-none');
+                        bvnDobFields.classList.add('d-none');
+                        bvnPhoneFields.classList.add('d-none');
+                        await loadWalletBalance();
+                    } else {
+                        alert('Submission failed: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                } finally {
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Modification Request';
-                }, 1500);
+                    submitBtn.innerHTML = originalText;
+                }
             });
         });
 

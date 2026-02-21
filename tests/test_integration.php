@@ -7,7 +7,7 @@ require_once __DIR__ . '/../api/wallet-helper.php';
 
 // Helper to make internal API calls
 function callApi($endpoint, $method, $data = [], $token = null) {
-    $url = 'http://localhost/lildone/api/' . $endpoint;
+    $url = 'http://localhost/agentify/api/' . $endpoint;
     
     // Since we are running from CLI, we might need to mock $_SERVER and require the file directly
     // But that's complex due to output buffering and exit() calls in the API files.

@@ -51,16 +51,34 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span>Dashboard</span>
                 </a>
             </li>
+            <li class="nav-item <?php echo ($current_page == 'services.php') ? 'active' : ''; ?>">
+                <a href="services.php" class="nav-link">
+                    <i class="fas fa-th-large"></i>
+                    <span>All Services</span>
+                </a>
+            </li>
             <li class="nav-item <?php echo ($current_page == 'nin-verification.php' || $current_page == 'nin-validation.php') ? 'active' : ''; ?>">
                 <a href="nin-verification.php" class="nav-link">
                     <i class="fas fa-id-card"></i>
                     <span>NIN Services</span>
                 </a>
             </li>
+            <li class="nav-item <?php echo ($current_page == 'nin-modification.php') ? 'active' : ''; ?>">
+                <a href="nin-modification.php" class="nav-link">
+                    <i class="fas fa-user-edit"></i>
+                    <span>NIN Modification</span>
+                </a>
+            </li>
             <li class="nav-item <?php echo ($current_page == 'bvn-retrieval.php' || $current_page == 'bvn-modification.php') ? 'active' : ''; ?>">
                 <a href="bvn-retrieval.php" class="nav-link">
                     <i class="fas fa-university"></i>
                     <span>BVN Services</span>
+                </a>
+            </li>
+            <li class="nav-item <?php echo ($current_page == 'ipe-clearance.php') ? 'active' : ''; ?>">
+                <a href="ipe-clearance.php" class="nav-link">
+                    <i class="fas fa-gavel"></i>
+                    <span>IPE Clearance</span>
                 </a>
             </li>
             <li class="nav-item <?php echo ($current_page == 'bvn-slip-printing.php') ? 'active' : ''; ?>">
@@ -87,8 +105,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span>Fund Wallet</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="dashboard.php#history" class="nav-link">
+            <li class="nav-item <?php echo ($current_page == 'transactions.php') ? 'active' : ''; ?>">
+                <a href="transactions.php" class="nav-link">
                     <i class="fas fa-history"></i>
                     <span>History</span>
                 </a>

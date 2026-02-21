@@ -105,6 +105,15 @@ try {
             'amount_deducted' => $paymentResult['amount_deducted']
         ]);
     } else {
+        // REFUND LOGIC START
+        // If verification failed, refund the user
+        $refundAmount = $paymentResult['amount_deducted'];
+        $refundDetails = "Refund for failed BVN Slip Printing (" . $bvn . ")";
+        $refundReference = "REF-" . uniqid();
+        
+        $walletHelper->addAmount($userId, $refundAmount, $refundDetails, $refundReference);
+        // REFUND LOGIC END
+
         // Log failure
         $database = new Database();
         $pdo = $database->getConnection();
@@ -134,7 +143,7 @@ try {
 
         echo json_encode([
             'success' => false,
-            'message' => $errorMsg
+            'message' => $errorMsg . ". Amount refunded."
         ]);
     }
     

@@ -168,13 +168,18 @@
         function displayTransactions(transactions) {
             const tbody = document.getElementById('transactionsTableBody');
             
-            if (transactions.length === 0) {
+            if (!transactions || transactions.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center">No transactions found</td></tr>';
                 return;
             }
 
             tbody.innerHTML = transactions.map(tx => {
-                if (tx.type === 'wallet') {
+                const sourceType = tx.source_type || '';
+                const serviceType = tx.service_type || '';
+                const isCredit = serviceType.includes('credit');
+                const typeLabel = serviceType.replace('wallet_', '').replace('vtu_', '').replace('_', ' ');
+
+                if (sourceType === 'wallet') {
                     return `
                         <tr>
                             <td>${tx.id}</td>
@@ -182,8 +187,22 @@
                             <td><span class="badge bg-primary">Wallet</span></td>
                             <td>₦${parseFloat(tx.amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}</td>
                             <td>
-                                <span class="badge bg-${tx.transaction_type === 'credit' ? 'success' : 'danger'}">${tx.transaction_type}</span>
-                                <br><small>${tx.details || 'N/A'}</small>
+                                <span class="badge bg-${isCredit ? 'success' : 'danger'}">${typeLabel}</span>
+                                <br><small>${tx.admin_notes || tx.reference_number || 'N/A'}</small>
+                            </td>
+                            <td>${new Date(tx.created_at).toLocaleString()}</td>
+                        </tr>
+                    `;
+                } else if (sourceType === 'vtu') {
+                    return `
+                        <tr>
+                            <td>${tx.id}</td>
+                            <td>${tx.user_name || 'N/A'}</td>
+                            <td><span class="badge bg-info">VTU - ${typeLabel}</span></td>
+                            <td>₦${parseFloat(tx.amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}</td>
+                            <td>
+                                <span class="badge bg-${getStatusColor(tx.status)}">${tx.status}</span>
+                                <br><small>${tx.admin_notes || tx.reference_number || 'N/A'}</small>
                             </td>
                             <td>${new Date(tx.created_at).toLocaleString()}</td>
                         </tr>
@@ -193,11 +212,11 @@
                         <tr>
                             <td>${tx.id}</td>
                             <td>${tx.user_name || 'N/A'}</td>
-                            <td><span class="badge bg-info">VTU - ${tx.transaction_type}</span></td>
-                            <td>₦${parseFloat(tx.amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}</td>
+                            <td><span class="badge bg-warning text-dark">${serviceType.replace(/_/g, ' ')}</span></td>
+                            <td>₦${parseFloat(tx.amount || 0).toLocaleString('en-NG', {minimumFractionDigits: 2})}</td>
                             <td>
                                 <span class="badge bg-${getStatusColor(tx.status)}">${tx.status}</span>
-                                <br><small>${tx.network} - ${tx.phone_number}</small>
+                                <br><small>${tx.admin_notes || tx.reference_number || 'N/A'}</small>
                             </td>
                             <td>${new Date(tx.created_at).toLocaleString()}</td>
                         </tr>

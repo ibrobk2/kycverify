@@ -43,7 +43,7 @@ try {
         echo json_encode([
             'success' => false, 
             'message' => 'Admin table not found. Please run setup first.',
-            'setup_url' => '/lildone/admin/setup.html'
+            'setup_url' => '/agentify/admin/setup.html'
         ]);
         exit;
     }
@@ -59,7 +59,7 @@ try {
         echo json_encode([
             'success' => false, 
             'message' => 'No active admin found with this email. Please check your credentials or run setup.',
-            'setup_url' => '/lildone/admin/setup.html'
+            'setup_url' => '/agentify/admin/setup.html'
         ]);
         exit;
     }

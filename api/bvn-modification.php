@@ -1,5 +1,5 @@
-<?php
 header('Content-Type: application/json');
+ini_set('display_errors', 0);
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -86,8 +86,11 @@ try {
     ]);
 
 } catch (Exception $e) {
+    if (isset($paymentResult) && $paymentResult['success']) {
+        $walletHelper->addAmount($userId, $paymentResult['amount_deducted'], "Refund for failed BVN Modification", "REF-" . uniqid());
+    }
     error_log('BVN Modification Error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Internal server error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Internal server error. Amount refunded.']);
 }
 ?>

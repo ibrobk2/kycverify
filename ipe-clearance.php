@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPE Clearance - Lildone Verification Services</title>
+    <title>IPE Clearance - agentify Verification Services</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -304,7 +304,7 @@ if (!isset($_SESSION['user_id'])) {
 
             const form = document.getElementById('ipeClearanceForm');
 
-            form.addEventListener('submit', function (event) {
+            form.addEventListener('submit', async function (event) {
                 event.preventDefault();
                 event.stopPropagation();
 
@@ -313,18 +313,49 @@ if (!isset($_SESSION['user_id'])) {
                     return;
                 }
 
-                // Submit form
+                // Show loading state
                 const submitBtn = form.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
+                const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
 
-                setTimeout(() => {
-                    alert('IPE Clearance form submitted successfully!');
-                    form.reset();
-                    form.classList.remove('was-validated');
+                try {
+                    const token = localStorage.getItem('authToken');
+                    if (!token) {
+                        alert('You must be logged in to perform this action.');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
+                    const formData = new FormData(form);
+                    const payload = Object.fromEntries(formData.entries());
+
+                    const response = await fetch('api/ipe-clearance.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('IPE Clearance request submitted successfully! Reference: ' + result.reference);
+                        form.reset();
+                        form.classList.remove('was-validated');
+                        // Refresh balance after successful charge
+                        await loadWalletBalance();
+                    } else {
+                        alert(result.message || 'Submission failed.');
+                    }
+                } catch (error) {
+                    console.error('IPE Clearance Error:', error);
+                    alert('An error occurred. Please try again later.');
+                } finally {
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit';
-                }, 1500);
+                    submitBtn.innerHTML = originalText;
+                }
             }, false);
         })();
 

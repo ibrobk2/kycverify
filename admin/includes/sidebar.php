@@ -29,6 +29,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <a class="nav-link <?php echo $currentPage === 'service-management.php' ? 'active' : ''; ?>" href="service-management.php">
                 <i class="fas fa-tasks me-2"></i>Service Management
             </a>
+            <a class="nav-link <?php echo $currentPage === 'nin-modification.php' ? 'active' : ''; ?>" href="nin-modification.php">
+                <i class="fas fa-id-card me-2"></i>NIN Modification
+            </a>
+            <a class="nav-link <?php echo $currentPage === 'ipe-clearance.php' ? 'active' : ''; ?>" href="ipe-clearance.php">
+                <i class="fas fa-gavel me-2"></i>IPE Clearance
+            </a>
             <a class="nav-link <?php echo $currentPage === 'vtu-management.php' ? 'active' : ''; ?>" href="vtu-management.php">
                 <i class="fas fa-mobile-alt me-2"></i>VTU Management
             </a>

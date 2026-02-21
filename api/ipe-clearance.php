@@ -79,8 +79,11 @@ try {
     ]);
 
 } catch (Exception $e) {
+    if (isset($paymentResult) && $paymentResult['success']) {
+        $walletHelper->addAmount($userId, $paymentResult['amount_deducted'], "Refund for failed IPE Clearance", "REF-" . uniqid());
+    }
     error_log('IPE Clearance Error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Internal server error']);
+    echo json_encode(['success' => false, 'message' => 'Internal server error. Amount refunded.']);
 }
 ?>

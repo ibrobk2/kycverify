@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BVN Retrieval - Lildone Verification Services</title>
+    <title>BVN Retrieval - agentify Verification Services</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/dashboard.css">
@@ -183,9 +183,38 @@ if (!isset($_SESSION['user_id'])) {
         document.getElementById('bvnRetrievalForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const phoneNumber = document.getElementById('phoneNumber').value;
+            const submitBtn = this.querySelector('button[type="submit"]');
             
-            // TODO: Implement BVN retrieval API call
-            alert('BVN Retrieval feature coming soon! Phone: ' + phoneNumber);
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Retrieving...';
+
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('api/bvn-retrieval.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ phone_number: phoneNumber })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('BVN Retrieved Successfully: ' + data.bvn);
+                    // You might want to display details or redirect
+                    await loadWalletBalance();
+                } else {
+                    alert('Retrieval failed: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-search me-2"></i>Retrieve BVN';
+            }
         });
     </script>
 </body>

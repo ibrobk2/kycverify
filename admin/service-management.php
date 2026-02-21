@@ -52,6 +52,7 @@
                                 <select class="form-select" id="serviceTypeFilter">
                                     <option value="all">All Services</option>
                                     <option value="nin_verification">NIN Verification</option>
+                                    <option value="nin_modification">NIN Modification</option>
                                     <option value="bvn_verification">BVN Verification</option>
                                     <option value="bvn_slip">BVN Slip</option>
                                     <option value="bvn_modification">BVN Modification</option>
@@ -186,7 +187,8 @@
                         d.status = $('#statusFilter').val();
                         d.search.value = $('#tableSearch').val();
                     },
-                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                    headers: { 'Authorization': 'Bearer ' + adminToken },
+                    dataSrc: 'data.transactions'
                 },
                 columns: [
                     { data: 'id' },

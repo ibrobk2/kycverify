@@ -61,30 +61,19 @@ if (isset($data['event']) && $data['event'] === 'payment.success') {
             $walletHelper = new WalletHelper();
 
             // Check if transaction was already processed (idempotency)
-            $checkStmt = $db->prepare("SELECT id FROM wallet_transactions WHERE transaction_ref = ?");
+            $checkStmt = $db->prepare("SELECT id FROM wallet_transactions WHERE reference = ?");
             $checkStmt->execute([$reference]);
             if ($checkStmt->fetch()) {
                 http_response_code(200);
                 exit(json_encode(['success' => true, 'message' => 'Transaction already processed']));
             }
 
-            $db->beginTransaction();
-
-            // Credit wallet using WalletHelper
+            // Credit wallet using WalletHelper (handles its own transaction)
             $details = "Automated Deposit via PaymentPoint (Ref: $reference)";
-            if ($walletHelper->addAmount($userId, $amount, $details)) {
-                // Since WalletHelper::addAmount now adds the transaction record, 
-                // we just need to update the reference if we want to track it specifically
-                $lastId = $db->lastInsertId();
-                $updateRefStmt = $db->prepare("UPDATE wallet_transactions SET transaction_ref = ? WHERE id = ?");
-                $updateRefStmt->execute([$reference, $lastId]);
-
-                $db->commit();
-                
+            if ($walletHelper->addAmount($userId, $amount, $details, $reference)) {
                 http_response_code(200);
                 echo json_encode(['success' => true, 'message' => 'Wallet funded successfully']);
             } else {
-                $db->rollBack();
                 error_log("Failed to add amount to wallet via PaymentPoint webhook. User: $userId, Ref: $reference");
                 http_response_code(500);
                 echo json_encode(['success' => false, 'message' => 'Internal server error during wallet funding']);

@@ -1,8 +1,8 @@
 <?php
-// filepath: c:\xampp\htdocs\lildone\api\admin\fund-wallet.php
+// filepath: c:\xampp\htdocs\agentify\api\admin\fund-wallet.php
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', 'c:\\xampp\\htdocs\\lildone\\api\\admin\\error.log');
+ini_set('error_log', 'c:\\xampp\\htdocs\\agentify\\api\\admin\\error.log');
 error_reporting(E_ALL);
 
 header('Content-Type: application/json');
@@ -77,8 +77,8 @@ try {
     
     if ($updateStmt->execute([$newBalance, $userId])) {
         try {
-            $logQuery = "INSERT INTO wallet_transactions (user_id, amount, transaction_type, details) 
-                         VALUES (?, ?, 'credit', ?)";
+            $logQuery = "INSERT INTO wallet_transactions (user_id, amount, transaction_type, description, previous_balance, new_balance, status) 
+                         VALUES (?, ?, 'credit', ?, ?, ?, 'completed')";
             $logStmt = $db->prepare($logQuery);
             $logDetails = json_encode([
                 'previous_balance' => (float)$user['wallet'],
@@ -86,7 +86,7 @@ try {
                 'new_balance' => $newBalance,
                 'admin_action' => true
             ]);
-            $logStmt->execute([$userId, $amount, $logDetails]);
+            $logStmt->execute([$userId, $amount, $logDetails, (float)$user['wallet'], $newBalance]);
         } catch (PDOException $e) {
             // Log the error and continue without failing the whole transaction
             error_log('Error logging wallet transaction: ' . $e->getMessage());

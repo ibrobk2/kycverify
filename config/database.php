@@ -207,8 +207,11 @@ class Database {
                     user_id INT NOT NULL,
                     amount DECIMAL(10,2) NOT NULL,
                     transaction_type ENUM('credit', 'debit') NOT NULL,
-                    details TEXT NULL,
+                    description TEXT NULL,
                     reference VARCHAR(100) NULL,
+                    previous_balance DECIMAL(10,2) DEFAULT NULL,
+                    new_balance DECIMAL(10,2) DEFAULT NULL,
+                    status VARCHAR(20) DEFAULT 'completed',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
@@ -246,6 +249,7 @@ class Database {
                     request_data TEXT NULL,
                     response_data TEXT NULL,
                     error_message TEXT NULL,
+                    admin_notes TEXT NULL,
                     provider VARCHAR(50) NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -351,12 +355,74 @@ class Database {
             // Migration: Add description column to pricing table if it doesn't exist
             $this->migratePricingDescriptionColumn();
 
+            // Migration: Fix transaction tables schema
+            $this->migrateTransactionTables();
+
         } catch(PDOException $exception) {
             error_log("Table creation error: " . $exception->getMessage());
             // throw new Exception("Failed to create database tables");
         }
     }
 
+    private function migrateTransactionTables() {
+        try {
+            // 1. Wallet Transactions Migration
+            $tableName = 'wallet_transactions';
+            
+            // Handle 'details' to 'description' rename or add 'description'
+            $stmt = $this->conn->prepare("SHOW COLUMNS FROM $tableName LIKE 'description'");
+            $stmt->execute();
+            if (!$stmt->fetch()) {
+                $stmt = $this->conn->prepare("SHOW COLUMNS FROM $tableName LIKE 'details'");
+                $stmt->execute();
+                if ($stmt->fetch()) {
+                    $this->conn->exec("ALTER TABLE $tableName CHANGE COLUMN details description TEXT NULL");
+                } else {
+                    $this->conn->exec("ALTER TABLE $tableName ADD COLUMN description TEXT NULL AFTER transaction_type");
+                }
+            }
+
+            // Add other missing columns
+            $cols = [
+                'previous_balance' => 'DECIMAL(10,2) DEFAULT NULL AFTER reference',
+                'new_balance' => 'DECIMAL(10,2) DEFAULT NULL AFTER previous_balance',
+                'status' => "VARCHAR(20) DEFAULT 'completed' AFTER new_balance"
+            ];
+            foreach ($cols as $col => $def) {
+                $stmt = $this->conn->prepare("SHOW COLUMNS FROM $tableName LIKE ?");
+                $stmt->execute([$col]);
+                if (!$stmt->fetch()) {
+                    $this->conn->exec("ALTER TABLE $tableName ADD COLUMN $col $def");
+                }
+            }
+
+            // Ensure admin_id is nullable if it exists
+            $stmt = $this->conn->prepare("SHOW COLUMNS FROM $tableName LIKE 'admin_id'");
+            $stmt->execute();
+            if ($row = $stmt->fetch()) {
+                if ($row['Null'] === 'NO') {
+                    // Try to make it nullable. Note: FK might need to be dropped and recreated if it causes issues, 
+                    // but usually MySQL allows making a FK column nullable.
+                    try {
+                        $this->conn->exec("ALTER TABLE $tableName MODIFY COLUMN admin_id INT(11) NULL");
+                    } catch (PDOException $e) {
+                        error_log("Could not make admin_id nullable: " . $e->getMessage());
+                    }
+                }
+            }
+
+            // 2. Service Transactions Migration
+            $tableName = 'service_transactions';
+            $stmt = $this->conn->prepare("SHOW COLUMNS FROM $tableName LIKE 'admin_notes'");
+            $stmt->execute();
+            if (!$stmt->fetch()) {
+                $this->conn->exec("ALTER TABLE $tableName ADD COLUMN admin_notes TEXT NULL AFTER error_message");
+            }
+
+        } catch (PDOException $e) {
+            error_log("Transaction tables migration error: " . $e->getMessage());
+        }
+    }
     private function migrateVirtualAccountColumns() {
         try {
             $columns = [
@@ -391,17 +457,23 @@ class Database {
 
     private function seedPricing() {
         try {
-            $stmt = $this->conn->query("SELECT COUNT(*) FROM pricing");
-            if ($stmt->fetchColumn() == 0) {
-                $services = [
-                    ['nin_verification', 50.00],
-                    ['bvn_verification', 30.00],
-                    ['birth_attestation', 100.00],
-                    ['ipe_clearance', 200.00]
-                ];
-                
-                $insert = $this->conn->prepare("INSERT INTO pricing (service_name, price) VALUES (?, ?)");
-                foreach ($services as $service) {
+            $services = [
+                ['nin_verification', 50.00],
+                ['bvn_verification', 30.00],
+                ['birth_attestation', 100.00],
+                ['ipe_clearance', 200.00],
+                ['nin_mod_dob', 40000.00],
+                ['nin_mod_address', 6000.00],
+                ['nin_mod_phone', 6000.00],
+                ['nin_mod_name', 6000.00]
+            ];
+            
+            $check = $this->conn->prepare("SELECT id FROM pricing WHERE service_name = ?");
+            $insert = $this->conn->prepare("INSERT INTO pricing (service_name, price) VALUES (?, ?)");
+            
+            foreach ($services as $service) {
+                $check->execute([$service[0]]);
+                if (!$check->fetch()) {
                     $insert->execute($service);
                 }
             }

@@ -164,6 +164,13 @@ if ($user_id) {
                             <h6 class="service-title">NIN Validation</h6>
                         </div>
 
+                        <div class="service-card" onclick="window.location.href='nin-modification.php'">
+                            <div class="service-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <h6 class="service-title">NIN Modification</h6>
+                        </div>
+
                         <div class="service-card" onclick="window.location.href='bvn-modification.php'">
                             <div class="service-icon">
                                 <i class="fas fa-edit"></i>

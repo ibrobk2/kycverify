@@ -1,9 +1,6 @@
-<?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 header('Content-Type: application/json');
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -20,13 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // Authenticate user
-    $user_id = JWTHelper::getUserIdFromToken();
-    if (!$user_id) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized: Invalid or expired token']);
-        exit;
-    }
+    // Initialize database
+    $database = new Database();
+    $db = $database->getConnection();
 
     // Initialize wallet helper
     $walletHelper = new WalletHelper();
@@ -48,35 +41,35 @@ try {
         exit;
     }
 
-    // Sanitize and validate input data
+    // Sanitize and validate input data (with fallbacks for frontend mismatches)
     $data = [
         'user_id' => $user_id,
-        'title' => $input['title'],
-        'nin' => $input['nin'],
-        'surname' => $input['surname'],
-        'first_name' => $input['first_name'],
-        'middle_name' => $input['middle_name'],
-        'gender' => $input['gender'],
-        'new_date_of_birth' => $input['new_date_of_birth'] ,
-        'phone_number' => $input['phone_number'],
-        'marital_status' => $input['marital_status'],
-        'town_city_residence' => $input['town_city_residence'],
-        'state_residence' => $input['state_residence'],
-        'lga_residence' => $input['lga_residence'],
-        'address_residence' => $input['address_residence'],
-        'state_origin' => $input['state_origin'],
-        'lga_origin' => $input['lga_origin'],
-        'father_surname' => $input['father_surname'],
-        'father_first_name' => $input['father_first_name'],
-        'father_state' => $input['father_state'],
-        'father_lga' => $input['father_lga'],
-        'father_town' => $input['father_town'],
-        'mother_surname' => $input['mother_surname'],
-        'mother_first_name' => $input['mother_first_name'],
-        'mother_maiden_name' => $input['mother_maiden_name'],
-        'mother_state' => $input['mother_state'],
-        'mother_lga' => $input['mother_lga'],
-        'mother_town' => $input['mother_town'],
+        'title' => isset($input['title']) ? $input['title'] : 'Mr/Mrs',
+        'nin' => isset($input['nin']) ? $input['nin'] : '',
+        'surname' => isset($input['surname']) ? $input['surname'] : (isset($input['full_name']) ? explode(' ', $input['full_name'])[0] : ''),
+        'first_name' => isset($input['first_name']) ? $input['first_name'] : (isset($input['full_name']) && count(explode(' ', $input['full_name'])) > 1 ? explode(' ', $input['full_name'])[1] : ''),
+        'middle_name' => isset($input['middle_name']) ? $input['middle_name'] : '',
+        'gender' => isset($input['gender']) ? $input['gender'] : 'other',
+        'new_date_of_birth' => isset($input['new_date_of_birth']) ? $input['new_date_of_birth'] : (isset($input['date_of_birth']) ? $input['date_of_birth'] : date('Y-m-d')),
+        'phone_number' => isset($input['phone_number']) ? $input['phone_number'] : (isset($input['phone']) ? $input['phone'] : ''),
+        'marital_status' => isset($input['marital_status']) ? $input['marital_status'] : 'single',
+        'town_city_residence' => isset($input['town_city_residence']) ? $input['town_city_residence'] : (isset($input['place_of_birth']) ? $input['place_of_birth'] : ''),
+        'state_residence' => isset($input['state_residence']) ? $input['state_residence'] : '',
+        'lga_residence' => isset($input['lga_residence']) ? $input['lga_residence'] : '',
+        'address_residence' => isset($input['address_residence']) ? $input['address_residence'] : '',
+        'state_origin' => isset($input['state_origin']) ? $input['state_origin'] : '',
+        'lga_origin' => isset($input['lga_origin']) ? $input['lga_origin'] : '',
+        'father_surname' => isset($input['father_surname']) ? $input['father_surname'] : (isset($input['father_name']) ? explode(' ', $input['father_name'])[0] : ''),
+        'father_first_name' => isset($input['father_first_name']) ? $input['father_first_name'] : (isset($input['father_name']) && count(explode(' ', $input['father_name'])) > 1 ? explode(' ', $input['father_name'])[1] : ''),
+        'father_state' => isset($input['father_state']) ? $input['father_state'] : '',
+        'father_lga' => isset($input['father_lga']) ? $input['father_lga'] : '',
+        'father_town' => isset($input['father_town']) ? $input['father_town'] : '',
+        'mother_surname' => isset($input['mother_surname']) ? $input['mother_surname'] : (isset($input['mother_name']) ? explode(' ', $input['mother_name'])[0] : ''),
+        'mother_first_name' => isset($input['mother_first_name']) ? $input['mother_first_name'] : (isset($input['mother_name']) && count(explode(' ', $input['mother_name'])) > 1 ? explode(' ', $input['mother_name'])[1] : ''),
+        'mother_maiden_name' => isset($input['mother_maiden_name']) ? $input['mother_maiden_name'] : '',
+        'mother_state' => isset($input['mother_state']) ? $input['mother_state'] : '',
+        'mother_lga' => isset($input['mother_lga']) ? $input['mother_lga'] : '',
+        'mother_town' => isset($input['mother_town']) ? $input['mother_town'] : '',
     ];
 
     // Basic validation
@@ -129,14 +122,20 @@ try {
     ]);
 
 } catch (PDOException $e) {
+    if (isset($paymentResult) && $paymentResult['success']) {
+        $walletHelper->addAmount($user_id, $paymentResult['amount_deducted'], "Refund for failed Birth Attestation (DB Error)", "REF-" . uniqid());
+    }
     error_log('Birth attestation submission error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database error occurred']);
+    echo json_encode(['success' => false, 'message' => 'Database error occurred. Amount refunded.']);
 } catch (Throwable $e) {
+    if (isset($paymentResult) && $paymentResult['success']) {
+        $walletHelper->addAmount($user_id, $paymentResult['amount_deducted'], "Refund for failed Birth Attestation (Server Error)", "REF-" . uniqid());
+    }
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Server error',
+        'message' => 'Server error. Amount refunded.',
         'error' => $e->getMessage()
     ]);
 }

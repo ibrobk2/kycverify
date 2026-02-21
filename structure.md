@@ -1,6 +1,6 @@
 # Project Structure
 
-lildone/
+agentify/
 ├── assets/
 │   ├── css/
 │   │   ├── main.css

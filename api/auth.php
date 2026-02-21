@@ -1,5 +1,5 @@
 <?php
-// filepath: C:/xampp/htdocs/lildone/api/auth.php
+// filepath: C:/xampp/htdocs/agentify/api/auth.php
 require_once __DIR__ . '/../config/config.php';
 
 class Auth {

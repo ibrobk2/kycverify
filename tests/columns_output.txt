@@ -1,0 +1,1 @@
+id|user_id|admin_id|transaction_type|amount|previous_balance|new_balance|description|reference|status|created_at|updated_at

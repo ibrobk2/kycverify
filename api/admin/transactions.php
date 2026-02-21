@@ -1,4 +1,11 @@
 <?php
+// Turn off error reporting for production output, but log errors
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
+ini_set('display_errors', 0);
+
+// Start output buffering to capture any spurious output
+ob_start();
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
@@ -7,6 +14,9 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/admin-jwt-helper.php';
+
+// Clean buffer before any output
+ob_clean();
 
 $adminData = AdminJWTHelper::getAdminData();
 if (!$adminData) {
@@ -23,7 +33,7 @@ try {
     $draw = isset($_GET['draw']) ? intval($_GET['draw']) : 0;
     $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
     $length = isset($_GET['length']) ? intval($_GET['length']) : 50;
-    $searchValue = isset($_GET['search']['value']) ? trim($_GET['search']['value']) : '';
+    $searchValue = isset($_GET['search']) && is_array($_GET['search']) && isset($_GET['search']['value']) ? trim($_GET['search']['value']) : '';
     
     // Custom filters
     $type = isset($_GET['type']) ? $_GET['type'] : 'all'; // all, wallet, vtu, service, or specific service types
@@ -216,12 +226,24 @@ try {
         if ($tx['status'] === 'success') $tx['status'] = 'completed';
     }
     
+    // Support both DataTables format and legacy front-end format
+    $totalPages = ($length > 0) ? ceil($filteredRecords / $length) : 1;
+    $currentPage = ($length > 0) ? floor($start / $length) + 1 : 1;
+    
     echo json_encode([
         'success' => true,
         'draw' => $draw,
         'recordsTotal' => $totalRecords,
         'recordsFiltered' => $filteredRecords,
-        'data' => $transactions
+        'data' => [
+            'transactions' => $transactions,
+            'pagination' => [
+                'page' => $currentPage,
+                'limit' => $length,
+                'total' => $filteredRecords,
+                'total_pages' => $totalPages
+            ]
+        ]
     ]);
     
 } catch (Exception $e) {

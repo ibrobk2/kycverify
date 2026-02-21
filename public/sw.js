@@ -1,5 +1,5 @@
 // Simple service worker for offline functionality
-const CACHE_NAME = 'lildone-concepts-v1';
+const CACHE_NAME = 'agentify-concepts-v1';
 const urlsToCache = [
   '/',
   '/index.html',

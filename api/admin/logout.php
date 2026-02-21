@@ -1,6 +1,6 @@
 <!-- generate logout.php assuming adminToken and adminUser are stored in LocalStorage -->
 <?php
-// filepath: c:\xampp\htdocs\lildone\api\admin\logout.php
+// filepath: c:\xampp\htdocs\agentify\api\admin\logout.php
 header('Content-Type: application/json');
 require_once '../../config/database.php';
 require_once '../admin-auth.php';

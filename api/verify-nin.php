@@ -1,5 +1,6 @@
-<?php
 header('Content-Type: application/json');
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -77,6 +78,33 @@ try {
             'gender' => isset($input['gender']) ? $input['gender'] : '' 
         ];
         $referenceNumber = $requestData['firstname'] . ' ' . $requestData['lastname'];
+    } elseif (in_array($verificationType, ['no-record', 'modification', 'photo-error', 'bank-validation', 'sim-validation'])) {
+        if (!isset($input['nin'])) {
+            http_response_code(400); echo json_encode(['success' => false, 'message' => 'NIN is required']); exit;
+        }
+        $requestData['nin'] = trim($input['nin']);
+        $referenceNumber = $requestData['nin'];
+        
+        // Extract specific fields based on type
+        if ($verificationType === 'modification' || $verificationType === 'photo-error') {
+            if (!isset($input['tracking_id'])) {
+                http_response_code(400); echo json_encode(['success' => false, 'message' => 'Tracking ID is required']); exit;
+            }
+            $requestData['tracking_id'] = trim($input['tracking_id']);
+            if (isset($input['modification_type'])) $requestData['modification_type'] = $input['modification_type'];
+            if (isset($input['details'])) $requestData['details'] = $input['details'];
+        } elseif ($verificationType === 'bank-validation') {
+            if (!isset($input['bank_name']) || !isset($input['account_number'])) {
+                http_response_code(400); echo json_encode(['success' => false, 'message' => 'Bank name and account number are required']); exit;
+            }
+            $requestData['bank_name'] = trim($input['bank_name']);
+            $requestData['account_number'] = trim($input['account_number']);
+        } elseif ($verificationType === 'sim-validation') {
+            if (!isset($input['phone_number'])) {
+                http_response_code(400); echo json_encode(['success' => false, 'message' => 'Phone number is required']); exit;
+            }
+            $requestData['phone_number'] = trim($input['phone_number']);
+        }
     }
 
     // Initialize services
@@ -86,7 +114,22 @@ try {
     $provider = defined('VERIFICATION_PROVIDER') ? VERIFICATION_PROVIDER : 'dataverify';
     
     // Check wallet balance
-    $paymentResult = $walletHelper->processPayment($userId, 'nin_verification', 'NIN Verification (' . ucfirst($slipType) . ')');
+    $servicePriceName = 'nin_verification';
+    if ($verificationType === 'modification') {
+        $modType = isset($input['modification_type']) ? strtolower($input['modification_type']) : '';
+        if (strpos($modType, 'dob') !== false || strpos($modType, 'birth') !== false) {
+            $servicePriceName = 'nin_mod_dob';
+        } elseif (strpos($modType, 'address') !== false) {
+            $servicePriceName = 'nin_mod_address';
+        } elseif (strpos($modType, 'phone') !== false) {
+            $servicePriceName = 'nin_mod_phone';
+        } elseif (strpos($modType, 'name') !== false) {
+            $servicePriceName = 'nin_mod_name';
+        }
+    }
+    
+    $paymentDescription = 'NIN Verification (' . ($verificationType === 'nin' ? ucfirst($slipType) : ucfirst($verificationType)) . ')';
+    $paymentResult = $walletHelper->processPayment($userId, $servicePriceName, $paymentDescription);
     if (!$paymentResult['success']) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => $paymentResult['message']]);
@@ -96,7 +139,7 @@ try {
     $verificationResult = ['success' => false, 'message' => 'Provider initialized'];
     $providerUsed = 'unknown';
 
-    if ($provider === 'dataverify') {
+    if ($provider === 'dataverify' && in_array($verificationType, ['nin', 'phone', 'demographic'])) {
         $service = new DataVerifyService();
         $providerUsed = 'dataverify';
         
@@ -109,9 +152,18 @@ try {
         } else {
              $verificationResult['success'] = false;
              if (isset($verificationResult['data']['message'])) {
-                 $verificationResult['message'] = $verificationResult['data']['message'];
-             }
-        }
+                  $verificationResult['message'] = $verificationResult['data']['message'];
+              }
+         }
+    } elseif (in_array($verificationType, ['no-record', 'modification', 'photo-error', 'bank-validation', 'sim-validation'])) {
+        // These are handled as manual requests logged as pending
+        $verificationResult = [
+            'success' => true,
+            'status' => 'pending',
+            'message' => 'Validation request submitted successfully',
+            'data' => array_merge($requestData, ['status' => 'pending'])
+        ];
+        $providerUsed = 'internal';
     } else {
         // Robosttech fallback (existing logic)
         $service = new RobosttechService();
@@ -124,23 +176,27 @@ try {
     }
     
     if ($verificationResult['success']) {
+        // For pending internal requests, use status 'pending'
+        $dbStatus = (isset($verificationResult['status']) && $verificationResult['status'] === 'pending') ? 'pending' : 'completed';
+        
         // Log the verification
         $database = new Database();
         $pdo = $database->getConnection();
         
         $stmt = $pdo->prepare("
             INSERT INTO verification_logs (user_id, service_type, reference_number, status, response_data, provider)
-            VALUES (?, ?, ?, 'success', ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
         ");
         
         // Don't log full PDF base64
-        $logData = $verificationResult['data'];
+        $logData = isset($verificationResult['data']) ? $verificationResult['data'] : [];
         if (isset($logData['pdf_base64'])) $logData['pdf_base64'] = 'PDF_BINARY_DATA';
 
         $stmt->execute([
             $userId,
-            'nin_' . $slipType,
+            'nin_' . ($verificationType === 'nin' ? $slipType : $verificationType),
             $referenceNumber,
+            $dbStatus,
             json_encode($logData),
             $providerUsed
         ]);
@@ -148,12 +204,13 @@ try {
         // Log to service_transactions for admin tracking
         $stmtSt = $pdo->prepare("
             INSERT INTO service_transactions (user_id, service_type, reference_number, status, amount, request_data, response_data, provider)
-            VALUES (?, ?, ?, 'completed', ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmtSt->execute([
             $userId,
-            'nin_' . $slipType,
+            'nin_' . ($verificationType === 'nin' ? $slipType : $verificationType),
             $referenceNumber,
+            $dbStatus,
             $paymentResult['amount_deducted'],
             json_encode($requestData),
             json_encode($logData),
@@ -162,13 +219,22 @@ try {
 
         echo json_encode([
             'success' => true,
-            'message' => 'Verification successful',
-            'status' => 'success', // For frontend compatibility
+            'message' => $verificationResult['message'],
+            'status' => $dbStatus, // For frontend compatibility
             'pdf_base64' => isset($verificationResult['data']['pdf_base64']) ? $verificationResult['data']['pdf_base64'] : null,
             'data' => $verificationResult['data'],
             'amount_deducted' => $paymentResult['amount_deducted']
         ]);
     } else {
+        // REFUND LOGIC START
+        // If verification failed, refund the user
+        $refundAmount = $paymentResult['amount_deducted'];
+        $refundDetails = "Refund for failed NIN Verification (" . $referenceNumber . ")";
+        $refundReference = "REF-" . uniqid();
+        
+        $walletHelper->addAmount($userId, $refundAmount, $refundDetails, $refundReference);
+        // REFUND LOGIC END
+
         $database = new Database();
         $pdo = $database->getConnection();
         $stmt = $pdo->prepare("
@@ -197,7 +263,7 @@ try {
 
         echo json_encode([
             'success' => false,
-            'message' => $verificationResult['message']
+            'message' => $verificationResult['message'] . ". Amount refunded."
         ]);
     }
     

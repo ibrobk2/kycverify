@@ -1,5 +1,5 @@
 <?php
-// filepath: c:\xampp\htdocs\lildone\api\admin-auth.php
+// filepath: c:\xampp\htdocs\agentify\api\admin-auth.php
 // Enable error reporting for debugging (remove in production)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);

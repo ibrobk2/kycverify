@@ -1,8 +1,8 @@
-# Admin Login System - LildoneThe command shell you are using does not support the '&&' operator for chaining commands. Please run the commands separately in your terminal:
+# Admin Login System - agentifyThe command shell you are using does not support the '&&' operator for chaining commands. Please run the commands separately in your terminal:
 
 1. Change directory:
 ```
-cd c:/xampp/htdocs/lildone
+cd c:/xampp/htdocs/agentify
 ```
 
 2. Run the PHP migration script:

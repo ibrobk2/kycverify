@@ -84,26 +84,51 @@
                         
                         <!-- Stats Cards -->
                         <div class="row mb-4">
-                            <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="col-xl col-md-6 mb-3">
                                 <div class="stat-card text-center">
+                                    <i class="fas fa-users mb-2" style="font-size: 1.5rem; color: #06b6d4;"></i>
                                     <div class="stat-number" id="total-users">--</div>
                                     <p class="text-muted mb-0">Total Users</p>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="col-xl col-md-6 mb-3">
                                 <div class="stat-card text-center">
+                                    <i class="fas fa-wallet mb-2" style="font-size: 1.5rem; color: #8b5cf6;"></i>
+                                    <div class="stat-number" id="total-user-balance">₦0</div>
+                                    <p class="text-muted mb-0">Users Balance</p>
+                                </div>
+                            </div>
+                            <div class="col-xl col-md-6 mb-3">
+                                <div class="stat-card text-center">
+                                    <i class="fas fa-check-circle mb-2" style="font-size: 1.5rem; color: #10b981;"></i>
                                     <div class="stat-number" id="total-verifications">--</div>
                                     <p class="text-muted mb-0">Verifications</p>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="col-xl col-md-6 mb-3">
                                 <div class="stat-card text-center">
+                                    <i class="fas fa-clock mb-2" style="font-size: 1.5rem; color: #f59e0b;"></i>
                                     <div class="stat-number" id="pending-applications">--</div>
                                     <p class="text-muted mb-0">Pending</p>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="col-xl col-md-6 mb-3" id="nin-mod-card" style="display: none;">
                                 <div class="stat-card text-center">
+                                    <i class="fas fa-user-edit mb-2" style="font-size: 1.5rem; color: #3b82f6;"></i>
+                                    <div class="stat-number" id="total-nin-mods">0</div>
+                                    <p class="text-muted mb-0">NIN Mods</p>
+                                </div>
+                            </div>
+                            <div class="col-xl col-md-6 mb-3" id="ipe-clearance-card" style="display: none;">
+                                <div class="stat-card text-center">
+                                    <i class="fas fa-gavel mb-2" style="font-size: 1.5rem; color: #10b981;"></i>
+                                    <div class="stat-number" id="total-ipe-clearance">0</div>
+                                    <p class="text-muted mb-0">IPE Clearance</p>
+                                </div>
+                            </div>
+                            <div class="col-xl col-md-6 mb-3">
+                                <div class="stat-card text-center">
+                                    <i class="fas fa-chart-line mb-2" style="font-size: 1.5rem; color: #ef4444;"></i>
                                     <div class="stat-number" id="revenue">₦0</div>
                                     <p class="text-muted mb-0">Revenue</p>
                                 </div>
@@ -309,6 +334,10 @@
                     
                     // Update stat cards
                     document.getElementById('total-users').textContent = stats.users.total;
+                    document.getElementById('total-user-balance').textContent = '₦' + parseFloat(stats.users.total_wallet_balance || 0).toLocaleString('en-NG', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
                     document.getElementById('total-verifications').textContent = stats.verifications.total;
                     document.getElementById('pending-applications').textContent = stats.verifications.pending;
                     document.getElementById('revenue').textContent = '₦' + parseFloat(stats.revenue.total).toLocaleString('en-NG', {
@@ -323,6 +352,21 @@
                     
                     // Update charts
                     updateCharts(stats);
+                    
+                    // Update specialized service cards
+                    if (stats.service_usage) {
+                        const ninMod = stats.service_usage.find(s => s.service_type === 'nin_modification');
+                        const ipeClearance = stats.service_usage.find(s => s.service_type === 'ipe_clearance');
+                        
+                        if (ninMod) {
+                            document.getElementById('nin-mod-card').style.display = 'block';
+                            document.getElementById('total-nin-mods').textContent = ninMod.count;
+                        }
+                        if (ipeClearance) {
+                            document.getElementById('ipe-clearance-card').style.display = 'block';
+                            document.getElementById('total-ipe-clearance').textContent = ipeClearance.count;
+                        }
+                    }
                     
                     // Update recent transactions table
                     updateRecentTransactions(stats.recent_transactions);
@@ -340,23 +384,27 @@
         
         function updateCharts(stats) {
             // User growth chart
-            const userGrowthLabels = stats.user_growth.map(d => new Date(d.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'}));
-            const userGrowthData = stats.user_growth.map(d => d.count);
+            const userGrowthLabels = stats.user_growth && stats.user_growth.length > 0 
+                ? stats.user_growth.map(d => new Date(d.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'}))
+                : ['No Data'];
+            const userGrowthData = stats.user_growth && stats.user_growth.length > 0 
+                ? stats.user_growth.map(d => d.count)
+                : [0];
             
             const ctx1 = document.getElementById('verificationChart').getContext('2d');
             if (window.verificationChart) {
                 // Update existing chart
-                window.verificationChart.data.labels = userGrowthLabels.length > 0 ? userGrowthLabels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                window.verificationChart.data.datasets[0].data = userGrowthData.length > 0 ? userGrowthData : [0, 0, 0, 0, 0, 0, 0];
-                window.verificationChart.update('none'); // Update without animation to prevent jumping
+                window.verificationChart.data.labels = userGrowthLabels;
+                window.verificationChart.data.datasets[0].data = userGrowthData;
+                window.verificationChart.update();
             } else {
                 window.verificationChart = new Chart(ctx1, {
                     type: 'line',
                     data: {
-                        labels: userGrowthLabels.length > 0 ? userGrowthLabels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        labels: userGrowthLabels,
                         datasets: [{
                             label: 'New Users',
-                            data: userGrowthData.length > 0 ? userGrowthData : [0, 0, 0, 0, 0, 0, 0],
+                            data: userGrowthData,
                             borderColor: '#06b6d4',
                             backgroundColor: 'rgba(6, 182, 212, 0.1)',
                             tension: 0.4,
@@ -370,13 +418,22 @@
                             legend: {
                                 display: true
                             }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
                         }
                     }
                 });
             }
             
-            // Status distribution chart
+            // Status distribution chart (Live Data)
             const ctx2 = document.getElementById('statusChart').getContext('2d');
+            // Use global verification stats for the doughnut chart
             const doughnutData = [
                 stats.verifications.success || 0,
                 stats.verifications.pending || 0,
@@ -386,7 +443,7 @@
             if (window.statusChart) {
                 // Update existing chart
                 window.statusChart.data.datasets[0].data = doughnutData;
-                window.statusChart.update('none');
+                window.statusChart.update();
             } else {
                 window.statusChart = new Chart(ctx2, {
                     type: 'doughnut',
@@ -394,7 +451,8 @@
                         labels: ['Success', 'Pending', 'Failed'],
                         datasets: [{
                             data: doughnutData,
-                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                            borderWidth: 0
                         }]
                     },
                     options: {
@@ -402,7 +460,11 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                position: 'bottom'
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
                             }
                         }
                     }
@@ -448,15 +510,24 @@
                 return;
             }
             
-            tbody.innerHTML = transactions.map(tx => `
-                <tr>
-                    <td>${tx.user_name || 'N/A'}</td>
-                    <td>${tx.user_email || 'N/A'}</td>
-                    <td>₦${parseFloat(tx.amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}</td>
-                    <td><span class="badge bg-${tx.transaction_type === 'credit' ? 'success' : 'danger'}">${tx.transaction_type}</span></td>
-                    <td>${new Date(tx.created_at).toLocaleDateString()}</td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = transactions.map(tx => {
+                let statusClass = 'secondary';
+                const status = (tx.status || 'pending').toLowerCase();
+                if (status === 'completed' || status === 'success') statusClass = 'success';
+                else if (status === 'failed' || status === 'error') statusClass = 'danger';
+                else if (status === 'processing') statusClass = 'info';
+                else if (status === 'pending') statusClass = 'warning';
+
+                return `
+                    <tr>
+                        <td class="text-truncate" style="max-width: 150px;">${tx.user_name || 'N/A'}</td>
+                        <td class="text-truncate" style="max-width: 150px;">${tx.user_email || 'N/A'}</td>
+                        <td>₦${parseFloat(tx.amount || 0).toLocaleString('en-NG', {minimumFractionDigits: 2})}</td>
+                        <td><span class="badge bg-${statusClass}">${tx.status || 'Pending'}</span></td>
+                        <td>${new Date(tx.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function loadCharts() {

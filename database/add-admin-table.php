@@ -23,7 +23,7 @@ try {
     $db->exec($sql);
     
     // Check if admin already exists
-    $checkQuery = "SELECT COUNT(*) FROM admins WHERE email = 'admin@lildone.com'";
+    $checkQuery = "SELECT COUNT(*) FROM admins WHERE email = 'admin@agentify.com'";
     $stmt = $db->prepare($checkQuery);
     $stmt->execute();
     $count = $stmt->fetchColumn();
@@ -33,10 +33,10 @@ try {
         $password = password_hash('admin123', PASSWORD_DEFAULT);
         $insertQuery = "INSERT INTO admins (name, email, password) VALUES (?, ?, ?)";
         $stmt = $db->prepare($insertQuery);
-        $stmt->execute(['Admin User', 'admin@lildone.com', $password]);
+        $stmt->execute(['Admin User', 'admin@agentify.com', $password]);
         
         echo "Admin table created and initial admin user added successfully.\n";
-        echo "Login: admin@lildone.com\n";
+        echo "Login: admin@agentify.com\n";
         echo "Password: admin123\n";
     } else {
         echo "Admin user already exists.\n";
